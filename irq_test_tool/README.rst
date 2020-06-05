@@ -269,17 +269,57 @@ For each step, the following activities are executed:
 Each object can have a description field to add comments.
 
 **********************
-How to call the script
+How to run the example
 **********************
+
+Before running the example, the breakpoints.json needs to be generated from the
+TF-M source tree:
+
+.. code:: shell
+    $ cd tools/irq_test/
+    $ python3 tools/generate_breakpoints.py ../.. example/breakpoints.json
+
+The example also require the regression test suite being present in the TF-M
+binary, so either ``ConfigRegressionIPC.cmake`` or ``ConfigRegression.cmake``
+have to be used to compile TF-M. Also ``-DCMAKE_BUILD_TYPE=Debug`` config option
+have to be used in the cmake generation command, to be sure that the debug
+information is generated in the axf files.
+
+The sequence of running the testcase in the ``example`` folder looks like the
+following:
+
+#. Check out a version of TF-M that contains the ``IRQ_TEST_TOOL_*`` macros for
+   the testcase
+#. Generate breakpoints.json using the TF-M working copy above
+#. Build TF-M checked out above
+#. Start the debugger, connect to the target, and stop the target. (Make sure
+   that the target is stopped before the IRQ testcase of the positive core test
+   suite in TF-M starts executing, as the IRQ test tool's testcase uses the
+   entry of that TF-M test as a trigger to start.)
+#. Execute the script. The script automatically sets the breakpoint for the
+   first step of the testcase, and continues the target execution.
+#. Examine the output of the script. Successful execution is signalled by the
+   following output line:
+
+   .. code::
+
+       ===== INFO: All the steps in the test file are executed successfully with the expected result.
+
+
 
 Arm Development Studio
 ======================
 
 The script can be called directly from the debugger's command window:
 
+.. note::
+
+    In the command absolute path have to be used both for the ``irq_test.py``
+    and for the parameters.
+
 .. code:: shell
 
-    source irq_test.py -q irqs.json -b breakpoints_gen.json -t test_01.json
+    source irq_test.py -q example/irqs_AN521.json -b example/breakpoints.json -t example/testcase.json
 
 GDB
 ===
@@ -310,12 +350,11 @@ A typical execution of the script in GDB would look like the following:
 
 .. code::
 
-    (gdb) target remote localhost: 3333
-    (gdb) add-symbol-file /path/to/binaries/tfm_s.axf 0x1A020400
-    (gdb) add-symbol-file /path/to/binaries/tfm_ns.axf 0x0A070400
-    (gdb) add-symbol-file /path/to/binaries/mcuboot.axf 0x1A000000
+    (gdb) target remote localhost: 2331
+    (gdb) add-symbol-file /path/to/binaries/tfm_s.axf 0x10000000
+    (gdb) add-symbol-file /path/to/binaries/tfm_ns.axf 0x00040000
     (gdb) source /path/to/script/irq_test.py
-    (gdb) test_irq -q /path/to/data/irqs.json -b /path/to/data/breakpoints.json -t /path/to/data/test_03.json
+    (gdb) test_irq -q example/irqs_LPC55S69.json -b example/breakpoints.json -t example/testcase.json
 
 .. note::
     ``add-symbol-file`` command is used above as other commands like ``file``

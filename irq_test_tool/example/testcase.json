@@ -1,0 +1,15 @@
+{
+	"description" : ["Trigger Secure interrupt during Secure Service execution"],
+	"steps": [
+		{
+			"wait_for" : "example_secure_service_start"
+		},
+		{
+			"expect" : "stop_secure_timer",
+			"trigger" : "timer_0_irq"
+		},
+		{
+			"wait_for" : "example_secure_service_end"
+		}
+	]
+}

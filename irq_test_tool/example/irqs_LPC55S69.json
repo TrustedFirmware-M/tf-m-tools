@@ -1,0 +1,7 @@
+{
+	"irqs": {
+		"timer_0_irq": {
+			"line_num" : 36
+		}
+	}
+}
