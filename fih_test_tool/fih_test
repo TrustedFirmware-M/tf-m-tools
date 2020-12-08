@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+usage()
+{
+    echo "$0 [-s source_dir] [-d build_dir] [-b <build_type>] [-c <compiler>] [-f <fih_profile>] [-l <tfm_level>]"
+}
+
+# Parse arguments
+while test $# -gt 0; do
+    case $1 in
+        -s|--source_dir)
+        SOURCE_DIR="$2"
+        shift
+        shift
+        ;;
+        -d|--build_dir)
+        BUILD_DIR="$2"
+        shift
+        shift
+        ;;
+        -b|--build_type)
+        BUILD_TYPE="$2"
+        shift
+        shift
+        ;;
+        -c|--compiler)
+        COMPILER="$2"
+        shift
+        shift
+        ;;
+        -f|--fih_profile)
+        FIH_PROFILE="$2"
+        shift
+        shift
+        ;;
+        -l|--tfm_level)
+        TFM_LEVEL="$2"
+        shift
+        shift
+        ;;
+        -h|--help)
+        usage
+        exit 0
+        ;;
+        *)
+        echo "Invalid argument"
+        usage
+        exit 1
+        ;;
+    esac
+done
+
+SCRIPT_DIR=$(dirname $(realpath "${BASH_SOURCE[0]}"))
+source ${SCRIPT_DIR}/util.sh
+
+TEST_DIR=$(realpath $(pwd))
+set_default SOURCE_DIR $(realpath ${TEST_DIR}/..)
+
+source ${SCRIPT_DIR}/fih_test_build_tfm.sh
+source ${SCRIPT_DIR}/fih_test_make_manifest.sh
+source ${SCRIPT_DIR}/fih_test_run_gdb.sh
