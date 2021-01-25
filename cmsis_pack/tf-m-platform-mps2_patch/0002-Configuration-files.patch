@@ -1,0 +1,72 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Wed, 23 Dec 2020 11:49:14 +0100
+Subject: [PATCH] Update configuration files
+
+Remove local definitions which are part of global configuration (tfm_config.h):
+ - Flash driver (flash_layout.h)
+ - STDIO driver (target_cfg.h)
+ - UART baudrate (device_cfg.h)
+---
+ mps2/an521/device/device_cfg.h      | 2 ++
+ mps2/an521/partition/flash_layout.h | 7 -------
+ mps2/an521/device/target_cfg.h      | 3 ---
+ 3 files changed, 2 insertions(+), 10 deletions(-)
+
+diff --git a/mps2/an521/device/device_cfg.h b/mps2/an521/device/device_cfg.h
+index 2a0f944f..b10d3720 100644
+--- a/mps2/an521/device/device_cfg.h
++++ b/mps2/an521/device/device_cfg.h
+@@ -34,7 +34,9 @@
+ #define APB_PPCEXP2_S
+ 
+ /* ARM UART */
++#ifndef DEFAULT_UART_BAUDRATE
+ #define DEFAULT_UART_BAUDRATE  115200
++#endif
+ #define ARM_UART0_S
+ #define ARM_UART0_NS
+ #define ARM_UART1_S
+diff --git a/mps2/an521/partition/flash_layout.h b/mps2/an521/partition/flash_layout.h
+index f64a6813..aac355b0 100644
+--- a/mps2/an521/partition/flash_layout.h
++++ b/mps2/an521/partition/flash_layout.h
+@@ -162,16 +162,10 @@
+                                          SECURE_IMAGE_MAX_SIZE)
+ #define NON_SECURE_IMAGE_MAX_SIZE       FLASH_NS_PARTITION_SIZE
+ 
+-/* Flash device name used by BL2
+- * Name is defined in flash driver file: Driver_Flash.c
+- */
+-#define FLASH_DEV_NAME Driver_FLASH0
+-
+ /* Protected Storage (PS) Service definitions
+  * Note: Further documentation of these definitions can be found in the
+  * TF-M PS Integration Guide.
+  */
+-#define PS_FLASH_DEV_NAME Driver_FLASH0
+ 
+ /* In this target the CMSIS driver requires only the offset from the base
+  * address instead of the full memory address.
+@@ -192,7 +186,6 @@
+  * allocated in the external flash just for development platforms that don't
+  * have internal flash available.
+  */
+-#define ITS_FLASH_DEV_NAME Driver_FLASH0
+ 
+ /* In this target the CMSIS driver requires only the offset from the base
+  * address instead of the full memory address.
+diff --git a/mps2/an521/device/target_cfg.h b/mps2/an521/device/target_cfg.h
+index 8f459554..d4778019 100644
+--- a/mps2/an521/device/target_cfg.h
++++ b/mps2/an521/device/target_cfg.h
+@@ -22,9 +22,6 @@
+ #include "tfm_plat_defs.h"
+ #include "arm_uart_drv.h"
+ 
+-#define TFM_DRIVER_STDIO    Driver_USART0
+-#define NS_DRIVER_STDIO     Driver_USART0
+-
+ /**
+  * \brief Defines the word offsets of Slave Peripheral Protection Controller
+  *        Registers
+-- 

@@ -1,0 +1,78 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Wed, 23 Dec 2020 11:39:00 +0100
+Subject: [PATCH] Update linker scripts
+
+Remove inclusion of region_defs.h (part of TF-M secure firmware)
+and replace it with hard-coded defines.
+---
+ mps2/an521/device/bl2/mps2_an521_bl2.sct       | 14 +++++++++++++-
+ mps2/an521/device/non_secure/mps2_an521_ns.sct | 15 +++++++++++++--
+ 2 files changed, 26 insertions(+), 3 deletions(-)
+
+diff --git a/mps2/an521/device/bl2/mps2_an521_bl2.sct b/mps2/an521/device/bl2/mps2_an521_bl2.sct
+index 309bddfd..f8c7dd8f 100644
+--- a/mps2/an521/device/bl2/mps2_an521_bl2.sct
++++ b/mps2/an521/device/bl2/mps2_an521_bl2.sct
+@@ -1,3 +1,5 @@
++#! armclang --target=arm-arm-none-eabi -march=armv8-m.main -E -xc
++
+ /*
+  * Copyright (c) 2017-2020 Arm Limited. All rights reserved.
+  *
+@@ -14,7 +16,17 @@
+  * limitations under the License.
+  */
+ 
+-#include "region_defs.h"
++//#include "region_defs.h"
++
++#define BL2_CODE_START          (0x10000000)
++#define BL2_CODE_SIZE           (0x00080000)
++#define BL2_DATA_START          (0x38000000)
++#define BL2_DATA_SIZE           (0x00100000)
++#define S_DATA_START            (0x38000000)
++#define BOOT_TFM_SHARED_DATA_SIZE    (0x400)
++
++#define BL2_HEAP_SIZE           (0x00001000)
++#define BL2_MSP_STACK_SIZE      (0x00001800)
+ 
+ LR_CODE BL2_CODE_START {
+     ER_CODE BL2_CODE_START BL2_CODE_SIZE {
+diff --git a/mps2/an521/device/non_secure/mps2_an521_ns.sct b/mps2/an521/device/non_secure/mps2_an521_ns.sct
+index e25b2d72..aae52e98 100644
+--- a/mps2/an521/device/non_secure/mps2_an521_ns.sct
++++ b/mps2/an521/device/non_secure/mps2_an521_ns.sct
+@@ -1,3 +1,5 @@
++#! armclang --target=arm-arm-none-eabi -march=armv8-m.main -E -xc
++
+ /*
+  * Copyright (c) 2017-2020 Arm Limited. All rights reserved.
+  *
+@@ -14,7 +16,16 @@
+  * limitations under the License.
+  */
+ 
+-#include "region_defs.h"
++//#include "region_defs.h"
++
++#define NS_CODE_START           (0x00100000)
++#define NS_CODE_SIZE            (0x00080000)
++#define NS_DATA_START           (0x28100000)
++#define NS_DATA_SIZE            (0x00100000)
++
++#define NS_HEAP_SIZE            (0x0001000)
++#define NS_MSP_STACK_SIZE       (0x0000400)
++#define NS_PSP_STACK_SIZE       (0x0000C00)
+ 
+ LR_CODE NS_CODE_START {
+     ER_CODE NS_CODE_START NS_CODE_SIZE {
+@@ -22,7 +33,7 @@ LR_CODE NS_CODE_START {
+         * (+RO)
+     }
+ 
+-    ER_DATA NS_DATA_START {
++    ER_DATA NS_DATA_START NS_DATA_SIZE {
+         * (+ZI +RW)
+     }
+ 
+-- 

@@ -1,0 +1,24 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Mon, 21 Dec 2020 16:01:03 +0100
+Subject: [PATCH] Remove non-portable CMSIS Header
+
+Remove inclusion of non-portable CMSIS header:
+ - cmsis.h: CMSIS device header (replaced by CMSIS_device_header)
+---
+ test/suites/core/non_secure/core_ns_positive_testsuite.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/suites/core/non_secure/core_ns_positive_testsuite.c b/test/suites/core/non_secure/core_ns_positive_testsuite.c
+index 1f881b9..82cda30 100644
+--- a/test/suites/core/non_secure/core_ns_positive_testsuite.c
++++ b/test/suites/core/non_secure/core_ns_positive_testsuite.c
+@@ -10,7 +10,7 @@
+ #include <string.h>
+ 
+ #include "core_ns_tests.h"
+-#include "cmsis.h"
++#include CMSIS_device_header
+ #include "tfm_api.h"
+ #include "tfm_plat_test.h"
+ #include "core_test_api.h"
+-- 

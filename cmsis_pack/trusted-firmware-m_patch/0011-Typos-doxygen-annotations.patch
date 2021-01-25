@@ -1,0 +1,177 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Mon, 4 Jan 2021 17:48:28 +0100
+Subject: [PATCH] Correct typos in doxygen annotations
+
+---
+ interface/include/os_wrapper/semaphore.h          |  6 +++---
+ interface/include/psa/client.h                    |  2 +-
+ interface/include/psa/initial_attestation.h       | 12 ++++++------
+ interface/include/tfm_api.h                       |  2 +-
+ interface/include/tfm_ns_interface.h              |  2 +-
+ secure_fw/partitions/crypto/tfm_crypto_api.h      |  2 +-
+ secure_fw/partitions/initial_attestation/attest.h |  4 ++--
+ secure_fw/spm/cmsis_psa/spm_ipc.h                 |  4 ++--
+ secure_fw/spm/cmsis_psa/tfm_multi_core.h          |  4 ++--
+ 9 files changed, 19 insertions(+), 19 deletions(-)
+
+diff --git a/interface/include/os_wrapper/semaphore.h b/interface/include/os_wrapper/semaphore.h
+index 83d88cac..e1f0990c 100644
+--- a/interface/include/os_wrapper/semaphore.h
++++ b/interface/include/os_wrapper/semaphore.h
+@@ -29,10 +29,10 @@ void *os_wrapper_semaphore_create(uint32_t max_count, uint32_t initial_count,
+ /**
+  * \brief Acquires the semaphore
+  *
+- * \param[in] hanlde  Semaphore handle
++ * \param[in] handle  Semaphore handle
+  * \param[in] timeout Timeout value
+  *
+- * \return \ref OS_WRAPPER_SUCCESS in case of successful acquision, or
++ * \return \ref OS_WRAPPER_SUCCESS in case of successful acquisition, or
+  *         \ref OS_WRAPPER_ERROR in case of error
+  */
+ uint32_t os_wrapper_semaphore_acquire(void *handle, uint32_t timeout);
+@@ -40,7 +40,7 @@ uint32_t os_wrapper_semaphore_acquire(void *handle, uint32_t timeout);
+ /**
+  * \brief Releases the semaphore
+  *
+- * \param[in] hanlde Semaphore handle
++ * \param[in] handle Semaphore handle
+  *
+  * \return \ref OS_WRAPPER_SUCCESS in case of successful release, or
+  *         \ref OS_WRAPPER_ERROR in case of error
+diff --git a/interface/include/psa/client.h b/interface/include/psa/client.h
+index a5e85180..51940f23 100644
+--- a/interface/include/psa/client.h
++++ b/interface/include/psa/client.h
+@@ -130,7 +130,7 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t version);
+  *                              Must be zero( \ref PSA_IPC_CALL) or positive.
+  * \param[in] in_vec            Array of input \ref psa_invec structures.
+  * \param[in] in_len            Number of input \ref psa_invec structures.
+- * \param[in/out] out_vec       Array of output \ref psa_outvec structures.
++ * \param[in,out] out_vec       Array of output \ref psa_outvec structures.
+  * \param[in] out_len           Number of output \ref psa_outvec structures.
+  *
+  * \retval >=0                  RoT Service-specific status value.
+diff --git a/interface/include/psa/initial_attestation.h b/interface/include/psa/initial_attestation.h
+index 50dd479c..192ba0cd 100644
+--- a/interface/include/psa/initial_attestation.h
++++ b/interface/include/psa/initial_attestation.h
+@@ -204,12 +204,12 @@ psa_initial_attest_get_token_size(size_t  challenge_size,
+ /**
+  * \brief Get the initial attestation public key.
+  *
+- * \param[out]  public_key        Pointer to the buffer where the public key
+- *                                will be stored.
+- * \param[in]   key_buf_size      Size of allocated buffer for key, in bytes.
+- * \param[out]  public_key_len    Size of public key in bytes.
+- * \param[out]  public_key_curve  Type of the elliptic curve which the key
+- *                                belongs to.
++ * \param[out]  public_key           Pointer to the buffer where the public key
++ *                                   will be stored.
++ * \param[in]   public_key_buf_size  Size of allocated buffer for key, in bytes.
++ * \param[out]  public_key_len       Size of public key in bytes.
++ * \param[out]  elliptic_curve_type  Type of the elliptic curve which the key
++ *                                   belongs to.
+  *
+  * \note Currently only the ECDSA P-256 over SHA-256 algorithm is supported.
+  *
+diff --git a/interface/include/tfm_api.h b/interface/include/tfm_api.h
+index 883eb5b8..0b1c1492 100644
+--- a/interface/include/tfm_api.h
++++ b/interface/include/tfm_api.h
+@@ -115,7 +115,7 @@ psa_handle_t tfm_psa_connect_veneer(uint32_t sid, uint32_t version);
+  * \param[in] ctrl_param        Parameter structure, includes request type,
+  *                              in_num and out_num.
+  * \param[in] in_vec            Array of input \ref psa_invec structures.
+- * \param[in/out] out_vec       Array of output \ref psa_outvec structures.
++ * \param[in,out] out_vec       Array of output \ref psa_outvec structures.
+  *
+  * \return Returns \ref psa_status_t status code.
+  */
+diff --git a/interface/include/tfm_ns_interface.h b/interface/include/tfm_ns_interface.h
+index 21857bed..4256d9f6 100644
+--- a/interface/include/tfm_ns_interface.h
++++ b/interface/include/tfm_ns_interface.h
+@@ -44,7 +44,7 @@ int32_t tfm_ns_interface_dispatch(veneer_fn fn,
+  *          function will initialise all the objects required for
+  *          runtime dispatching of TF-M requests to services
+  *
+- * \return  A value according to \ref enum tfm_status_e
++ * \return  A value according to \ref tfm_status_e
+  */
+ enum tfm_status_e tfm_ns_interface_init(void);
+ #ifdef __cplusplus
+diff --git a/secure_fw/partitions/crypto/tfm_crypto_api.h b/secure_fw/partitions/crypto/tfm_crypto_api.h
+index fa6f136b..a9c61992 100644
+--- a/secure_fw/partitions/crypto/tfm_crypto_api.h
++++ b/secure_fw/partitions/crypto/tfm_crypto_api.h
+@@ -136,7 +136,7 @@ psa_status_t tfm_crypto_set_key_storage(uint32_t index,
+  *
+  * \param[in]  type   Type of the operation context to allocate
+  * \param[out] handle Pointer to hold the allocated handle
+- * \param[out  ctx    Double pointer to the corresponding context
++ * \param[out] ctx    Double pointer to the corresponding context
+  *
+  * \return Return values as described in \ref psa_status_t
+  */
+diff --git a/secure_fw/partitions/initial_attestation/attest.h b/secure_fw/partitions/initial_attestation/attest.h
+index 91252cb2..485c8eee 100644
+--- a/secure_fw/partitions/initial_attestation/attest.h
++++ b/secure_fw/partitions/initial_attestation/attest.h
+@@ -48,8 +48,8 @@ enum psa_attest_err_t {
+  *        to service memory area
+  *
+  * \param[in]   major_type  Major type of TLV entries to copy
+- * \param[out]  ptr         Pointer to the buffer to store the boot data
+- * \parma[in]   len         Size of the buffer to store the boot data
++ * \param[out]  boot_data   Pointer to the buffer to store the boot data
++ * \param[in]   len         Size of the buffer to store the boot data
+  *
+  * \return Returns error code as specified in \ref psa_attest_err_t
+  */
+diff --git a/secure_fw/spm/cmsis_psa/spm_ipc.h b/secure_fw/spm/cmsis_psa/spm_ipc.h
+index 06bd81a8..8e07f66a 100644
+--- a/secure_fw/spm/cmsis_psa/spm_ipc.h
++++ b/secure_fw/spm/cmsis_psa/spm_ipc.h
+@@ -298,7 +298,7 @@ struct tfm_msg_body_t *tfm_spm_get_msg_from_handle(psa_handle_t msg_handle);
+  * \param[in] conn_handle   Service connect handle.
+  *
+  * \return                  The message body context pointer
+- *                          \ref msg_body_t structures
++ *                          \ref tfm_msg_body_t structures
+  */
+ struct tfm_msg_body_t *
+  tfm_spm_get_msg_buffer_from_conn_handle(struct tfm_conn_handle_t *conn_handle);
+@@ -309,7 +309,7 @@ struct tfm_msg_body_t *
+  * \param[in] msg           Service Message Queue buffer pointer
+  * \param[in] service       Target service context pointer, which can be
+  *                          obtained by partition management functions
+- * \prarm[in] handle        Connect handle return by psa_connect().
++ * \param[in] handle        Connect handle return by psa_connect().
+  * \param[in] type          Message type, PSA_IPC_CONNECT, PSA_IPC_CALL or
+  *                          PSA_IPC_DISCONNECT
+  * \param[in] client_id     Partition ID of the sender of the message
+diff --git a/secure_fw/spm/cmsis_psa/tfm_multi_core.h b/secure_fw/spm/cmsis_psa/tfm_multi_core.h
+index 0cf4ba21..2b316375 100644
+--- a/secure_fw/spm/cmsis_psa/tfm_multi_core.h
++++ b/secure_fw/spm/cmsis_psa/tfm_multi_core.h
+@@ -55,7 +55,7 @@ void tfm_get_mem_region_security_attr(const void *p, size_t s,
+  * \return void
+  *
+  * \note This function doesn't access any hardware memory protection unit.
+- *       The \ref is_mpu_enabled field is set to false by default.
++ *       The \ref mem_attr_info_t::is_mpu_enabled field is set to false by default.
+  */
+ void tfm_get_secure_mem_region_attr(const void *p, size_t s,
+                                     struct mem_attr_info_t *p_attr);
+@@ -72,7 +72,7 @@ void tfm_get_secure_mem_region_attr(const void *p, size_t s,
+  * \return void
+  *
+  * \note This function doesn't access any hardware memory protection unit.
+- *       The \ref is_mpu_enabled field is set to false by default.
++ *       The \ref mem_attr_info_t::is_mpu_enabled field is set to false by default.
+  */
+ void tfm_get_ns_mem_region_attr(const void *p, size_t s,
+                                 struct mem_attr_info_t *p_attr);
+-- 

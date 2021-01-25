@@ -1,0 +1,50 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Mon, 21 Dec 2020 15:24:55 +0100
+Subject: [PATCH] Conditional inclusion of non-secure client
+
+Add preprocessor defines for source code conditional inclusion
+of the non-secure client identification.
+---
+ interface/src/tfm_nspm_api.c         | 4 +++-
+ interface/src/tfm_nspm_svc_handler.c | 4 ++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/interface/src/tfm_nspm_api.c b/interface/src/tfm_nspm_api.c
+index a540e8ca..1f61bae3 100644
+--- a/interface/src/tfm_nspm_api.c
++++ b/interface/src/tfm_nspm_api.c
+@@ -13,6 +13,8 @@
+ #include "cmsis_os2.h"
+ #include "tfm_ns_svc.h"
+ 
++#ifdef TFM_NS_CLIENT_IDENTIFICATION
++
+ /* Translation table pair between OS threads and client IDs */
+ struct thread_test_clientid_pair {
+     const char* t_name;     /*!< Task/Thread name */
+@@ -79,4 +81,4 @@ uint32_t tfm_nspm_register_client_id(void)
+     return tfm_nspm_svc_register_client(client_id);
+ }
+ 
+-
++#endif
+diff --git a/interface/src/tfm_nspm_svc_handler.c b/interface/src/tfm_nspm_svc_handler.c
+index 3ec2cb03..e0f4355e 100644
+--- a/interface/src/tfm_nspm_svc_handler.c
++++ b/interface/src/tfm_nspm_svc_handler.c
+@@ -9,6 +9,8 @@
+ #include "tfm_api.h"
+ #include "tfm_ns_svc.h"
+ 
++#ifdef TFM_NS_CLIENT_IDENTIFICATION
++
+ /* SVC function implementations */
+ uint32_t tfm_nspm_svc_register_client_id(uint32_t client_id)
+ {
+@@ -18,3 +20,5 @@ uint32_t tfm_nspm_svc_register_client_id(uint32_t client_id)
+ 
+     return 0;
+ }
++
++#endif
+-- 

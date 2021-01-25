@@ -1,0 +1,116 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Tue, 22 Dec 2020 12:35:20 +0100
+Subject: [PATCH] Update manifest (linker objects)
+
+Add entries to object list (in addition to library list) which
+enables single stage building (without pre-built libraries).
+---
+ .../common/armclang/tfm_common_s.sct.template |  1 +
+ .../armclang/tfm_isolation_l3.sct.template    |  1 +
+ tools/tfm_manifest_list.yaml                  | 39 +++++++++++++++++++
+ 3 files changed, 41 insertions(+)
+
+diff --git a/platform/ext/common/armclang/tfm_common_s.sct.template b/platform/ext/common/armclang/tfm_common_s.sct.template
+index cb505c58..549b9385 100644
+--- a/platform/ext/common/armclang/tfm_common_s.sct.template
++++ b/platform/ext/common/armclang/tfm_common_s.sct.template
+@@ -1,3 +1,4 @@
++#! armclang --target=arm-arm-none-eabi -march=armv8-m.main -E -xc
+ /*
+  * Copyright (c) 2017-2020 Arm Limited. All rights reserved.
+  *
+diff --git a/platform/ext/common/armclang/tfm_isolation_l3.sct.template b/platform/ext/common/armclang/tfm_isolation_l3.sct.template
+index b5c5fc0c..c61968d6 100644
+--- a/platform/ext/common/armclang/tfm_isolation_l3.sct.template
++++ b/platform/ext/common/armclang/tfm_isolation_l3.sct.template
+@@ -1,3 +1,4 @@
++#! armclang --target=arm-arm-none-eabi -march=armv8-m.main -E -xc
+ /*
+  * Copyright (c) 2017-2020 Arm Limited. All rights reserved.
+  *
+diff --git a/tools/tfm_manifest_list.yaml b/tools/tfm_manifest_list.yaml
+index 82dcdd75..23ffa744 100644
+--- a/tools/tfm_manifest_list.yaml
++++ b/tools/tfm_manifest_list.yaml
+@@ -25,6 +25,14 @@
+            "*tfm_partition_ps.*"
+          ],
+          "object_list": [
++           "*tfm_protected_storage.*",
++           "*tfm_ps_req_mngr.*",
++           "*ps_object_system.*",
++           "*ps_object_table.*",
++           "*ps_utils.*",
++           "*ps_crypto_interface.*",
++           "*ps_encrypted_object.*",
++           "*ps_nv_counters.*",
+            "*test_ps_nv_counters.*",
+          ]
+       }
+@@ -41,6 +49,12 @@
+       "linker_pattern": {
+         "library_list": [
+            "*tfm_partition_its.*"
++         ],
++         "object_list": [
++           "*tfm_internal_trusted_storage.*",
++           "*its_utils.*",
++           "*its_flash.*",
++           "*its_flash*.*",
+          ]
+       }
+     },
+@@ -56,6 +70,9 @@
+       "linker_pattern": {
+         "library_list": [
+            "*tfm_partition_audit.*"
++         ],
++         "object_list": [
++           "*audit_core.*",
+          ]
+       }
+     },
+@@ -71,6 +88,17 @@
+       "linker_pattern": {
+         "library_list": [
+            "*tfm_partition_crypto.*"
++         ],
++         "object_list": [
++           "*crypto_init.*",
++           "*crypto_alloc.*",
++           "*crypto_cipher.*",
++           "*crypto_hash.*",
++           "*crypto_mac.*",
++           "*crypto_key.*",
++           "*crypto_aead.*",
++           "*crypto_asymmetric.*",
++           "*crypto_key_derivation.*",
+          ]
+       }
+     },
+@@ -86,6 +114,9 @@
+       "linker_pattern": {
+         "library_list": [
+            "*tfm_partition_platform.*"
++         ],
++         "object_list": [
++           "*platform_sp.*",
+          ]
+       }
+     },
+@@ -101,6 +132,14 @@
+       "linker_pattern": {
+         "library_list": [
+            "*tfm_partition_attestation.*"
++         ],
++         "object_list": [
++           "*tfm_attest.*",
++           "*tfm_attest_req_mngr.*",
++           "*attest_core.*",
++           "*attest_token_encode.*",
++           "*attest_asymmetric_key.*",
++           "*attest_symmetric_key.*",
+          ]
+       }
+     },
+-- 

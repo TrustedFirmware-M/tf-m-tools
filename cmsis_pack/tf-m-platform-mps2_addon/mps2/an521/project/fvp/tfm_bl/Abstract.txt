@@ -1,0 +1,25 @@
+TF-M with Bootloader Project Template
+-------------------------------------
+
+Target: Arm MPS2+ AN521 FVP (Fixed Virtual Platform)
+
+Workspace contains the following projects:
+ - bl2:    Bootloader (TF-M MCUBoot)
+ - tfm_s:  TF-M firmware with secure services running on the secure side
+ - tfm_ns: Template for application running on the non-secure side
+
+Bootloader runs first and searches for a valid image containing TF-M firmware.
+If image is found and authenticated it then boots into TF-M firmware which runs
+next and then transfers execution to the non-secure application.
+
+Secure side image (tfm_s) and non-secure side image (tfm_ns) are signed and
+encapsulated with header and trailer during post build process.
+The following external tools are required:
+ - python + imgtool (>=1.7.0)
+The above executables need to be in the command line path.
+
+Running the example:
+ - build project for the Bootloader (bl2)
+ - build project for the secure side (tfm_s)
+ - build project for the non-secure side (tfm_ns)
+ - start the debug session and run the target

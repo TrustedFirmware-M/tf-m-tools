@@ -1,0 +1,2 @@
+imgtool sign -k root-rsa-3072.pem --public-key-format full --align 1 --pad-header --boot-record SPE -H 0x400 -S 0x80000 -s auto -v 1.2.0 -d "(0,0.0.0+0)" --overwrite-only                        Objects\tfm_s.hex Objects\tfm_s_signed.hex
+imgtool sign -k root-rsa-3072.pem --public-key-format full --align 1 --pad-header --boot-record SPE -H 0x400 -S 0x80000 -s auto -v 1.2.0 -d "(0,0.0.0+0)" --overwrite-only -E enc-rsa2048-pub.pem Objects\tfm_s.hex Objects\tfm_s_encrypted.bin

@@ -1,0 +1,58 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Mon, 21 Dec 2020 12:26:19 +0100
+Subject: [PATCH] Remove non-portable platform headers
+
+Remove inclusion of non-portable platform headers:
+ - cmsis.h: CMSIS device header (replaced by CMSIS_device_header)
+ - device_cfg.h: Device specific configuration (USART baudrate)
+ - target_cfg.h: Target specific configuration (USART driver)
+
+TF-M configuration file is used to specify user settings
+(USART driver and baudrate, ...).
+---
+ platform/ext/common/boot_hal.c                  | 3 +--
+ platform/ext/common/tfm_hal_isolation_mpu_v8m.c | 2 +-
+ platform/ext/common/uart_stdout.c               | 2 --
+ 3 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/platform/ext/common/boot_hal.c b/platform/ext/common/boot_hal.c
+index a005b73e..ad4b4adc 100644
+--- a/platform/ext/common/boot_hal.c
++++ b/platform/ext/common/boot_hal.c
+@@ -5,8 +5,7 @@
+  *
+  */
+ 
+-#include "target_cfg.h"
+-#include "cmsis.h"
++#include CMSIS_device_header
+ #include "boot_hal.h"
+ #include "Driver_Flash.h"
+ #include "flash_layout.h"
+diff --git a/platform/ext/common/tfm_hal_isolation_mpu_v8m.c b/platform/ext/common/tfm_hal_isolation_mpu_v8m.c
+index e570c0e8..b4b35d7b 100644
+--- a/platform/ext/common/tfm_hal_isolation_mpu_v8m.c
++++ b/platform/ext/common/tfm_hal_isolation_mpu_v8m.c
+@@ -8,7 +8,7 @@
+ #include <arm_cmse.h>
+ #include <stddef.h>
+ #include <stdint.h>
+-#include "cmsis.h"
++#include CMSIS_device_header
+ #include "tfm_hal_defs.h"
+ #include "tfm_hal_isolation.h"
+ 
+diff --git a/platform/ext/common/uart_stdout.c b/platform/ext/common/uart_stdout.c
+index 811dfe4d..dc238eb0 100644
+--- a/platform/ext/common/uart_stdout.c
++++ b/platform/ext/common/uart_stdout.c
+@@ -19,8 +19,6 @@
+ #include <assert.h>
+ #include <stdio.h>
+ #include "Driver_USART.h"
+-#include "target_cfg.h"
+-#include "device_cfg.h"
+ 
+ #define ASSERT_HIGH(X)  assert(X == ARM_DRIVER_OK)
+ 
+-- 

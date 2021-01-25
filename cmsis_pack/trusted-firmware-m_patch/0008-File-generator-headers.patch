@@ -1,0 +1,75 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Tue, 22 Dec 2020 16:38:07 +0100
+Subject: [PATCH] Update template based file generator (headers)
+
+- add conditional header inclusion
+- update path for test header
+---
+ secure_fw/partitions/tfm_service_list.inc.template            | 4 +++-
+ secure_fw/spm/cmsis_func/tfm_secure_irq_handlers.inc.template | 4 +++-
+ .../spm/cmsis_psa/tfm_secure_irq_handlers_ipc.inc.template    | 4 +++-
+ tools/tfm_parse_manifest_list.py                              | 4 ++--
+ 4 files changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/secure_fw/partitions/tfm_service_list.inc.template b/secure_fw/partitions/tfm_service_list.inc.template
+index e784b66e..6a688e77 100644
+--- a/secure_fw/partitions/tfm_service_list.inc.template
++++ b/secure_fw/partitions/tfm_service_list.inc.template
+@@ -11,7 +11,9 @@
+ #define __TFM_SERVICE_LIST_INC__
+ 
+ {% for header in utilities.manifest_header_list %}
+-#include "{{header}}"
++#ifdef {{header.cond}}
++#include "{{header.name}}"
++#endif
+ {% endfor %}
+ 
+ const struct tfm_spm_service_db_t service_db[] =
+diff --git a/secure_fw/spm/cmsis_func/tfm_secure_irq_handlers.inc.template b/secure_fw/spm/cmsis_func/tfm_secure_irq_handlers.inc.template
+index 9db5d64a..b6f813db 100644
+--- a/secure_fw/spm/cmsis_func/tfm_secure_irq_handlers.inc.template
++++ b/secure_fw/spm/cmsis_func/tfm_secure_irq_handlers.inc.template
+@@ -8,7 +8,9 @@
+ {{utilities.donotedit_warning}}
+ 
+ {% for header in utilities.manifest_header_list %}
+-#include "{{header}}"
++#ifdef {{header.cond}}
++#include "{{header.name}}"
++#endif
+ {% endfor %}
+ #include "psa_manifest/pid.h"
+ {% macro _irq_record(partition_name, signal, line, priority) -%}
+diff --git a/secure_fw/spm/cmsis_psa/tfm_secure_irq_handlers_ipc.inc.template b/secure_fw/spm/cmsis_psa/tfm_secure_irq_handlers_ipc.inc.template
+index e5a7d6b2..772c9396 100644
+--- a/secure_fw/spm/cmsis_psa/tfm_secure_irq_handlers_ipc.inc.template
++++ b/secure_fw/spm/cmsis_psa/tfm_secure_irq_handlers_ipc.inc.template
+@@ -8,7 +8,9 @@
+ {{utilities.donotedit_warning}}
+ 
+ {% for header in utilities.manifest_header_list %}
+-#include "{{header}}"
++#ifdef {{header.cond}}
++#include "{{header.name}}"
++#endif
+ {% endfor %}
+ #include "cmsis_compiler.h"
+ {% macro _irq_record(partition_name, signal, line, priority) -%}
+diff --git a/tools/tfm_parse_manifest_list.py b/tools/tfm_parse_manifest_list.py
+index 1d6b64aa..7946d3f1 100644
+--- a/tools/tfm_parse_manifest_list.py
++++ b/tools/tfm_parse_manifest_list.py
+@@ -106,9 +106,9 @@ def process_manifest(manifest_list_files):
+         if 'source_path' in manifest_item:
+             # Replace environment variables in the source path
+             source_path = os.path.expandvars(manifest_item['source_path'])
+-            outfile_name = os.path.relpath(outfile_name, start = source_path)
++            outfile_name = os.path.join("test", os.path.relpath(outfile_name, start = source_path))
+ 
+-        manifest_header_list.append(outfile_name)
++        manifest_header_list.append({"cond": manifest_item['conditional'], "name": outfile_name})
+ 
+         if OUT_DIR is not None:
+             outfile_name = os.path.join(OUT_DIR, outfile_name)
+-- 

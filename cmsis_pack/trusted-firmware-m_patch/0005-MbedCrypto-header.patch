@@ -1,0 +1,37 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Mon, 21 Dec 2020 12:40:11 +0100
+Subject: [PATCH] Update Mbed Crypto header path
+
+Avoids crypto header file clash when used as the back-end.
+
+This problem is specific to non-cmake systems where all modules are built
+in one stage (no pre-built libraries) with global include search path.
+
+When Mbed Crypto (part of Mbed TLS) is used as the back-end and compiled
+together with the front-end, the `psa/crypto.h` file has the following issue:
+ - the front-end and Mbed Crypto both provide `psa/crypto.h`
+ - as they're compiled together, the compiler will just use one of these two
+  `psa/crypto.h` header files (depends on compiler include search path order)
+ - however, Mbed Crypto and the front-end both expect that its own version of
+   this header file will be used
+
+Solution:
+ - move Mbed Crypto PSA headers to include/mbedcrypto/psa when used as back-end
+ - use #include "mbedcrypto/psa/crypto.h" for accessing as back-end
+---
+ secure_fw/partitions/crypto/tfm_mbedcrypto_include.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/secure_fw/partitions/crypto/tfm_mbedcrypto_include.h b/secure_fw/partitions/crypto/tfm_mbedcrypto_include.h
+index 7bb7f467..69342b19 100644
+--- a/secure_fw/partitions/crypto/tfm_mbedcrypto_include.h
++++ b/secure_fw/partitions/crypto/tfm_mbedcrypto_include.h
+@@ -14,6 +14,6 @@
+  * Mbed Crypto
+  */
+ #include "crypto_spe.h"
+-#include "psa/crypto.h"
++#include "mbedcrypto/psa/crypto.h"
+ 
+ #endif /* __TFM_MBEDCRYPTO_INCLUDE_H__ */
+-- 

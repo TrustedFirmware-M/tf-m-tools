@@ -1,0 +1,38 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Wed, 23 Dec 2020 14:42:02 +0100
+Subject: [PATCH] Update CMSIS-Driver include path
+
+Update inclusion of CMSIS Flash driver:
+ - #include "Driver_Flash.h (registered path)
+---
+ .../partitions/internal_trusted_storage/flash/its_flash_nand.c  | 2 +-
+ .../partitions/internal_trusted_storage/flash/its_flash_nor.c   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/secure_fw/partitions/internal_trusted_storage/flash/its_flash_nand.c b/secure_fw/partitions/internal_trusted_storage/flash/its_flash_nand.c
+index 5d316463..f6e86d0c 100644
+--- a/secure_fw/partitions/internal_trusted_storage/flash/its_flash_nand.c
++++ b/secure_fw/partitions/internal_trusted_storage/flash/its_flash_nand.c
+@@ -7,7 +7,7 @@
+  */
+ 
+ #include "its_flash_nand.h"
+-#include "driver/Driver_Flash.h"
++#include "Driver_Flash.h"
+ #include "tfm_memory_utils.h"
+ 
+ static uint32_t buf_block_id = ITS_BLOCK_INVALID_ID;
+diff --git a/secure_fw/partitions/internal_trusted_storage/flash/its_flash_nor.c b/secure_fw/partitions/internal_trusted_storage/flash/its_flash_nor.c
+index 2665380b..6d9ac10d 100644
+--- a/secure_fw/partitions/internal_trusted_storage/flash/its_flash_nor.c
++++ b/secure_fw/partitions/internal_trusted_storage/flash/its_flash_nor.c
+@@ -7,7 +7,7 @@
+  */
+ 
+ #include "its_flash_nor.h"
+-#include "driver/Driver_Flash.h"
++#include "Driver_Flash.h"
+ 
+ /**
+  * \brief Gets physical address of the given block ID.
+-- 

@@ -1,0 +1,21 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Mon, 21 Dec 2020 11:25:29 +0100
+Subject: [PATCH] Move Mbed TLS configuration file for MCUboot
+
+Move the configuration template to a standalone 'config' directory.
+
+Avoids that the configuration template from the pack is in the include search
+path together with other include files from the same 'include' directory.
+
+Configuration file is copied to the project and its directory is added
+to the include search path.
+---
+ bl2/ext/mcuboot/{include => config}/mcuboot-mbedtls-cfg.h | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ rename bl2/ext/mcuboot/{include => config}/mcuboot-mbedtls-cfg.h (100%)
+
+diff --git a/bl2/ext/mcuboot/include/mcuboot-mbedtls-cfg.h b/bl2/ext/mcuboot/config/mcuboot-mbedtls-cfg.h
+similarity index 100%
+rename from bl2/ext/mcuboot/include/mcuboot-mbedtls-cfg.h
+rename to bl2/ext/mcuboot/config/mcuboot-mbedtls-cfg.h
+-- 

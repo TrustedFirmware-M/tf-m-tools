@@ -1,0 +1,30 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Wed, 23 Dec 2020 11:53:58 +0100
+Subject: [PATCH] Update platform retarget
+
+Remove inclusion of tfm_plat_defs.h (part of TF-M secure firmware)
+and replace it with required defines.
+---
+ mps2/an521/device/platform_retarget_dev.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/mps2/an521/device/platform_retarget_dev.c b/mps2/an521/device/platform_retarget_dev.c
+index a2819606..1781667d 100644
+--- a/mps2/an521/device/platform_retarget_dev.c
++++ b/mps2/an521/device/platform_retarget_dev.c
+@@ -26,7 +26,13 @@
+ #include "platform_retarget_dev.h"
+ #include "platform_retarget.h"
+ #include "system_cmsdk_mps2_an521.h"
+-#include "platform/include/tfm_plat_defs.h"
++
++#define TFM_LINK_SET_RO_IN_PARTITION_SECTION(TFM_PARTITION_NAME) \
++                __attribute__((section(TFM_PARTITION_NAME"_ATTR_FN")))
++#define TFM_LINK_SET_RW_IN_PARTITION_SECTION(TFM_PARTITION_NAME) \
++                __attribute__((section(TFM_PARTITION_NAME"_ATTR_RW")))
++#define TFM_LINK_SET_ZI_IN_PARTITION_SECTION(TFM_PARTITION_NAME) \
++                __attribute__((section(TFM_PARTITION_NAME"_ATTR_ZI")))
+ 
+ /* ARM UART driver structures */
+ #ifdef ARM_UART0_S
+-- 

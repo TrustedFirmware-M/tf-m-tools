@@ -1,0 +1,6 @@
+Jinja2>=2.10.3
+PyYAML
+Sphinx>=1.4,<3.0.0
+m2r
+sphinx-rtd-theme
+sphinxcontrib-plantuml

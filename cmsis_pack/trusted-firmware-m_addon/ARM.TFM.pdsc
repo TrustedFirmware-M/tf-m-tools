@@ -1,0 +1,1024 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2017-2020, Arm Limited. All rights reserved.
+ 
+  SPDX-License-Identifier: BSD-3-Clause
+ -->
+<package schemaVersion="1.6.3" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="PACK.xsd">
+  <name>TFM</name>
+  <description>Trusted Firmware-M (TF-M) reference implementation of Arm's Platform Security Architecture (PSA)</description>
+  <vendor>ARM</vendor>
+  <!-- <license>license.txt</license> -->
+  <url>http://www.keil.com/pack/</url>
+
+  <releases>
+    <release version="2.1.0">
+      Based on https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git repository tag: TF-Mv1.2.0
+      Renamed Secure Service: Protected Storage instead of Secure Storage
+      Restructured Non-Secure Components: Core, APIs
+      Removed Test components (moved to TFM-Test pack)
+    </release>
+    <release version="2.0.0" date="2020-06-05">
+      Based on https://git.trustedfirmware.org/trusted-firmware-m.git repository tag: TF-Mv1.0
+      Added support for persistent keys:
+        https://review.trustedfirmware.org/c/trusted-firmware-m/+/3252
+        https://review.trustedfirmware.org/c/trusted-firmware-m/+/3253
+      Removed fixed NS region numbers:
+        https://review.trustedfirmware.org/c/trusted-firmware-m/+/3484
+        https://review.trustedfirmware.org/c/trusted-firmware-m/+/3485
+      Reworked and enhanced components (including dependency)
+      Added Bootloader (MCUBoot)
+      Added Secure Service: Initial Attestation, Internal Trusted Storage, Platform
+      Added Test Service: Core, IPC, Secure Client, SST, IRQ
+      Added Test Suite: Framework, SST, ITS, Audit, Crypto, Attestation, Platform, Core, IPC, Secure Client, QCBOR, T-COSE
+      Added Library: QCBOR, T-COSE
+      Added Platform API and templates
+    </release>
+    <release version="1.2.1" date="2019-04-11">
+      Update Musca-B1 examples to support Musca-B1 BSP 1.1.0
+    </release>
+    <release version="1.2.0" date="2018-12-06">
+      Update TFM to the latest version, hash of this snapshot is 89f232285877e40027723e4f3e23bf37013b78cd
+      of the  https://git.trustedfirmware.org/trusted-firmware-m.git repository.
+      This version adds Crypto service and demo example and regression test for Musca B1 Board.
+    </release>
+    <release version="1.1.0" date="2018-09-24">
+      Out-of-the box examples for ARM V2M-MPS2 BSP for CoreLink SSE-200 added.
+    </release>
+    <release version="1.0.1" date="2018-08-24">
+      Fix vendor URL.
+    </release>
+    <release version="1.0.0" date="2018-08-08">
+      First version of TFM released in Keil pack. This pack includes TFM Core, Audit Log and Secure Storage Service as secure services
+      and Non-Secure API. Out-of-the box examples based on TFM configurations are also attached.
+      This version is a snapshot of https://git.trustedfirmware.org/trusted-firmware-m.git repository
+      of the following hash: 5c1756fbab6097f5688583d11dea5d1271d2d774
+    </release>
+  </releases>
+
+  <requirements>
+    <packages>
+      <package vendor="ARM" name="PSA" version="1.0.0"/>
+      <package vendor="ARM" name="mbedTLS" version="1.7.0"/>
+    </packages>
+  </requirements>
+
+  <keywords>
+    <!-- Keywords for indexing -->
+    <keyword>ARM</keyword>
+    <keyword>Security</keyword>
+    <keyword>PSA</keyword>
+    <keyword>TFM</keyword>
+    <keyword>TF-M</keyword>
+    <keyword>TrustZone</keyword>
+    <keyword>Trusted Firmware</keyword>
+  </keywords>
+
+  <taxonomy>
+    <description Cclass="TFM" doc="docs/user_guide/index.html">Trusted Firmware-M (TF-M)</description>
+    <description Cclass="TFM Platform">Trusted Firmware-M (TF-M) Platform</description>
+  </taxonomy>
+
+  <apis>
+    <api Cclass="TFM Platform" Cgroup="SPM HAL" Capiversion="1.2.0" exclusive="1">
+      <description>TF-M Platform SPM HAL</description>
+      <files>
+        <file category="header" name="platform/include/tfm_spm_hal.h"/>
+      </files>
+    </api>
+    <api Cclass="TFM Platform" Cgroup="Boot Seed" Capiversion="1.0.0" exclusive="1">
+      <description>TF-M Platform Boot Seed</description>
+      <files>
+        <file category="header" name="platform/include/tfm_plat_boot_seed.h"/>
+      </files>
+    </api>
+    <api Cclass="TFM Platform" Cgroup="Crypto Keys" Capiversion="1.2.0" exclusive="1">
+      <description>TF-M Platform Crypto Keys</description>
+      <files>
+        <file category="header" name="platform/include/tfm_plat_crypto_keys.h"/>
+      </files>
+    </api>
+    <api Cclass="TFM Platform" Cgroup="Device ID" Capiversion="1.0.0" exclusive="1">
+      <description>TF-M Platform Device ID</description>
+      <files>
+        <file category="header" name="platform/include/tfm_plat_device_id.h"/>
+      </files>
+    </api>
+    <api Cclass="TFM Platform" Cgroup="NV Counters" Capiversion="1.2.0" exclusive="1">
+      <description>TF-M Platform NV Counters</description>
+      <files>
+        <file category="header" name="platform/include/tfm_plat_nv_counters.h"/>
+      </files>
+    </api>
+    <api Cclass="TFM Platform" Cgroup="Attest HAL" Capiversion="1.2.0" exclusive="1">
+      <description>TF-M Platform Attest HAL</description>
+      <files>
+        <file category="header" name="platform/include/tfm_attest_hal.h"/>
+      </files>
+    </api>
+    <api Cclass="TFM Platform" Cgroup="System" Capiversion="1.0.0" exclusive="1">
+      <description>TF-M Platform System</description>
+      <files>
+        <file category="header" name="platform/include/tfm_platform_system.h"/>
+      </files>
+    </api>
+    <api Cclass="TFM Platform" Cgroup="Test" Capiversion="1.0.0" exclusive="1">
+      <description>TF-M Platform Test</description>
+      <files>
+        <file category="header" name="platform/include/tfm_plat_test.h"/>
+      </files>
+    </api>
+    <api Cclass="TFM Platform" Cgroup="Boot HAL" Capiversion="1.2.0" exclusive="1">
+      <description>TF-M Platform Boot HAL</description>
+      <files>
+        <file category="header" name="bl2/include/boot_hal.h"/>
+      </files>
+    </api>
+  </apis>
+
+  <conditions>
+    <!-- Compiler -->
+    <condition id="ARMCC6">
+      <accept Tcompiler="ARMCC" Toptions="AC6"/>
+      <accept Tcompiler="ARMCC" Toptions="AC6LTO"/>
+    </condition>
+    <condition id="GCC">
+      <require Tcompiler="GCC"/>
+    </condition>
+    <condition id="IAR">
+      <require Tcompiler="IAR"/>
+    </condition>
+    <condition id="ARMCC6 GCC IAR">
+      <accept condition="ARMCC6"/>
+      <accept Tcompiler="GCC"/>
+      <accept Tcompiler="IAR"/>
+    </condition>
+    <!-- Arm Architecture -->
+    <condition id="ARMv8-M Device">
+      <description>Armv8-M architecture based device</description>
+      <accept Dcore="ARMV8MBL"/>
+      <accept Dcore="ARMV8MML"/>
+      <accept Dcore="ARMV81MML"/>
+      <accept Dcore="Cortex-M23"/>
+      <accept Dcore="Cortex-M33"/>
+      <accept Dcore="Cortex-M35P"/>
+      <accept Dcore="Cortex-M55"/>
+    </condition>
+    <condition id="ARMv8-M BL Device">
+      <description>Armv8-M Baseline based device</description>
+      <accept Dcore="ARMV8MBL"/>
+      <accept Dcore="Cortex-M23"/>
+    </condition>
+    <condition id="ARMv8-M ML Device">
+      <description>Armv8-M Mainline based device</description>
+      <accept Dcore="ARMV8MML"/>
+      <accept Dcore="ARMV81MML"/>
+      <accept Dcore="Cortex-M33"/>
+      <accept Dcore="Cortex-M35P"/>
+      <accept Dcore="Cortex-M55"/>
+    </condition>
+    <condition id="ARMv8-M TZ Device">
+      <description>Armv8-M architecture based device with TrustZone</description>
+      <require condition="ARMv8-M Device"/>
+      <require Dtz="TZ"/>
+    </condition>
+    <!-- TF-M -->
+    <condition id="TFM Secure">
+      <description>TF-M Secure</description>
+      <require condition="ARMv8-M TZ Device"/>
+      <require Dsecure="Secure"/>
+      <require condition="ARMCC6 GCC IAR"/>
+    </condition>
+    <condition id="TFM Non-secure">
+      <description>TF-M Non-secure</description>
+      <require condition="ARMv8-M TZ Device"/>
+      <require Dsecure="Non-secure"/>
+      <require condition="ARMCC6 GCC IAR"/>
+    </condition>
+    <!-- TF-M Bootloader -->
+    <condition id="TFM Bootloader">
+      <description>TF-M Bootloader</description>
+      <require condition="TFM Secure"/>
+      <deny    Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM Platform" Cgroup="Memory Map"/>
+      <require Cclass="TFM Platform" Cgroup="Boot HAL"/>
+      <require Cclass="TFM Platform" Cgroup="Crypto Keys"/>
+      <require Cclass="TFM Platform" Cgroup="NV Counters"/>
+      <require Cclass="CMSIS" Cgroup="CORE"/>
+      <require Cclass="CMSIS Driver" Cgroup="Flash"/>
+      <require Cclass="CMSIS Driver" Cgroup="USART"/>
+      <require Cclass="Security" Cgroup="mbed TLS" Cversion="2.24.0"/>
+      <require Cclass="Device" Cgroup="Startup"/>
+    </condition>
+    <!-- TF-M Secure Core -->
+    <condition id="TFM Secure Core">
+      <description>TF-M Secure Core</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM Platform" Cgroup="Memory Map"/>
+      <require Cclass="TFM Platform" Cgroup="SPM HAL"/>
+      <require Cclass="CMSIS" Cgroup="CORE"/>
+      <require Cclass="CMSIS Driver" Cgroup="USART"/>
+    </condition>
+    <!-- TF-M Secure Service -->
+    <condition id="TFM Protected Storage Service (Non-encrypted)">
+      <description>TF-M Protected Storage Service (Non-encrypted)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Internal Trusted Storage"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Platform"/>
+      <require Cclass="CMSIS Driver" Cgroup="Flash"/>
+    </condition>
+    <condition id="TFM Protected Storage Service (Encrypted)">
+      <description>TF-M Protected Storage Service (Encrypted)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Internal Trusted Storage"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Platform"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Crypto"/>
+      <require Cclass="CMSIS Driver" Cgroup="Flash"/>
+    </condition>
+    <condition id="TFM Protected Storage Service (Production)">
+      <description>TF-M Protected Storage Service (Production)</description>
+      <deny    Cclass="TFM" Cgroup="Test" Csub="PS"/>
+    </condition>
+    <condition id="TFM Internal Trusted Storage Service">
+      <description>TF-M Internal Trusted Storage Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="CMSIS Driver" Cgroup="Flash"/>
+    </condition>
+    <condition id="TFM Audit Logging Service">
+      <description>TF-M Audit Logging Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core" Cvariant="SFN"/>
+    </condition>
+    <condition id="TFM Crypto Service">
+      <description>TF-M Crypto Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Internal Trusted Storage"/>
+      <require Cclass="TFM Platform" Cgroup="Crypto Keys"/>
+      <require Cclass="Security" Cgroup="mbed TLS" Cversion="2.24.0"/>
+    </condition>
+    <condition id="TFM Platform Service">
+      <description>TF-M Platform Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM Platform" Cgroup="NV Counters"/>
+      <require Cclass="TFM Platform" Cgroup="System"/>
+    </condition>
+    <condition id="TFM Initial Attestation Service">
+      <description>TF-M Initial Attestation Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="QCBOR"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="T_COSE"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Crypto"/>
+      <require Cclass="TFM Platform" Cgroup="Boot Seed"/>
+      <require Cclass="TFM Platform" Cgroup="Device ID"/>
+      <require Cclass="TFM Platform" Cgroup="Attest HAL"/>
+    </condition>
+    <condition id="TFM Initial Attestation Service (Asymmetric)">
+      <description>TF-M Initial Attestation Service (Asymmetric)</description>
+      <require condition="TFM Initial Attestation Service"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="T_COSE" Cvariant="Asymmetric"/>
+    </condition>
+    <condition id="TFM Initial Attestation Service (Symmetric)">
+      <description>TF-M Initial Attestation Service (Symmetric)</description>
+      <require condition="TFM Initial Attestation Service"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="T_COSE" Cvariant="Symmetric"/>
+    </condition>
+    <!-- TF-M Non-Secure Core -->
+    <condition id="TFM Non-Secure Core">
+      <description>TF-M Non-Secure Core</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="CMSIS" Cgroup="CORE"/>
+      <require Cclass="CMSIS" Cgroup="RTOS2"/>
+    </condition>
+    <!-- TF-M Non-Secure API -->
+    <condition id="TFM API">
+      <description>TF-M API</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+    </condition>
+    <condition id="TFM API (SFN)">
+      <description>TF-M API (SFN)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core" Cvariant="SFN"/>
+    </condition>
+    <condition id="TFM API (IPC)">
+      <description>TF-M API (IPC)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core" Cvariant="IPC"/>
+    </condition>
+    <!-- TF-M Library -->
+    <condition id="QCBOR [Test QCBOR]">
+      <description>T_COSE: Test T_COSE</description>
+      <require Cclass="TFM" Cgroup="Test" Csub="QCBOR"/>
+    </condition>
+    <condition id="T_COSE (Secure)">
+      <description>T_COSE Library</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="QCBOR"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Crypto"/>
+    </condition>
+    <condition id="T_COSE (Non-secure)">
+      <description>T_COSE Library</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="QCBOR"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Crypto"/>
+    </condition>
+    <condition id="T_COSE [Test T_COSE]">
+      <description>T_COSE: Test T_COSE</description>
+      <require Cclass="TFM" Cgroup="Test" Csub="T_COSE"/>
+    </condition>
+    <condition id="T_COSE [Test Attestation]">
+      <description>T_COSE: Test Attestation</description>
+      <require Cclass="TFM" Cgroup="Test" Csub="Attestation"/>
+    </condition>
+    <!-- TF-M Platform -->
+    <condition id="TFM Platform">
+      <description>TF-M Platform</description>
+      <require condition="TFM Secure"/>
+      <accept Cclass="TFM" Cgroup="Core"/>
+      <accept Cclass="TFM" Cgroup="Bootloader"/>
+    </condition>
+    <condition id="TFM Platform NV Counters">
+      <description>TF-M Platform NV Counters</description>
+      <require condition="TFM Secure"/>
+      <accept Cclass="TFM" Cgroup="Core"/>
+      <accept Cclass="TFM" Cgroup="Bootloader"/>
+      <require Cclass="CMSIS Driver" Cgroup="Flash"/>
+    </condition>
+    <!-- TF-M PSA -->
+    <condition id="TFM PSA Crypto">
+      <description>TF-M PSA Crypto</description>
+      <accept Cclass="TFM" Cgroup="Secure Service" Csub="Crypto"/>
+      <accept Cclass="TFM" Cgroup="API" Csub="Crypto"/>
+    </condition>
+    <condition id="TFM PSA Internal Trusted Storage">
+      <description>TF-M PSA Internal Trusted Storage</description>
+      <accept Cclass="TFM" Cgroup="Secure Service" Csub="Internal Trusted Storage"/>
+      <accept Cclass="TFM" Cgroup="API" Csub="Internal Trusted Storage"/>
+    </condition>
+    <condition id="TFM PSA Protected Storage">
+      <description>TF-M PSA Protected Storage</description>
+      <accept Cclass="TFM" Cgroup="Secure Service" Csub="Protected Storage"/>
+      <accept Cclass="TFM" Cgroup="API" Csub="Protected Storage"/>
+    </condition>
+    <condition id="TFM PSA Initial Attestation">
+      <description>TF-M PSA Initial Attestation</description>
+      <accept Cclass="TFM" Cgroup="Secure Service" Csub="Initial Attestation"/>
+      <accept Cclass="TFM" Cgroup="API" Csub="Initial Attestation"/>
+    </condition>
+  </conditions>
+
+  <components>
+    <!-- TF-M Bootloader -->
+    <component Cclass="TFM" Cgroup="Bootloader" Cversion="1.2.0" condition="TFM Bootloader">
+      <description>TF-M Bootloader (MCUboot)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_BOOTLOADER              /* TF-M Bootloader */
+      </RTE_Components_h>
+      <Pre_Include_Global_h>
+        #define MBEDTLS_CONFIG_FILE "mcuboot-mbedtls-cfg.h"
+      </Pre_Include_Global_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="header"  name="rte/config/bl2/bl2_config.h" attr="config" version="1.2.0"/>
+        <file category="header"  name="rte/config/bl2/tfm_config.h" attr="config" version="1.0.0"/>
+        <file category="source"  name="rte/config/tfm_config_rte.h" attr="config" version="1.2.0"/>
+        <file category="include" name="interface/include/"/>
+        <file category="include" name="bl2/include/"/>
+        <file category="source"  name="bl2/src/flash_map.c"/>
+        <file category="source"  name="bl2/src/security_cnt.c"/>
+        <file category="header"  name="bl2/ext/mcuboot/config/mcuboot-mbedtls-cfg.h" attr="config" version="1.0.0"/>
+        <file category="include" name="bl2/ext/mcuboot/include/"/>
+        <file category="source"  name="bl2/ext/mcuboot/bl2_main.c"/>
+        <file category="source"  name="bl2/ext/mcuboot/flash_map_extended.c"/>
+        <file category="source"  name="bl2/ext/mcuboot/flash_map_legacy.c"/>
+        <file category="source"  name="bl2/ext/mcuboot/keys.c"/>
+        <!-- MCUboot -->
+        <file category="include" name="lib/ext/mcuboot/boot/"/>
+        <file category="include" name="lib/ext/mcuboot/boot/bootutil/include/"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/loader.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/bootutil_misc.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/image_validate.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/image_rsa.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/tlv.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/boot_record.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/swap_scratch.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/swap_move.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/swap_misc.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/encrypted.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/fault_injection_hardening.c"/>
+        <file category="source"  name="lib/ext/mcuboot/boot/bootutil/src/fault_injection_hardening_delay_rng_mbedtls.c"/>
+        <!-- Platform -->
+        <file category="include" name="platform/ext/common/"/>
+        <file category="source"  name="platform/ext/common/boot_hal.c"/>
+        <file category="source"  name="platform/ext/common/uart_stdout.c"/>
+      </files>
+    </component>
+    <!-- TF-M Secure Core -->
+    <component Cclass="TFM" Cgroup="Core" Cvariant="SFN" Cversion="1.2.0" condition="TFM Secure Core">
+      <description>TF-M Secure Core (Secure Functions)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_CORE_SFN                /* TF-M Core SFN */
+        #define RTE_TFM_DOMAIN_S                /* TF-M Secure Domain */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="header"  name="rte/config/secure/tfm_config.h" attr="config" version="1.2.0"/>
+        <file category="source"  name="rte/config/tfm_config_rte.h"    attr="config" version="1.2.0"/>
+        <file category="include" name="./"/>
+        <file category="include" name="secure_fw/include/"/>
+        <file category="include" name="secure_fw/spm/"/>
+        <file category="include" name="secure_fw/spm/include/"/>
+        <file category="include" name="secure_fw/spm/cmsis_func/include/"/>
+        <file category="source"  name="secure_fw/spm/cmsis_func/main.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_func/arch.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_func/spm_func.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_func/tfm_core_svcalls_func.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_func/tfm_nspm_func.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_func/tfm_secure_api.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_func/tfm_veneers.c"/>
+        <file category="source"  name="secure_fw/spm/common/tfm_boot_data.c"/>
+        <file category="source"  name="secure_fw/spm/common/tfm_core_mem_check.c"/>
+        <file category="source"  name="secure_fw/spm/common/tfm_core_utils.c"/>
+        <file category="source"  name="secure_fw/spm/common/spm_log.c"/>
+        <file category="source"  name="secure_fw/spm/common/utilities.c"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/log/tfm_log_raw.c"/>
+        <file category="include" name="platform/include/"/>
+        <file category="include" name="platform/ext/"/>
+        <file category="include" name="platform/ext/common/"/>
+        <file category="source"  name="platform/ext/common/tfm_hal_spm_logdev_peripheral.c"/>
+        <file category="source"  name="platform/ext/common/tfm_platform.c"/>
+        <file category="source"  name="platform/ext/common/uart_stdout.c"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/armclang/tfm_common_s.sct"     condition ="ARMCC6" attr="config" version="1.2.0"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/armclang/tfm_isolation_l3.sct" condition ="ARMCC6" attr="config" version="1.2.0"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/gcc/tfm_common_s.ld"           condition ="GCC"    attr="config" version="1.2.0"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/gcc/tfm_isolation_l3.ld"       condition ="GCC"    attr="config" version="1.2.0"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/iar/tfm_common_s.icf"          condition ="IAR"    attr="config" version="1.2.0"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Core" Cvariant="IPC" Cversion="1.2.0" condition="TFM Secure Core">
+      <description>TF-M Secure Core (Inter-Process Communication)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_CORE_IPC                /* TF-M Core IPC */
+        #define RTE_TFM_DOMAIN_S                /* TF-M Secure Domain */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="header"  name="rte/config/secure/tfm_config.h" attr="config" version="1.2.0"/>
+        <file category="source"  name="rte/config/tfm_config_rte.h"    attr="config" version="1.2.0"/>
+        <file category="include" name="./"/>
+        <file category="include" name="secure_fw/include/"/>
+        <file category="include" name="secure_fw/spm/"/>
+        <file category="include" name="secure_fw/spm/include/"/>
+        <file category="include" name="secure_fw/spm/cmsis_psa/"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/main.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/spm_ipc.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/tfm_core_svcalls_ipc.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/tfm_nspm_ipc.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/tfm_pools.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/tfm_thread.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/tfm_wait.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/tfm_psa_api_veneers.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/arch/tfm_arch.c"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/arch/tfm_arch_v8m_base.c" condition="ARMv8-M BL Device"/>
+        <file category="source"  name="secure_fw/spm/cmsis_psa/arch/tfm_arch_v8m_main.c" condition="ARMv8-M ML Device"/>
+        <file category="source"  name="secure_fw/spm/common/psa_client_service_apis.c"/>
+        <file category="source"  name="secure_fw/spm/common/spm_psa_client_call.c"/>
+        <file category="source"  name="secure_fw/spm/common/tfm_boot_data.c"/>
+        <file category="source"  name="secure_fw/spm/common/tfm_core_utils.c"/>
+        <file category="source"  name="secure_fw/spm/common/spm_log.c"/>
+        <file category="source"  name="secure_fw/spm/common/utilities.c"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/psa/psa_client.c"/>
+        <file category="source"  name="interface/src/psa/psa_service.c"/>
+        <file category="source"  name="interface/src/psa/psa_lifecycle.c"/>
+        <file category="source"  name="interface/src/log/tfm_log_raw.c"/>
+        <file category="include" name="platform/include/"/>
+        <file category="include" name="platform/ext/"/>
+        <file category="include" name="platform/ext/common/"/>
+        <file category="source"  name="platform/ext/common/tfm_hal_isolation_mpu_v8m.c" condition="ARMv8-M Device"/>
+        <file category="source"  name="platform/ext/common/tfm_hal_spm_logdev_peripheral.c"/>
+        <file category="source"  name="platform/ext/common/tfm_platform.c"/>
+        <file category="source"  name="platform/ext/common/uart_stdout.c"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/armclang/tfm_common_s.sct"     condition ="ARMCC6" attr="config" version="1.2.0"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/armclang/tfm_isolation_l3.sct" condition ="ARMCC6" attr="config" version="1.2.0"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/gcc/tfm_common_s.ld"           condition ="GCC"    attr="config" version="1.2.0"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/gcc/tfm_isolation_l3.ld"       condition ="GCC"    attr="config" version="1.2.0"/>
+        <file category="linkerScript"
+                                 name="platform/ext/common/iar/tfm_common_s.icf"          condition ="IAR"    attr="config" version="1.2.0"/>
+      </files>
+    </component>
+    <!-- TF-M Secure Service -->
+    <component Cclass="TFM" Cgroup="Secure Service" Csub="Protected Storage" Cvariant="Non-encrypted" Cversion="1.2.0" condition="TFM Protected Storage Service (Non-encrypted)">
+      <description>TF-M Protected Storage Service (Non-encrypted)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_SS_PS                   /* TF-M Protected Storage Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="secure_fw/partitions/protected_storage/"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/tfm_protected_storage.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/tfm_ps_req_mngr.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/tfm_ps_secure_api.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/ps_object_system.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/ps_object_table.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/ps_utils.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/nv_counters/ps_nv_counters.c" condition="TFM Protected Storage Service (Production)"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Secure Service" Csub="Protected Storage" Cvariant="Encrypted" Cversion="1.2.0" condition="TFM Protected Storage Service (Encrypted)">
+      <description>TF-M Protected Storage Service (Encrypted)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_SS_PS                   /* TF-M Protected Storage Service */
+        #define RTE_TFM_SS_PS_ENCRYPTED         /* TF-M Protected Storage Service (Encrypted) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="secure_fw/partitions/protected_storage/"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/tfm_protected_storage.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/tfm_ps_req_mngr.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/tfm_ps_secure_api.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/ps_encrypted_object.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/ps_object_system.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/ps_object_table.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/ps_utils.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/crypto/ps_crypto_interface.c"/>
+        <file category="source"  name="secure_fw/partitions/protected_storage/nv_counters/ps_nv_counters.c" condition="TFM Protected Storage Service (Production)"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Secure Service" Csub="Internal Trusted Storage" Cversion="1.2.0" condition="TFM Internal Trusted Storage Service">
+      <description>TF-M Internal Trusted Storage Service</description>
+      <RTE_Components_h>
+        #define RTE_TFM_SS_ITS                  /* TF-M Internal Trusted Storage Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="source"  name="platform/ext/common/tfm_hal_its.c"/>
+        <file category="source"  name="platform/ext/common/tfm_hal_ps.c"/>
+        <file category="include" name="secure_fw/partitions/protected_storage/"/>
+        <file category="include" name="secure_fw/partitions/internal_trusted_storage/"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/tfm_internal_trusted_storage.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/tfm_its_req_mngr.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/tfm_its_secure_api.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/its_utils.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/flash/its_flash.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/flash/its_flash_nand.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/flash/its_flash_nor.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/flash/its_flash_ram.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/flash/its_flash_info_internal.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/flash/its_flash_info_external.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/flash_fs/its_flash_fs.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/flash_fs/its_flash_fs_dblock.c"/>
+        <file category="source"  name="secure_fw/partitions/internal_trusted_storage/flash_fs/its_flash_fs_mblock.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Secure Service" Csub="Audit Logging" Cversion="1.2.0" condition="TFM Audit Logging Service">
+      <description>TF-M Audit Logging Service</description>
+      <RTE_Components_h>
+        #define RTE_TFM_SS_AUDIT_LOGGING        /* TF-M Audit Logging Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="secure_fw/partitions/audit_logging/"/>
+        <file category="source"  name="secure_fw/partitions/audit_logging/audit_core.c"/>
+        <file category="source"  name="secure_fw/partitions/audit_logging/tfm_audit_secure_api.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Secure Service" Csub="Crypto" Cversion="1.2.0" condition="TFM Crypto Service">
+      <description>TF-M Crypto Secure Service</description>
+      <RTE_Components_h>
+        #define RTE_TFM_SS_CRYPTO               /* TF-M Crypto Secure Service */
+      </RTE_Components_h>
+      <Pre_Include_Global_h>
+        #define MBEDTLS_CONFIG_FILE "tfm_mbedcrypto_config.h"
+      </Pre_Include_Global_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="header"  name="lib/ext/mbedcrypto/mbedcrypto_config/tfm_mbedcrypto_config.h" attr="config" version="1.0.0"/>
+        <file category="include" name="secure_fw/partitions/crypto/"/>
+        <file category="source"  name="secure_fw/partitions/crypto/crypto_aead.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/crypto_alloc.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/crypto_asymmetric.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/crypto_cipher.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/crypto_hash.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/crypto_init.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/crypto_key.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/crypto_key_derivation.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/crypto_mac.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/tfm_crypto_secure_api.c"/>
+        <file category="source"  name="secure_fw/partitions/crypto/tfm_mbedcrypto_alt.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Secure Service" Csub="Platform" Cversion="1.2.0" condition="TFM Platform Service">
+      <description>TF-M Platform Service</description>
+      <RTE_Components_h>
+        #define RTE_TFM_SS_PLATFORM             /* TF-M Platform Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="secure_fw/partitions/platform/"/>
+        <file category="source"  name="secure_fw/partitions/platform/platform_sp.c"/>
+        <file category="source"  name="secure_fw/partitions/platform/tfm_platform_secure_api.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Secure Service" Csub="Initial Attestation" Cvariant="Asymmetric" isDefaultVariant="true" Cversion="1.2.0" condition="TFM Initial Attestation Service (Asymmetric)">
+      <description>TF-M Initial Attestation Service (Asymmetric)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_SS_INITIAL_ATTESTATION  /* TF-M Initial Attestation Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="secure_fw/partitions/initial_attestation/"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/attest_core.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/attest_asymmetric_key.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/attest_token_encode.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/tfm_attest.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/tfm_attest_req_mngr.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/tfm_attest_secure_api.c"/>
+        <!-- Library SPRT -->
+        <file category="include" name="secure_fw/partitions/lib/sprt/include/"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/crt_memcmp.c"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/crt_memcpy.c"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/crt_memmove.c"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/crt_memset.c"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/service_api.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Secure Service" Csub="Initial Attestation" Cvariant="Symmetric" Cversion="1.2.0" condition="TFM Initial Attestation Service (Symmetric)">
+      <description>TF-M Initial Attestation Service (Symmetric)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_SS_INITIAL_ATTESTATION  /* TF-M Initial Attestation Service */
+        #define RTE_TFM_SS_SYMMETRIC_INITIAL_ATTESTATION
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="secure_fw/partitions/initial_attestation/"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/attest_core.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/attest_symmetric_key.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/attest_token_encode.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/tfm_attest.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/tfm_attest_req_mngr.c"/>
+        <file category="source"  name="secure_fw/partitions/initial_attestation/tfm_attest_secure_api.c"/>
+        <!-- Library SPRT -->
+        <file category="include" name="secure_fw/partitions/lib/sprt/include/"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/crt_memcmp.c"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/crt_memcpy.c"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/crt_memmove.c"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/crt_memset.c"/>
+        <file category="source"  name="secure_fw/partitions/lib/sprt/service_api.c"/>
+      </files>
+    </component>
+    <!-- TF-M Non-secure Core -->
+    <component Cclass="TFM" Cgroup="Core" Cvariant="SFN" Cversion="1.2.0" condition="TFM Non-Secure Core">
+      <description>TF-M Non-secure Core (Secure Functions)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_CORE_SFN                /* TF-M Core SFN */
+        #define RTE_TFM_DOMAIN_NS               /* TF-M Non-Secure Domain */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="header"  name="rte/config/non_secure/tfm_config.h" attr="config" version="1.2.0"/>
+        <file category="source"  name="rte/config/tfm_config_rte.h"        attr="config" version="1.2.0"/>
+        <file category="include" name="interface/include/"/>
+        <file category="header"  name="interface/include/tfm_ns_interface.h"/>
+        <file category="header"  name="interface/include/tfm_nspm_api.h"/>
+        <file category="source"  name="interface/src/tfm_ns_interface.c"/>
+        <file category="source"  name="interface/src/os_wrapper_cmsis_rtos_v2.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Core" Cvariant="IPC" Cversion="1.2.0" condition="TFM Non-Secure Core">
+      <description>TF-M Non-secure Core (Inter-Process Communication)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_CORE_IPC                /* TF-M Core IPC */
+        #define RTE_TFM_DOMAIN_NS               /* TF-M Non-Secure Domain */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="header"  name="rte/config/non_secure/tfm_config.h" attr="config" version="1.2.0"/>
+        <file category="source"  name="rte/config/tfm_config_rte.h"        attr="config" version="1.2.0"/>
+        <file category="include" name="interface/include/"/>
+        <file category="header"  name="interface/include/tfm_ns_interface.h"/>
+        <file category="header"  name="interface/include/tfm_nspm_api.h"/>
+        <file category="source"  name="interface/src/tfm_ns_interface.c"/>
+        <file category="source"  name="interface/src/tfm_psa_ns_api.c"/>
+        <file category="source"  name="interface/src/os_wrapper_cmsis_rtos_v2.c"/>
+      </files>
+    </component>
+    <!-- TF-M Non-secure API -->
+    <component Cclass="TFM" Cgroup="API" Csub="Protected Storage" Cversion="1.2.0" condition="TFM API">
+      <description>TF-M Protected Storage API</description>
+      <RTE_Components_h>
+        #define RTE_TFM_API_PS                  /* TF-M Protected Storage API */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_ps_func_api.c" condition="TFM API (SFN)"/>
+        <file category="source"  name="interface/src/tfm_ps_ipc_api.c"  condition="TFM API (IPC)"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="API" Csub="Internal Trusted Storage" Cversion="1.2.0" condition="TFM API">
+      <description>TF-M Internal Trusted Storage API</description>
+      <RTE_Components_h>
+        #define RTE_TFM_API_ITS                 /* TF-M Internal Trusted Storage API */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_its_func_api.c" condition="TFM API (SFN)"/>
+        <file category="source"  name="interface/src/tfm_its_ipc_api.c"  condition="TFM API (IPC)"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="API" Csub="Audit Logging" Cversion="1.2.0" condition="TFM API (SFN)">
+      <description>TF-M Audit Logging API</description>
+      <RTE_Components_h>
+        #define RTE_TFM_API_AUDIT_LOGGING       /* TF-M Audit Logging API */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_audit_func_api.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="API" Csub="Crypto" Cversion="1.2.0" condition="TFM API">
+      <description>TF-M Crypto API</description>
+      <RTE_Components_h>
+        #define RTE_TFM_API_CRYPTO              /* TF-M Crypto API */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_crypto_func_api.c" condition="TFM API (SFN)"/>
+        <file category="source"  name="interface/src/tfm_crypto_ipc_api.c"  condition="TFM API (IPC)"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="API" Csub="Platform" Cversion="1.2.0" condition="TFM API">
+      <description>TF-M Platform API</description>
+      <RTE_Components_h>
+        #define RTE_TFM_API_PLATFORM            /* TF-M Platform API */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_platform_func_api.c" condition="TFM API (SFN)"/>
+        <file category="source"  name="interface/src/tfm_platform_ipc_api.c"  condition="TFM API (IPC)"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="API" Csub="Initial Attestation" Cversion="1.2.0" condition="TFM API">
+      <description>TF-M Initial Attestation API</description>
+      <RTE_Components_h>
+        #define RTE_TFM_API_INITIAL_ATTESTATION /* TF-M Initial Attestation API */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_initial_attestation_func_api.c" condition="TFM API (SFN)"/>
+        <file category="source"  name="interface/src/tfm_initial_attestation_ipc_api.c"  condition="TFM API (IPC)"/>
+      </files>
+    </component>
+    <!-- TF-M Library -->
+    <component Cclass="TFM" Cgroup="Library" Csub="QCBOR" Cversion="1.2.0">
+      <description>CBOR encoder/decoder</description>
+      <RTE_Components_h>
+        #define RTE_TFM_LIBRARY_QCBOR           /* TF-M QCBOR Library */
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="lib/ext/qcbor/inc/"/>
+        <file category="source"  name="lib/ext/qcbor/src/ieee754.c"/>
+        <file category="source"  name="lib/ext/qcbor/src/qcbor_decode.c"/>
+        <file category="source"  name="lib/ext/qcbor/src/qcbor_encode.c"/>
+        <file category="source"  name="lib/ext/qcbor/src/UsefulBuf.c"/>
+
+        <file category="include" name="lib/ext/qcbor/test/"                              condition="QCBOR [Test QCBOR]"/>
+        <file category="source"  name="lib/ext/qcbor/test/float_tests.c"                 condition="QCBOR [Test QCBOR]"/>
+        <file category="source"  name="lib/ext/qcbor/test/half_to_double_from_rfc7049.c" condition="QCBOR [Test QCBOR]"/>
+        <file category="source"  name="lib/ext/qcbor/test/qcbor_decode_tests.c"          condition="QCBOR [Test QCBOR]"/>
+        <file category="source"  name="lib/ext/qcbor/test/qcbor_encode_tests.c"          condition="QCBOR [Test QCBOR]"/>
+        <file category="source"  name="lib/ext/qcbor/test/UsefulBuf_Tests.c"             condition="QCBOR [Test QCBOR]"/>
+        <file category="source"  name="lib/ext/qcbor/test/run_tests.c"                   condition="QCBOR [Test QCBOR]"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Library" Csub="T_COSE" Cvariant="Asymmetric" isDefaultVariant="true" Cversion="1.2.0" condition="T_COSE (Secure)">
+      <description>T_COSE Library (Asymmetric)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_LIBRARY_T_COSE          /* TF-M T_COSE Library */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="lib/ext/t_cose/inc/"/>
+        <file category="include" name="lib/ext/t_cose/src/"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_parameters.c"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_sign1_sign.c"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_sign1_verify.c" condition="T_COSE [Test Attestation]"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_util.c"/>
+        <file category="source"  name="lib/ext/t_cose/crypto_adapters/t_cose_psa_crypto.c"/>
+        <file category="include" name="lib/ext/qcbor/util/"                      condition="T_COSE [Test Attestation]"/>
+        <file category="source"  name="lib/ext/qcbor/util/qcbor_util.c"          condition="T_COSE [Test Attestation]"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Library" Csub="T_COSE" Cvariant="Symmetric" Cversion="1.2.0" condition="T_COSE (Secure)">
+      <description>T_COSE Library (Symmetric)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_LIBRARY_T_COSE          /* TF-M T_COSE Library */
+        #define RTE_TFM_LIBRARY_T_COSE_SYMMETRIC
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="lib/ext/t_cose/inc/"/>
+        <file category="include" name="lib/ext/t_cose/src/"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_parameters.c"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_mac0_sign.c"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_mac0_verify.c"  condition="T_COSE [Test Attestation]"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_util.c"/>
+        <file category="source"  name="lib/ext/t_cose/crypto_adapters/t_cose_psa_crypto.c"/>
+        <file category="include" name="lib/ext/qcbor/util/"                      condition="T_COSE [Test Attestation]"/>
+        <file category="source"  name="lib/ext/qcbor/util/qcbor_util.c"          condition="T_COSE [Test Attestation]"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Library" Csub="T_COSE" Cvariant="Asymmetric" isDefaultVariant="true" Cversion="1.2.0" condition="T_COSE (Non-secure)">
+      <description>T_COSE Library</description>
+      <RTE_Components_h>
+        #define RTE_TFM_LIBRARY_T_COSE          /* TF-M T_COSE Library */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="lib/ext/t_cose/inc/"/>
+        <file category="include" name="lib/ext/t_cose/src/"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_parameters.c"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_sign1_sign.c"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_sign1_verify.c"        condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_sign1_verify.c"        condition="T_COSE [Test Attestation]"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_util.c"/>
+        <file category="source"  name="lib/ext/t_cose/crypto_adapters/t_cose_psa_crypto.c"/>
+        <file category="include" name="lib/ext/qcbor/util/"                             condition="T_COSE [Test Attestation]"/>
+        <file category="source"  name="lib/ext/qcbor/util/qcbor_util.c"                 condition="T_COSE [Test Attestation]"/>
+        <file category="include" name="lib/ext/t_cose/test/"                            condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/t_cose_test.c"               condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/t_cose_make_psa_test_key.c"  condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/t_cose_make_test_messages.c" condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/t_cose_sign_verify_test.c"   condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/run_tests.c"                 condition="T_COSE [Test T_COSE]"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Library" Csub="T_COSE" Cvariant="Symmetric" Cversion="1.2.0" condition="T_COSE (Non-secure)">
+      <description>T_COSE Library</description>
+      <RTE_Components_h>
+        #define RTE_TFM_LIBRARY_T_COSE          /* TF-M T_COSE Library */
+        #define RTE_TFM_LIBRARY_T_COSE_SYMMETRIC
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="lib/ext/t_cose/inc/"/>
+        <file category="include" name="lib/ext/t_cose/src/"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_parameters.c"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_mac0_sign.c"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_mac0_verify.c"         condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_mac0_verify.c"         condition="T_COSE [Test Attestation]"/>
+        <file category="source"  name="lib/ext/t_cose/src/t_cose_util.c"/>
+        <file category="source"  name="lib/ext/t_cose/crypto_adapters/t_cose_psa_crypto.c"/>
+        <file category="include" name="lib/ext/qcbor/util/"                             condition="T_COSE [Test Attestation]"/>
+        <file category="source"  name="lib/ext/qcbor/util/qcbor_util.c"                 condition="T_COSE [Test Attestation]"/>
+        <file category="include" name="lib/ext/t_cose/test/"                            condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/t_cose_test.c"               condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/t_cose_make_psa_test_key.c"  condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/t_cose_make_test_messages.c" condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/t_cose_sign_verify_test.c"   condition="T_COSE [Test T_COSE]"/>
+        <file category="source"  name="lib/ext/t_cose/test/run_tests.c"                 condition="T_COSE [Test T_COSE]"/>
+      </files>
+    </component>
+    <!-- TF-M Platform -->
+    <component Cclass="TFM Platform" Cgroup="Boot Seed" Csub="Dummy" Capiversion="1.0.0" Cversion="1.2.0" condition="TFM Platform">
+      <description>TF-M Platform Dummy Boot Seed - only for testing!</description>
+      <RTE_Components_h>
+        #define RTE_TFM_PLATFORM_BOOT_SEED      /* TF-M Platform Boot Seed */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="source"  name="platform/ext/common/template/boot_seed.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM Platform" Cgroup="Crypto Keys" Csub="Dummy" Capiversion="1.2.0" Cversion="1.2.0" condition="TFM Platform">
+      <description>TF-M Platform Dummy Crypto Keys - only for testing!</description>
+      <RTE_Components_h>
+        #define RTE_TFM_PLATFORM_CRYPTO_KEYS    /* TF-M Platform Crypto Keys */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="source"  name="platform/ext/common/template/tfm_initial_attestation_key_material.c"/>
+        <file category="source"  name="platform/ext/common/template/tfm_rotpk.c"/>
+        <file category="source"  name="platform/ext/common/template/crypto_keys.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM Platform" Cgroup="Device ID" Csub="Dummy" Capiversion="1.0.0" Cversion="1.2.0" condition="TFM Platform">
+      <description>TF-M Platform Dummy Device ID - only for testing!</description>
+      <RTE_Components_h>
+        #define RTE_TFM_PLATFORM_DEVICE_ID      /* TF-M Platform Device ID */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="source"  name="platform/ext/common/template/device_id.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM Platform" Cgroup="NV Counters" Csub="Dummy" Capiversion="1.2.0" Cversion="1.2.0" condition="TFM Platform NV Counters">
+      <description>TF-M Platform Dummy NV Counters - only for testing!</description>
+      <RTE_Components_h>
+        #define RTE_TFM_PLATFORM_NV_COUNTERS    /* TF-M Platform NV Counters */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="source"  name="platform/ext/common/template/nv_counters.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM Platform" Cgroup="Attest HAL" Csub="Template" Capiversion="1.2.0" Cversion="1.2.0" condition="TFM Platform">
+      <description>TF-M Platform Attest HAL Template</description>
+      <RTE_Components_h>
+        #define RTE_TFM_PLATFORM_ATTEST_HAL     /* TF-M Platform Attest HAL */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="source"  name="platform/ext/common/template/attest_hal.c" attr="config" version="1.2.0"/>
+      </files>
+    </component>
+    <!-- TF-M PSA -->
+    <component Cclass="PSA" Cgroup="Crypto" Csub="TFM" Capiversion="1.0.0" Cversion="1.2.0" condition="TFM PSA Crypto">
+      <description>TF-M PSA Crypto</description>
+      <RTE_Components_h>
+        #define RTE_PSA_API_CRYPTO
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="interface/include/"/>
+      </files>
+    </component>
+    <component Cclass="PSA" Cgroup="Internal Trusted Storage" Csub="TFM" Capiversion="1.0.0" Cversion="1.2.0" condition="TFM PSA Internal Trusted Storage">
+      <description>TF-M PSA Internal Trusted Storage</description>
+      <RTE_Components_h>
+        #define RTE_PSA_API_ITS
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="interface/include/"/>
+      </files>
+    </component>
+    <component Cclass="PSA" Cgroup="Protected Storage" Csub="TFM" Capiversion="1.0.0" Cversion="1.2.0" condition="TFM PSA Protected Storage">
+      <description>TF-M PSA Protected Storage</description>
+      <RTE_Components_h>
+        #define RTE_PSA_API_PS
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="interface/include/"/>
+      </files>
+    </component>
+    <component Cclass="PSA" Cgroup="Initial Attestation" Csub="TFM" Capiversion="1.0.0" Cversion="1.2.0" condition="TFM PSA Initial Attestation">
+      <description>TF-M PSA Initial Attestation</description>
+      <RTE_Components_h>
+        #define RTE_PSA_API_INITIAL_ATTESTATION_TFM
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="interface/include/"/>
+      </files>
+    </component>
+  </components>
+
+</package>

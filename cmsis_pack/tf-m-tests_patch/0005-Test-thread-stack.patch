@@ -1,0 +1,31 @@
+From: Robert Rostohar <Robert.Rostohar@arm.com>
+Date: Mon, 21 Dec 2020 16:48:58 +0100
+Subject: [PATCH 3/3] Update test thread stack configuration
+
+Remove user provided memory for stack used by test main thread.
+
+This enables usage of FreeRTOS on the non-secure side to run the tests.
+FreeRTOS requires that memory for thread control block and stack is
+either user provided or provided by the system (cannot be mixed).
+---
+ app/main_ns.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/app/main_ns.c b/app/main_ns.c
+index e3061c1..fa4ab0a 100644
+--- a/app/main_ns.c
++++ b/app/main_ns.c
+@@ -61,11 +61,9 @@ extern void * const osRtxUserSVC[1+USER_SVC_COUNT];
+  */
+ #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
+  || defined(PSA_API_TEST_NS)
+-static uint64_t test_app_stack[(4u * 1024u) / (sizeof(uint64_t))]; /* 4KB */
+ static const osThreadAttr_t thread_attr = {
+     .name = "test_thread",
+-    .stack_mem = test_app_stack,
+-    .stack_size = sizeof(test_app_stack),
++    .stack_size = 4096U
+ };
+ #endif
+ 
+-- 

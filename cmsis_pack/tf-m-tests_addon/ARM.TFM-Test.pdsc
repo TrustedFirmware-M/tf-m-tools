@@ -1,0 +1,776 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2017-2020, Arm Limited. All rights reserved.
+ 
+  SPDX-License-Identifier: BSD-3-Clause
+ -->
+<package schemaVersion="1.6.3" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="PACK.xsd">
+  <name>TFM-Test</name>
+  <description>Trusted Firmware-M (TF-M) Tests</description>
+  <vendor>ARM</vendor>
+  <!-- <license>license.txt</license> -->
+  <url>http://www.keil.com/pack/</url>
+
+  <releases>
+    <release version="1.0.0">
+      Based on https://git.trustedfirmware.org/TF-M/tf-m-tests.git repository tag: TF-Mv1.2.0
+    </release>
+  </releases>
+
+  <requirements>
+    <packages>
+      <package vendor="ARM" name="TFM" version="2.1.0"/>
+    </packages>
+  </requirements>
+
+  <conditions>
+    <!-- Compiler -->
+    <condition id="ARMCC6">
+      <accept Tcompiler="ARMCC" Toptions="AC6"/>
+      <accept Tcompiler="ARMCC" Toptions="AC6LTO"/>
+    </condition>
+    <condition id="ARMCC6 GCC IAR">
+      <accept condition="ARMCC6"/>
+      <accept Tcompiler="GCC"/>
+      <accept Tcompiler="IAR"/>
+    </condition>
+    <!-- Arm Architecture -->
+    <condition id="ARMv8-M Device">
+      <description>Armv8-M architecture based device</description>
+      <accept Dcore="ARMV8MBL"/>
+      <accept Dcore="ARMV8MML"/>
+      <accept Dcore="ARMV81MML"/>
+      <accept Dcore="Cortex-M23"/>
+      <accept Dcore="Cortex-M33"/>
+      <accept Dcore="Cortex-M35P"/>
+      <accept Dcore="Cortex-M55"/>
+    </condition>
+    <condition id="ARMv8-M TZ Device">
+      <description>Armv8-M architecture based device with TrustZone</description>
+      <require condition="ARMv8-M Device"/>
+      <require Dtz="TZ"/>
+    </condition>
+    <!-- TF-M -->
+    <condition id="TFM Secure">
+      <description>TF-M Secure</description>
+      <require condition="ARMv8-M TZ Device"/>
+      <require Dsecure="Secure"/>
+      <require condition="ARMCC6 GCC IAR"/>
+    </condition>
+    <condition id="TFM Non-secure">
+      <description>TF-M Non-secure</description>
+      <require condition="ARMv8-M TZ Device"/>
+      <require Dsecure="Non-secure"/>
+      <require condition="ARMCC6 GCC IAR"/>
+    </condition>
+    <!-- TF-M Test Service -->
+    <condition id="TFM Core Test Service">
+      <description>TF-M Core Test Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM Platform" Cgroup="Test"/>
+    </condition>
+    <condition id="TFM IPC Test Service">
+      <description>TF-M IPC Test Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core" Cvariant="IPC"/>
+    </condition>
+    <condition id="TFM Secure Client Test Service">
+      <description>TF-M Secure Client Test Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+    </condition>
+    <condition id="TFM PS Test Service">
+      <description>TF-M PS Test Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Protected Storage"/>
+    </condition>
+    <condition id="TFM IRQ Test Service">
+      <description>TF-M IRQ Test Service</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM Platform" Cgroup="Test"/>
+    </condition>
+    <!-- TF-M Test Suite (Secure) -->
+    <condition id="TFM Test Framework (Secure)">
+      <description>TF-M Test Framework (Secure)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="Test Service" Csub="Secure Client"/>
+    </condition>
+    <condition id="TFM Test Attestation (Secure)">
+      <description>TF-M Test Attestation (Secure)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Initial Attestation"/>
+    </condition>
+    <condition id="TFM Test Asymmetric Attestation (Secure)">
+      <description>TF-M Test Asymmetric Attestation (Secure)</description>
+      <require condition="TFM Test Attestation (Secure)"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Initial Attestation" Cvariant="Asymmetric"/>
+    </condition>
+    <condition id="TFM Test Symmetric Attestation (Secure)">
+      <description>TF-M Test Symmetric Attestation (Secure)</description>
+      <require condition="TFM Test Attestation (Secure)"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Initial Attestation" Cvariant="Symmetric"/>
+    </condition>
+    <condition id="TFM Test Audit (Secure)">
+      <description>TF-M Test Audit (Secure)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core" Cvariant="SFN"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Audit Logging"/>
+    </condition>
+    <condition id="TFM Test Crypto (Secure)">
+      <description>TF-M Test Crypto (Secure)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Crypto"/>
+    </condition>
+    <condition id="TFM Test PS (Secure)">
+      <description>TF-M Test PS (Secure)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Protected Storage"/>
+      <require Cclass="TFM" Cgroup="Test Service" Csub="PS"/>
+    </condition>
+    <condition id="TFM Test ITS (Secure)">
+      <description>TF-M Test ITS (Secure)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Internal Trusted Storage"/>
+    </condition>
+    <condition id="TFM Test Platform (Secure)">
+      <description>TF-M Test Platform (Secure)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="Secure Service" Csub="Platform"/>
+    </condition>
+    <condition id="TFM Test IPC (Secure)">
+      <description>TF-M Test IPC (Secure)</description>
+      <require condition="TFM Secure"/>
+      <require Cclass="TFM" Cgroup="Core" Cvariant="IPC"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="Test Service" Csub="IPC"/>
+    </condition>
+    <!-- TF-M Test Suite (Non-secure) -->
+    <condition id="TFM Test Framework (Non-secure)">
+      <description>TF-M Test Framework (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="CMSIS Driver" Cgroup="USART"/>
+    </condition>
+    <condition id="TFM Test Attestation (Non-secure)">
+      <description>TF-M Test Attestation (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="QCBOR"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="T_COSE"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Initial Attestation"/>
+    </condition>
+    <condition id="TFM Test Asymmetric Attestation (Non-secure)">
+      <description>TF-M Test Asymmetric Attestation (Non-secure)</description>
+      <require condition="TFM Test Attestation (Non-secure)"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="T_COSE" Cvariant="Asymmetric"/>
+    </condition>
+    <condition id="TFM Test Symmetric Attestation (Non-secure)">
+      <description>TF-M Test Symmetric Attestation (Non-secure)</description>
+      <require condition="TFM Test Attestation (Non-secure)"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="T_COSE" Cvariant="Symmetric"/>
+    </condition>
+    <condition id="TFM Test Audit (Non-secure)">
+      <description>TF-M Test Audit (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core" Cvariant="SFN"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Audit Logging"/>
+    </condition>
+    <condition id="TFM Test Crypto (Non-secure)">
+      <description>TF-M Test Crypto (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Crypto"/>
+    </condition>
+    <condition id="TFM Test PS (Non-secure)">
+      <description>TF-M Test PS (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Protected Storage"/>
+    </condition>
+    <condition id="TFM Test ITS (Non-secure)">
+      <description>TF-M Test ITS (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Internal Trusted Storage"/>
+    </condition>
+    <condition id="TFM Test Platform (Non-secure)">
+      <description>TF-M Test Platform (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Platform"/>
+    </condition>
+    <condition id="TFM Test Core (Non-secure)">
+      <description>TF-M Test Core (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+    </condition>
+    <condition id="TFM Test IPC (Non-secure)">
+      <description>TF-M Test IPC (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core" Cvariant="IPC"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+    </condition>
+    <condition id="TFM Test Secure Client (Non-secure)">
+      <description>TF-M Test Secure Client (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+    </condition>
+    <condition id="TFM Test QCBOR (Non-secure)">
+      <description>TF-M Test QCBOR (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="QCBOR"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+    </condition>
+    <condition id="TFM Test Asymmetric T_COSE (Non-secure)">
+      <description>TF-M Test Asymmetric T_COSE (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="T_COSE" Cvariant="Asymmetric"/>
+      <require Cclass="TFM" Cgroup="Library" Csub="QCBOR"/>
+      <require Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+    </condition>
+    <!-- PSA API Tests (Non-secure) -->
+    <condition id="TFM Test PSA API [Initial Attestation] (Non-secure)">
+      <description>TF-M PSA API Initial Attestation Tests (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Initial Attestation"/>
+      <deny    Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="CMSIS Driver" Cgroup="USART"/>
+    </condition>
+    <condition id="TFM Test PSA API [Crypto] (Non-secure)">
+      <description>TF-M PSA API Crypto Tests (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Crypto"/>
+      <deny    Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="CMSIS Driver" Cgroup="USART"/>
+    </condition>
+    <condition id="TFM Test PSA API [Protected Storage] (Non-secure)">
+      <description>TF-M PSA API Protected Storage Tests (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Protected Storage"/>
+      <deny    Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="CMSIS Driver" Cgroup="USART"/>
+    </condition>
+    <condition id="TFM Test PSA API [Internal Trusted Storage] (Non-secure)">
+      <description>TF-M PSA API Internal Trusted Storage Tests (Non-secure)</description>
+      <require condition="TFM Non-secure"/>
+      <require Cclass="TFM" Cgroup="Core"/>
+      <require Cclass="TFM" Cgroup="API" Csub="Internal Trusted Storage"/>
+      <deny    Cclass="TFM" Cgroup="Test" Csub="Framework"/>
+      <require Cclass="CMSIS Driver" Cgroup="USART"/>
+    </condition>
+  </conditions>
+
+  <components>
+    <!-- TF-M Test Service -->
+    <component Cclass="TFM" Cgroup="Test Service" Csub="Core" Cversion="1.2.0" condition="TFM Core Test Service">
+      <description>TF-M Core Test Service</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TS_CORE                 /* TF-M Core Test Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="./"/>
+        <file category="include" name="log/"/>
+        <file category="include" name="test/framework/"/>
+        <file category="include" name="test/test_services/tfm_core_test/"/>
+        <file category="source"  name="test/test_services/tfm_core_test/tfm_ss_core_test.c"/>
+        <file category="include" name="test/test_services/tfm_core_test_2/"/>
+        <file category="source"  name="test/test_services/tfm_core_test_2/tfm_ss_core_test_2.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test Service" Csub="IPC" Cversion="1.2.0" condition="TFM IPC Test Service">
+      <description>TF-M IPC Test Service</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TS_IPC                  /* TF-M IPC Test Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="./"/>
+        <file category="source"  name="test/test_services/tfm_ipc_client/tfm_ipc_client_test.c"/>
+        <file category="source"  name="test/test_services/tfm_ipc_service/tfm_ipc_service_test.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test Service" Csub="Secure Client" Cversion="1.2.0" condition="TFM Secure Client Test Service">
+      <description>TF-M Secure Client Test Service</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TS_SECURE_CLIENT        /* TF-M Secure Client Test Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="./"/>
+        <file category="include" name="test/test_services/tfm_secure_client_service/"/>
+        <file category="source"  name="test/test_services/tfm_secure_client_service/tfm_secure_client_service.c"/>
+        <file category="source"  name="test/test_services/tfm_secure_client_service/tfm_secure_client_service_api.c"/>
+        <file category="include" name="test/test_services/tfm_secure_client_2/"/>
+        <file category="source"  name="test/test_services/tfm_secure_client_2/tfm_secure_client_2.c"/>
+        <file category="source"  name="test/test_services/tfm_secure_client_2/tfm_secure_client_2_api.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test Service" Csub="PS" Cversion="1.2.0" condition="TFM PS Test Service">
+      <description>TF-M PS Test Service</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TS_PS                   /* TF-M PS Test Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="./"/>
+        <file category="include" name="test/test_services/tfm_ps_test_service/"/>
+        <file category="source"  name="test/test_services/tfm_ps_test_service/tfm_ps_test_service.c"/>
+        <file category="source"  name="test/test_services/tfm_ps_test_service/tfm_ps_test_service_api.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test Service" Csub="IRQ" Cversion="1.2.0" condition="TFM IRQ Test Service">
+      <description>TF-M IRQ Test Service</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TS_IRQ                  /* TF-M IRQ Test Service */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude.h"/>
+        <file category="include" name="./"/>
+        <file category="include" name="test/test_services/tfm_core_test/"/>
+        <file category="source"  name="test/test_services/tfm_irq_test_service_1/tfm_irq_test_service_1.c"/>
+      </files>
+    </component>
+    <!-- TF-M Test Suite (Secure) -->
+    <component Cclass="TFM" Cgroup="Test" Csub="Framework" Cversion="1.2.0" condition="TFM Test Framework (Secure)">
+      <description>TF-M Test Framework (Secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_FRAMEWORK_S        /* TF-M Test Framework (Secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="header"  name="rte/config/secure/tfm_test_config.h" attr="config" version="1.2.0"/>
+        <file category="include" name="./"/>
+        <file category="include" name="log/"/>
+        <file category="include" name="test/framework/"/>
+        <file category="source"  name="test/framework/test_framework.c"/>
+        <file category="source"  name="test/framework/test_framework_helpers.c"/>
+        <file category="source"  name="test/framework/test_framework_integ_test_helper.c"/>
+        <file category="source"  name="test/framework/secure_suites.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="PS" Cversion="1.2.0" condition="TFM Test PS (Secure)">
+      <description>TF-M Test Protected Storage (Secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_PS_S               /* TF-M Test PS (Secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/ps/secure/"/>
+        <file category="source"  name="test/suites/ps/secure/psa_ps_s_interface_testsuite.c"/>
+        <file category="source"  name="test/suites/ps/secure/psa_ps_s_reliability_testsuite.c"/>
+        <file category="source"  name="test/suites/ps/secure/ps_rollback_protection_testsuite.c"/>
+        <file category="include" name="test/suites/ps/secure/nv_counters/"/>
+        <file category="source"  name="test/suites/ps/secure/nv_counters/test_ps_nv_counters.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="ITS" Cversion="1.2.0" condition="TFM Test ITS (Secure)">
+      <description>TF-M Test Internal Trusted Storage (Secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_ITS_S              /* TF-M Test ITS (Secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="source"  name="test/suites/its/its_tests_common.c"/>
+        <file category="include" name="test/suites/its/secure/"/>
+        <file category="source"  name="test/suites/its/secure/psa_its_s_interface_testsuite.c"/>
+        <file category="source"  name="test/suites/its/secure/psa_its_s_reliability_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Audit" Cversion="1.2.0" condition="TFM Test Audit (Secure)">
+      <description>TF-M Test Audit (Secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_AUDIT_S            /* TF-M Test Audit (Secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/audit/secure/"/>
+        <file category="source"  name="test/suites/audit/secure/audit_s_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Crypto" Cversion="1.2.0" condition="TFM Test Crypto (Secure)">
+      <description>TF-M Test Crypto (Secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_CRYPTO_S           /* TF-M Test Crypto (Secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="source"  name="test/suites/crypto/crypto_tests_common.c"/>
+        <file category="include" name="test/suites/crypto/secure/"/>
+        <file category="source"  name="test/suites/crypto/secure/crypto_sec_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Attestation" Cvariant="Asymmetric" isDefaultVariant="true" Cversion="1.2.0" condition="TFM Test Asymmetric Attestation (Secure)">
+      <description>TF-M Test Attestation (Secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_ATTESTATION_S      /* TF-M Test Attestation (Secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/attestation/"/>
+        <file category="source"  name="test/suites/attestation/attest_public_key.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_test.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_decode_common.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_decode_asymmetric.c"/>
+        <file category="include" name="test/suites/attestation/secure/"/>
+        <file category="source"  name="test/suites/attestation/secure/attest_asymmetric_s_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Attestation" Cvariant="Symmetric" Cversion="1.2.0" condition="TFM Test Symmetric Attestation (Secure)">
+      <description>TF-M Test Attestation (Secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_ATTESTATION_S      /* TF-M Test Attestation (Secure) */
+        #define RTE_TFM_TEST_SYMMETRIC_INITIAL_ATTESTATION
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/attestation/"/>
+        <file category="source"  name="test/suites/attestation/attest_public_key.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_test.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_decode_common.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_decode_symmetric.c"/>
+        <file category="include" name="test/suites/attestation/secure/"/>
+        <file category="source"  name="test/suites/attestation/secure/attest_symmetric_s_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Platform" Cversion="1.2.0" condition="TFM Test Platform (Secure)">
+      <description>TF-M Test Platform (Secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_PLATFORM_S         /* TF-M Test Platform (Secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/platform/"/>
+        <file category="source"  name="test/suites/platform/platform_tests_common.c"/>
+        <file category="include" name="test/suites/platform/secure/"/>
+        <file category="source"  name="test/suites/platform/secure/platform_s_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="IPC" Cversion="1.2.0" condition="TFM Test IPC (Secure)">
+      <description>TF-M Test IPC (Secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_IPC_S              /* TF-M Test IPC (Secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/ipc/secure/"/>
+        <file category="source"  name="test/suites/ipc/secure/ipc_s_interface_testsuite.c"/>
+      </files>
+    </component>
+    <!-- TF-M Test Suite (Non-secure) -->
+    <component Cclass="TFM" Cgroup="Test" Csub="Framework" Cversion="1.2.0" condition="TFM Test Framework (Non-secure)">
+      <description>TF-M Test Framework (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_FRAMEWORK_NS       /* TF-M Test Framework (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="header"  name="rte/config/non_secure/tfm_test_config.h" attr="config" version="1.2.0"/>
+        <file category="source"  name="app/main_ns.c"/>
+        <file category="source"  name="app/tfm_integ_test.c"/>
+        <file category="include" name="log/"/>
+        <file category="source"  name="log/tfm_log_raw.c"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_nspm_api.c"/>
+        <file category="source"  name="interface/src/tfm_nspm_svc_handler.c"/>
+        <file category="include" name="platform/include/"/>
+        <file category="include" name="platform/ext/common/"/>
+        <file category="source"  name="platform/ext/common/uart_stdout.c"/>
+        <file category="include" name="test/framework/"/>
+        <file category="source"  name="test/framework/test_framework.c"/>
+        <file category="source"  name="test/framework/test_framework_helpers.c"/>
+        <file category="source"  name="test/framework/test_framework_integ_test_helper.c"/>
+        <file category="source"  name="test/framework/non_secure_suites.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="PS" Cversion="1.0.0" condition="TFM Test PS (Non-secure)">
+      <description>TF-M Test Protected Storage (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_PS_NS              /* TF-M Test PS (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/ps/non_secure/"/>
+        <file category="source"  name="test/suites/ps/non_secure/psa_ps_ns_interface_testsuite.c"/>
+        <file category="source"  name="test/suites/ps/non_secure/ns_test_helpers.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="ITS" Cversion="1.2.0" condition="TFM Test ITS (Non-secure)">
+      <description>TF-M Test Internal Trusted Storage (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_ITS_NS             /* TF-M Test ITS (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="source"  name="test/suites/its/its_tests_common.c"/>
+        <file category="include" name="test/suites/its/non_secure/"/>
+        <file category="source"  name="test/suites/its/non_secure/psa_its_ns_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Audit" Cversion="1.2.0" condition="TFM Test Audit (Non-secure)">
+      <description>TF-M Test Audit (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_AUDIT_NS           /* TF-M Test Audit (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/audit/non_secure/"/>
+        <file category="source"  name="test/suites/audit/non_secure/audit_ns_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Crypto" Cversion="1.2.0" condition="TFM Test Crypto (Non-secure)">
+      <description>TF-M Test Crypto (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_CRYPTO_NS          /* TF-M Test Crypto (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="source"  name="test/suites/crypto/crypto_tests_common.c"/>
+        <file category="include" name="test/suites/crypto/non_secure/"/>
+        <file category="source"  name="test/suites/crypto/non_secure/crypto_ns_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Attestation" Cvariant="Asymmetric" isDefaultVariant="true" Cversion="1.2.0" condition="TFM Test Asymmetric Attestation (Non-secure)">
+      <description>TF-M Test Attestation (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_ATTESTATION_NS     /* TF-M Test Attestation (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/attestation/"/>
+        <file category="source"  name="test/suites/attestation/attest_public_key.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_test.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_decode_common.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_decode_asymmetric.c"/>
+        <file category="include" name="test/suites/attestation/non_secure/"/>
+        <file category="source"  name="test/suites/attestation/non_secure/attest_asymmetric_ns_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Attestation" Cvariant="Symmetric" Cversion="1.2.0" condition="TFM Test Symmetric Attestation (Non-secure)">
+      <description>TF-M Test Attestation (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_ATTESTATION_NS     /* TF-M Test Attestation (Non-secure) */
+        #define RTE_TFM_TEST_SYMMETRIC_INITIAL_ATTESTATION
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/attestation/"/>
+        <file category="source"  name="test/suites/attestation/attest_public_key.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_test.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_decode_common.c"/>
+        <file category="source"  name="test/suites/attestation/attest_token_decode_symmetric.c"/>
+        <file category="include" name="test/suites/attestation/non_secure/"/>
+        <file category="source"  name="test/suites/attestation/non_secure/attest_symmetric_ns_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Platform" Cversion="1.2.0" condition="TFM Test Platform (Non-secure)">
+      <description>TF-M Test Platform (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_PLATFORM_NS        /* TF-M Test Platform (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/platform/"/>
+        <file category="source"  name="test/suites/platform/platform_tests_common.c"/>
+        <file category="include" name="test/suites/platform/non_secure/"/>
+        <file category="source"  name="test/suites/platform/non_secure/platform_ns_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Core Positive" Cversion="1.2.0" condition="TFM Test Core (Non-secure)">
+      <description>TF-M Test Core Positive (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_CORE_P_NS          /* TF-M Test Core Positive (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/test_services/tfm_core_test/"/>
+        <file category="include" name="test/suites/core/non_secure/"/>
+        <file category="source"  name="test/suites/core/non_secure/core_test_api.c"/>
+        <file category="source"  name="test/suites/core/non_secure/core_ns_positive_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Core Interactive" Cversion="1.2.0" condition="TFM Test Core (Non-secure)">
+      <description>TF-M Test Core Interactive (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_CORE_I_NS          /* TF-M Test Core Interactive (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/test_services/tfm_core_test/"/>
+        <file category="include" name="test/suites/core/non_secure/"/>
+        <file category="source"  name="test/suites/core/non_secure/core_ns_interactive_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="IPC" Cversion="1.2.0" condition="TFM Test IPC (Non-secure)">
+      <description>TF-M Test IPC (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_IPC_NS             /* TF-M Test IPC (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/ipc/non_secure/"/>
+        <file category="source"  name="test/suites/ipc/non_secure/ipc_ns_interface_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="Secure Client" Cversion="1.2.0" condition="TFM Test Secure Client (Non-secure)">
+      <description>TF-M Test Secure Client (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_SECURE_CLIENT_NS   /* TF-M Test Secure Client (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/test_services/tfm_secure_client_service/"/>
+        <file category="source"  name="test/test_services/tfm_secure_client_service/tfm_secure_client_service_api.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="QCBOR" Cversion="1.2.0" condition="TFM Test QCBOR (Non-secure)">
+      <description>TF-M Test QCBOR (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_QCBOR_NS            /* TF-M Test QCBOR (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="test/suites/qcbor/non_secure/"/>
+        <file category="source"  name="test/suites/qcbor/non_secure/qcbor_ns_testsuite.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="T_COSE" Cvariant="Asymmetric" Cversion="1.2.0" condition="TFM Test Asymmetric T_COSE (Non-secure)">
+      <description>TF-M Test T_COSE (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_T_COSE_NS            /* TF-M Test T_COSE (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="include" name="test/suites/t_cose/non_secure/"/>
+        <file category="source"  name="test/suites/t_cose/non_secure/t_cose_ns_testsuite.c"/>
+      </files>
+    </component>
+    <!-- PSA API Tests (Non-secure) -->
+    <component Cclass="TFM" Cgroup="Test" Csub="PSA API" Cvariant="Initial Attestation" Cversion="1.2.0" condition="TFM Test PSA API [Initial Attestation] (Non-secure)">
+      <description>TF-M PSA API Tests (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_PSA_API_NS         /* TF-M PSA API Tests (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="header"  name="rte/config/non_secure/tfm_test_config.h" attr="config" version="1.2.0"/>
+        <file category="source"  name="app/main_ns.c"/>
+        <file category="source"  name="app/psa_api_test.c"/>
+        <file category="include" name="log/"/>
+        <file category="source"  name="log/tfm_log_raw.c"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_nspm_api.c"/>
+        <file category="source"  name="interface/src/tfm_nspm_svc_handler.c"/>
+        <file category="include" name="platform/include/"/>
+        <file category="include" name="platform/ext/common/"/>
+        <file category="source"  name="platform/ext/common/uart_stdout.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="PSA API" Cvariant="Crypto" Cversion="1.2.0" condition="TFM Test PSA API [Crypto] (Non-secure)">
+      <description>TF-M PSA API Tests (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_PSA_API_NS         /* TF-M PSA API Tests (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="header"  name="rte/config/non_secure/tfm_test_config.h" attr="config" version="1.2.0"/>
+        <file category="source"  name="app/main_ns.c"/>
+        <file category="source"  name="app/psa_api_test.c"/>
+        <file category="include" name="log/"/>
+        <file category="source"  name="log/tfm_log_raw.c"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_nspm_api.c"/>
+        <file category="source"  name="interface/src/tfm_nspm_svc_handler.c"/>
+        <file category="include" name="platform/include/"/>
+        <file category="include" name="platform/ext/common/"/>
+        <file category="source"  name="platform/ext/common/uart_stdout.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="PSA API" Cvariant="Protected Storage" Cversion="1.2.0" condition="TFM Test PSA API [Protected Storage] (Non-secure)">
+      <description>TF-M PSA API Tests (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_PSA_API_NS         /* TF-M PSA API Tests (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="header"  name="rte/config/non_secure/tfm_test_config.h" attr="config" version="1.2.0"/>
+        <file category="source"  name="app/main_ns.c"/>
+        <file category="source"  name="app/psa_api_test.c"/>
+        <file category="include" name="log/"/>
+        <file category="source"  name="log/tfm_log_raw.c"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_nspm_api.c"/>
+        <file category="source"  name="interface/src/tfm_nspm_svc_handler.c"/>
+        <file category="include" name="platform/include/"/>
+        <file category="include" name="platform/ext/common/"/>
+        <file category="source"  name="platform/ext/common/uart_stdout.c"/>
+      </files>
+    </component>
+    <component Cclass="TFM" Cgroup="Test" Csub="PSA API" Cvariant="Internal Trusted Storage" Cversion="1.2.0" condition="TFM Test PSA API [Internal Trusted Storage] (Non-secure)">
+      <description>TF-M PSA API Tests (Non-secure)</description>
+      <RTE_Components_h>
+        #define RTE_TFM_TEST_PSA_API_NS         /* TF-M PSA API Tests (Non-secure) */
+      </RTE_Components_h>
+      <files>
+        <file category="preIncludeLocal"
+                                 name="rte/preinclude_test.h"/>
+        <file category="header"  name="rte/config/non_secure/tfm_test_config.h" attr="config" version="1.2.0"/>
+        <file category="source"  name="app/main_ns.c"/>
+        <file category="source"  name="app/psa_api_test.c"/>
+        <file category="include" name="log/"/>
+        <file category="source"  name="log/tfm_log_raw.c"/>
+        <file category="include" name="interface/include/"/>
+        <file category="source"  name="interface/src/tfm_nspm_api.c"/>
+        <file category="source"  name="interface/src/tfm_nspm_svc_handler.c"/>
+        <file category="include" name="platform/include/"/>
+        <file category="include" name="platform/ext/common/"/>
+        <file category="source"  name="platform/ext/common/uart_stdout.c"/>
+      </files>
+    </component>
+  </components>
+
+</package>
