@@ -12,7 +12,7 @@
   <url>http://www.keil.com/pack/</url>
 
   <releases>
-    <release version="1.0.0">
+    <release version="1.0.0" date="2021-02-18">
       Based on https://git.trustedfirmware.org/TF-M/tf-m-tests.git repository tag: TF-Mv1.2.0
     </release>
   </releases>

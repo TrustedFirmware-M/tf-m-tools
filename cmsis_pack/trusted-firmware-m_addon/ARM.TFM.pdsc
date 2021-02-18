@@ -12,7 +12,7 @@
   <url>http://www.keil.com/pack/</url>
 
   <releases>
-    <release version="2.1.0">
+    <release version="2.1.0" date="2021-02-18">
       Based on https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git repository tag: TF-Mv1.2.0
       Renamed Secure Service: Protected Storage instead of Secure Storage
       Restructured Non-Secure Components: Core, APIs
