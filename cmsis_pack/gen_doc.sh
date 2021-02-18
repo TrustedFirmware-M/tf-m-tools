@@ -18,7 +18,7 @@ pushd ./trusted-firmware-m/build_docs
 echo "cmake_env = None" > tfm_env.py
 
 # Generate reference and user manual
-sphinx-build.exe . user_guide
+sphinx-build . user_guide
 
 # Move generated documentation
 mv reference_manual/html ../docs/reference_manual

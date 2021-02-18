@@ -3,8 +3,20 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Setup TF-M for building CMSIS-Packs
 
+# Check Python installation
+PYTHON=$(which python3 2> /dev/null)
+if [ -z "${PYTHON}" ]; then
+  echo "No python3 executable found!"
+  echo "Fall-back to python ..."
+  PYTHON=$(which python 2> /dev/null)
+  if [ -z "${PYTHON}" ]; then
+    echo "No python executable found!"
+    exit
+  fi
+fi
+
 # Install required Python packages
-pip install -r requirements.txt
+${PYTHON} -m pip install -r requirements.txt
 
 # TF-M repositories
 TFM_URL=https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git
@@ -20,8 +32,7 @@ MCUBOOT_TAG=v1.7.0
 # Clone TF-M repository
 git clone $TFM_URL --branch $TFM_TAG --single-branch
 errorlevel=$?
-if [ $errorlevel -gt 0 ]
-  then
+if [ $errorlevel -gt 0 ]; then
   echo "Error: Cloning TF-M repository failed"
   echo " "
   exit
@@ -30,8 +41,7 @@ fi
 # Clone TF-M tests repository
 git clone $TFM_TESTS_URL --branch $TFM_TAG --single-branch
 errorlevel=$?
-if [ $errorlevel -gt 0 ]
-  then
+if [ $errorlevel -gt 0 ]; then
   echo "Error: Cloning TF-M tests repository failed"
   echo " "
   exit
@@ -40,8 +50,7 @@ fi
 # Clone MCUboot repository
 git clone $MCUBOOT_URL --branch $MCUBOOT_TAG --single-branch
 errorlevel=$?
-if [ $errorlevel -gt 0 ]
-  then
+if [ $errorlevel -gt 0 ]; then
   echo "Error: Cloning MCUboot repository failed"
   echo " "
   exit
@@ -55,9 +64,8 @@ cp -vr ./mcuboot/boot/bootutil ./trusted-firmware-m/lib/ext/mcuboot/boot/
 pushd ./trusted-firmware-m/bl2/ext/mcuboot/include/mcuboot_config
 cp -v  mcuboot_config.h.in mcuboot_config.h
 # Remove defines which are already defined in bl2_config.h
-sed -i 's/#cmakedefine/\/\/#define/' mcuboot_config.h
-sed -i 's/#define MCUBOOT_LOG_LEVEL/\/\/#define MCUBOOT_LOG_LEVEL/' mcuboot_config.h
-unix2dos -q mcuboot_config.h
+sed -b -i 's/#cmakedefine/\/\/#define/' mcuboot_config.h
+sed -b -i 's/#define MCUBOOT_LOG_LEVEL/\/\/#define MCUBOOT_LOG_LEVEL/' mcuboot_config.h
 popd
 
 # Create TF-M Mbed Crypto config file (from default config)
@@ -83,7 +91,7 @@ cd ..
 
 # Generate files from templates
 export TFM_TEST_PATH="${PWD}/tf-m-tests/test"
-python ./trusted-firmware-m/tools/tfm_parse_manifest_list.py \
+${PYTHON} ./trusted-firmware-m/tools/tfm_parse_manifest_list.py \
   -o ./trusted-firmware-m \
   -m ./trusted-firmware-m/tools/tfm_manifest_list.yaml \
   -f ./trusted-firmware-m/tools/tfm_generated_file_list.yaml \
@@ -96,9 +104,8 @@ cp -vr ./trusted-firmware-m/test/test_services ./tf-m-tests/test
 pushd ./trusted-firmware-m/platform/ext/common/armclang
 for f in tfm_common_s.sct tfm_isolation_l3.sct
 do
-  sed -i '/TFM_IRQ_TEST_1_ATTR_FN/i*(:gdef:tfm_enable_irq)' $f
-  sed -i '/TFM_IRQ_TEST_1_ATTR_FN/i*(:gdef:tfm_disable_irq)' $f
-  unix2dos -q $f
+  sed -b -i '/TFM_IRQ_TEST_1_ATTR_FN/i*(:gdef:tfm_enable_irq)\r' $f
+  sed -b -i '/TFM_IRQ_TEST_1_ATTR_FN/i*(:gdef:tfm_disable_irq)\r' $f
 done
 popd
 

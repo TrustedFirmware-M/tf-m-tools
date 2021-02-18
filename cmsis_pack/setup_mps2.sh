@@ -194,8 +194,7 @@ for d in ${DST_PATH}
 do
   mkdir -p $d/RTE/TFM
   cp -v ${TFM_ROOT}/bl2/ext/mcuboot/config/mcuboot-mbedtls-cfg.h $d/RTE/TFM/
-  sed -i '/#define __MCUBOOT_MBEDTLS_CFG__/a\\n#include "bl2_config.h"' $d/RTE/TFM/mcuboot-mbedtls-cfg.h
-  unix2dos -q $d/RTE/TFM/mcuboot-mbedtls-cfg.h
+  sed -b -i '/#define __MCUBOOT_MBEDTLS_CFG__/a\\r\n#include "bl2_config.h"\r' $d/RTE/TFM/mcuboot-mbedtls-cfg.h
   mkdir -p $d/RTE/TFM_Platform/SMM-SSE-200
   cp -v ${DST_ROOT}/boot_hal.c $d/RTE/TFM_Platform/SMM-SSE-200/
   cp -v ${DST_ROOT}/partition/flash_layout.h $d/RTE/TFM_Platform/SMM-SSE-200/
@@ -253,9 +252,8 @@ done
 
 # Adjust memory map of non-secure project when using bootloader
 pushd ${DST_ROOT}/project/fvp/tfm_bl/tfm_ns/${DST_DIR}
-sed -i 's/NS_CODE_START           (0x00100000)/NS_CODE_START           (0x00100400)/' mps2_an521_ns.sct
-sed -i 's/NS_CODE_SIZE            (0x00080000)/NS_CODE_SIZE            (0x0007F800)/' mps2_an521_ns.sct
-unix2dos -q mps2_an521_ns.sct
+sed -b -i 's/NS_CODE_START           (0x00100000)/NS_CODE_START           (0x00100400)/' mps2_an521_ns.sct
+sed -b -i 's/NS_CODE_SIZE            (0x00080000)/NS_CODE_SIZE            (0x0007F800)/' mps2_an521_ns.sct
 popd
 
 # Remove temporary device files

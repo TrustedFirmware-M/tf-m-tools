@@ -6,13 +6,14 @@ This repository contains tools and data to create TF-M [CMSIS-Packs](https://arm
 - bash compatible shell (under Windows, use for example [git bash](https://gitforwindows.org/))
 - [Git](https://git-scm.com/downloads)
 - [7-Zip](https://www.7-zip.org/download.html)
-- [Python](https://www.python.org/downloads/) v3.6 or later
+- [Python](https://www.python.org/downloads/) v3.6 or later with pip package manager
 - [Doxygen](https://www.doxygen.nl/download.html) v1.8.0 or later (for building documentation)
 - [Graphviz](https://graphviz.org/download/) v2.38.0 or later (for building documentation)
 - [PlantUML](http://sourceforge.net/projects/plantuml/files/plantuml.jar/download) v1.2018.11 or later
   in PLANTUML_JAR_PATH (for building documentation)
 - Java runtime environment 1.8 or later (for running PlantUML)
 - CMSIS Pack installed in CMSIS_PACK_ROOT (for PackChk utility)
+- xmllint in path (XML schema validation; available only for Linux)
 
 ## Create packs
 
