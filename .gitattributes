@@ -3,13 +3,13 @@
 # Text files that should be normalized
 *.c text
 *.h text
-*.py
-*.json
+*.py text
+*.json text
 *.txt text
-*.rst
-*.pdsc
-*.css
-*.svd
+*.rst text
+*.pdsc text
+*.css text
+*.svd text
 
 # Binary files that should not be normalized
 *.a binary
