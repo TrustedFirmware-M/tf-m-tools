@@ -18,7 +18,7 @@ set_default MBEDCRYPTO_PATH ${TEST_DIR}/mbedtls
 if ! test -f ${MBEDCRYPTO_PATH}/success
 then
     mkdir -p ${MBEDCRYPTO_PATH}
-    git clone https://github.com/ARMmbed/mbedtls -b mbedtls-2.24.0 ${MBEDCRYPTO_PATH}
+    git clone https://github.com/ARMmbed/mbedtls -b mbedtls-2.25.0 ${MBEDCRYPTO_PATH}
     pushd ${MBEDCRYPTO_PATH}
     git am ${SOURCE_DIR}/lib/ext/mbedcrypto/*.patch
     popd
