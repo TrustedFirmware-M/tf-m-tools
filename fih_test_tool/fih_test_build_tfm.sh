@@ -9,7 +9,7 @@ then
     mkdir -p ${MCUBOOT_PATH}
     git clone https://github.com/mcu-tools/mcuboot ${MCUBOOT_PATH}
     pushd ${MCUBOOT_PATH}
-    git checkout 81d19f0
+    git checkout v1.7.2
     popd
     touch ${MCUBOOT_PATH}/success
 fi
