@@ -8,8 +8,8 @@
 
 set -e
 
-script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-. "$script_path/utils.sh"
+root_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+. "$root_path/utils.sh"
 
 TFM_PATH="$(fix_win_path $(get_full_path ./))"
 
@@ -22,14 +22,13 @@ fi
 
 echo "[SCF] Running cppcheck"
 
-. "$script_path/cppcheck/run_cppcheck.sh"
+. "$root_path/cppcheck/run_cppcheck.sh"
 
-# echo "[SCF] Running clang_format"
+echo "[SCF] Running clang_format"
 
-# . "$script_path/clang_format/run_clang_format.sh"
+. "$root_path/clang_format/run_clang_format.sh"
 
 # echo "[SCF] Running checkpatch"
 
-# . "$script_path/checkpatch/run_checkpatch.sh"
-
+# . "$root_path/checkpatch/run_checkpatch.sh"
 exit 0

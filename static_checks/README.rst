@@ -15,6 +15,10 @@ run_all_checks.sh will launch the different checkers used :
 - Cppcheck
 - Copyright header check
 - clang-format
+- Checkpatch
+
+Both checkpatch and clang-format are use to check the coding style, but they
+both cover different cases so together they provide a better coverage.
 
 Each tool will be configured using a setup.sh script located under the tool
 directory before being launched. The main script might need to be launched with
