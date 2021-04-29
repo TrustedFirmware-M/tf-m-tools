@@ -1,0 +1,15 @@
+#------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#------------------------------------------------------------------------------
+CORE_IMG_NAME="tfm_core"
+ARMCLANG_IMG_NAME="tfm_armclang"
+DOCS_IMG_NAME="tfm_docs"
+BUILD_DIR="cmake_build"
+DOCS_DIR="cmake_doc"
+
+LOCAL_TFM_REPO=""
+PLATFORM="mps2/an521"
+ADDITIONNAL_PARAMETERS=""

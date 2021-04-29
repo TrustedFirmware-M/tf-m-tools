@@ -1,0 +1,14 @@
+#------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#------------------------------------------------------------------------------
+Jinja2==2.10
+cryptography==2.7
+PyYAML==3.12
+pycryptodome==3.6.6
+pyasn1==0.1.9
+imgtool==1.7.1
+cbor==1.0.0
+click==7.1.2

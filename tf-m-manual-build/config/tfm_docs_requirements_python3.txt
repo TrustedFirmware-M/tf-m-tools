@@ -1,0 +1,12 @@
+#------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#------------------------------------------------------------------------------
+m2r
+Sphinx==2.0.1
+sphinx-rtd-theme==0.4.3
+sphinxcontrib-plantuml==0.15
+xmltodict==0.12.0
+sphinxcontrib-svg2pdfconverter

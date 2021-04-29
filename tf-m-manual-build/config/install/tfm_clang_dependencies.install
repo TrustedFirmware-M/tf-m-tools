@@ -1,0 +1,18 @@
+#!/bin/sh
+#------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#------------------------------------------------------------------------------
+
+set -e
+
+#Setting up clang
+cd /home/buildslave/tools/
+mkdir ARMCLANG
+arm_clang=$(awk '/armclang=/{print $1}' /opt/tfm_clang_dependencies.txt | cut -d'"' -f 2)
+wget $arm_clang -O ArmClang.tgz
+tar -xf ArmClang.tgz
+rm -f ArmClang.tgz
+./install_x86_64.sh --i-agree-to-the-contained-eula -d /home/buildslave/tools/ARM_CLANG --no-interactive

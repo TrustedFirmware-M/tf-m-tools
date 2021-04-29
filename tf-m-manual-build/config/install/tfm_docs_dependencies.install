@@ -1,0 +1,13 @@
+#!/bin/sh
+#------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#------------------------------------------------------------------------------
+
+
+set -e
+
+cd /home/buildslave/tools/
+wget --content-disposition $(awk '/plantuml=/{print $1}' /opt/tfm_docs_dependencies.txt | cut -d'"' -f 2)

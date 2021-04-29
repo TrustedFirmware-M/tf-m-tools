@@ -1,0 +1,7 @@
+#------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#------------------------------------------------------------------------------
+plantuml="https://sourceforge.net/projects/plantuml/files/plantuml.jar/download"

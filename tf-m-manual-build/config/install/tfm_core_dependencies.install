@@ -1,0 +1,38 @@
+#!/bin/sh
+#------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#------------------------------------------------------------------------------
+
+set -e
+#setting up gnuarm
+gnuarm=$(awk '/gnuarm=/{print $1}' /opt/tfm_core_dependencies.txt | cut -d'"' -f 2)
+wget $gnuarm  -O gcc-arm-none-eabi.tar.bz2
+gnuarm_filename=${gnuarm##*/}
+tar -xf gcc-arm-none-eabi.tar.bz2
+gnuarm_folder_name=${gnuarm_filename%-linux.tar*}
+echo '#!/bin/bash' >> /opt/setup_env.sh
+echo "export PATH=/home/buildslave/tools/$gnuarm_folder_name/bin:\$PATH" >> /opt/setup_env.sh
+
+#Setting up gcc
+cd /home/buildslave/tools
+gcc=$(awk '/gcc=/{print $1}' /opt/tfm_core_dependencies.txt | cut -d'"' -f 2)
+wget $gcc
+gcc_filename=${gcc##*/}
+tar -xf $gcc_filename
+gcc_folder_name=${gcc_filename%.tar*}
+echo "export PATH=/home/buildslave/tools/${gcc_folder_name}/bin:\$PATH" >> /opt/setup_env.sh
+chmod 666 /opt/setup_env.sh
+
+#Setting up cmake
+cd /home/buildslave/tools
+cmake=$(awk '/cmake=/{print $1}' /opt/tfm_core_dependencies.txt | cut -d'"' -f 2)
+wget $cmake
+cmake_filename=${cmake##*/}
+tar -xzf $cmake_filename
+cd ${cmake_filename%.tar*}/
+./bootstrap
+make -j$(nproc)
+make install
