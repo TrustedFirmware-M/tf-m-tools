@@ -20,15 +20,27 @@ else
     echo "[SCF] Storing reports to $TFM_PATH/checks_reports/"
 fi
 
+echo ""
 echo "[SCF] Running cppcheck"
+echo ""
 
-. "$root_path/cppcheck/run_cppcheck.sh"
+bash "$root_path/cppcheck/run_cppcheck.sh"
 
+echo ""
 echo "[SCF] Running clang_format"
+echo ""
 
-. "$root_path/clang_format/run_clang_format.sh"
+bash "$root_path/clang_format/run_clang_format.sh"
 
+# echo ""
 # echo "[SCF] Running checkpatch"
+# echo ""
 
-# . "$root_path/checkpatch/run_checkpatch.sh"
+# bash "$root_path/checkpatch/run_checkpatch.sh"
+
+echo ""
+echo "[SCF] Running copyright header check"
+echo ""
+
+python3 "$root_path/header_check/run_header_check.py" $1
 exit 0

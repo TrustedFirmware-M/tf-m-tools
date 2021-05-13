@@ -32,8 +32,11 @@ Without using the configuration script
 
     git diff -U0 --no-color HEAD^ | <path/to/clang-format-diff.py> -p1 -style file> <out_file>
 
-If clang-format makes any correction, a diff file will be created in the
-tfm root directory, simply run ``git apply <diff_file>`` to apply them.
+If clang-format makes any correction, a diff file will be created in the tfm
+root directory, simply run ``git apply -p0 <diff_file>`` to apply them. The
+generated diff is a unified diff, whose format is slightly different that the
+git diff format, hence the -p0 option so that git can correctly interpret the
+file.
 
 .. _github repository: https://github.com/llvm/llvm-project/blob/main/clang/tools/clang-format/clang-format-diff.py
 
