@@ -20,7 +20,7 @@ To build TF-Fuzz, simply type "make" in this directory.  Executable, called
 "tfz," is placed in this directory.
 
 To run tfz, two environment variables must first be assigned.  In bash syntax:
-export TF_FUZZ_LIB_DIR=<path to this TF-M installation>/tools/tf_fuzz/lib
+export TF_FUZZ_LIB_DIR=<path to this TF-M installation>/tf-m-tools/tf_fuzz/lib
 export TF_FUZZ_BPLATE=tfm_boilerplate.txt
 
 Examples of usage can be found in the demo directory.
@@ -40,8 +40,8 @@ generate_test_suite.sh.
         suites_dir: The suites directory in the TF-M working copy.
                     i.e.: $TF-M_ROOT/test/suites
     Example:
-        cd tools/tf_fuzz
-        ./generate_test_suite.sh $TF-M_ROOT/tools/tf_fuzz/tests/  $TF-M_ROOT/../tf-m-tests/test/suites/
+        cd tf-m-tools/tf_fuzz
+        ./generate_test_suite.sh $TF-M_ROOT/../tf-m-tools/tf_fuzz/tests/  $TF-M_ROOT/../tf-m-tests/test/suites/
 
 
 After the test suite is generated, the new test suite needs to be added to the
@@ -52,7 +52,7 @@ script above):
 .. code-block:: bash
 
     -DTFM_FUZZER_TOOL_TESTS=1
-    -DTFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH=$TF-M_ROOT/test/suites/tf_fuzz
+    -DTFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH=$TF-M_ROOT/../tf-m-tests/test/suites/tf_fuzz
 
 --------------------------------------------------------------------------------
 
