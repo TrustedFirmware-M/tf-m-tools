@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -21,7 +21,9 @@
   "services": [
     {
       "name": "TFM_EXAMPLE_SERVICE",
-      "sid": "0x0000F120",
+      # SIDs must be unique, ones that are currently in use are documented in
+      # tfm_secure_partition_addition.rst on line 184
+      "sid": "0x00001000",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"

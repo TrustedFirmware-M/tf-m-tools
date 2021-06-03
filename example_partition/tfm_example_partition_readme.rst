@@ -10,7 +10,16 @@ How to run the example partition
 ********************************
 #. Copy the ``example_partition`` directory to the ``secure_fw/partitions``
    directory of the TF-M repo.
-#. Add the following entry to ``tools/tfm_manifest_list.yaml``::
+
+#. Add the partition to the TF-M CMake by inserting
+   ``add_subdirectory(partitions/example_partition)`` in
+   ``secure_fw/CMakeLists.txt``, in the block below the line
+   ``add_subdirectory(partitions/lib/sprt)``.
+
+#. Add the following entry to ``tools/tfm_manifest_list.yaml``. The ``pid``
+   field must be unique (currently used partition ids are documented in
+   tfm_secure_partition_addition.rst on line 150), or can omitted which will
+   allocate one automatically. ::
 
     {
       "name": "TF-M Example Partition",
@@ -20,10 +29,10 @@ How to run the example partition
       "conditional": "TFM_PARTITION_EXAMPLE",
       "version_major": 0,
       "version_minor": 1,
-      "pid": 270,
+      "pid": 356,
       "linker_pattern": {
         "library_list": [
-           "*tfm_partition_example.*"
+           "*tfm_*partition_example.*"
         ]
       }
     }
@@ -33,4 +42,4 @@ How to run the example partition
 
 --------------
 
-*Copyright (c) 2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2021, Arm Limited. All rights reserved.*

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,20 +12,23 @@ endif()
 cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0079 NEW)
 
-add_library(tfm_partition_example STATIC)
+# The name of the target is required to be of the pattern
+# tfm_app_rot_partition_x or tfm_psa_rot_partition_x, as it affects how the
+# linker script will lay the partition in memory.
+add_library(tfm_app_rot_partition_example STATIC)
 
-target_sources(tfm_partition_example
+target_sources(tfm_app_rot_partition_example
     PRIVATE
         tfm_example_partition.c
 )
 
-target_include_directories(tfm_partition_example
+target_include_directories(tfm_app_rot_partition_example
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         ${CMAKE_BINARY_DIR}/generated/secure_fw/partitions/example_partition
 )
 
-target_link_libraries(tfm_partition_example
+target_link_libraries(tfm_app_rot_partition_example
     PRIVATE
         tfm_secure_api
         psa_interface
@@ -35,7 +38,7 @@ target_link_libraries(tfm_partition_example
 ############################ Secure API ########################################
 
 target_sources(tfm_secure_api
-    PRIVATE
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/tfm_example_partition_secure_api.c
 )
 
@@ -50,7 +53,7 @@ set_source_files_properties(tfm_example_partition_secure_api.c
 
 target_link_libraries(tfm_partitions
     INTERFACE
-        tfm_partition_example
+        tfm_app_rot_partition_example
 )
 
 target_compile_definitions(tfm_partition_defs
