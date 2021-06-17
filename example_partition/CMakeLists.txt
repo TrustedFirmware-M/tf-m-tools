@@ -33,6 +33,7 @@ target_link_libraries(tfm_app_rot_partition_example
         tfm_secure_api
         psa_interface
         platform_s
+        tfm_sprt
 )
 
 ############################ Secure API ########################################

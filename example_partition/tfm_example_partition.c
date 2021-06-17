@@ -9,9 +9,9 @@
 
 #include "psa/service.h"
 #include "psa_manifest/tfm_example_partition.h"
-#include "log/tfm_log.h"
 #include "tfm/tfm_spm_services.h"
 #include "tfm_plat_test.h"
+#include "tfm_sp_log.h"
 
 /**
  * \brief An example service implementation that prints out an argument from the
@@ -46,13 +46,13 @@ static void tfm_example_service(void)
 
         /* Print arg from client */
         psa_read(msg.handle, 0, &arg, sizeof(arg));
-        LOG_MSG("[Example partition] Service called! arg=%p\r\n", arg);
+        LOG_INFFMT("[Example partition] Service called! arg=%p\r\n", arg);
 
         /* Start timer. The interrupt triggered when it expires will be handled
          * by tfm_example_timer_handler().
          */
         tfm_plat_test_secure_timer_start();
-        LOG_MSG("[Example partition] Timer started...\r\n");
+        LOG_INFFMT("[Example partition] Timer started...\r\n");
 
         status = PSA_SUCCESS;
         break;
