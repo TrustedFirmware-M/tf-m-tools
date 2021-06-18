@@ -2,8 +2,8 @@
 TF-M Example Partition - Readme
 ###############################
 The TF-M example partition is a simple secure partition implementation provided
-to aid development of new secure partitions. It implements one RoT Service and
-one interrupt handler.
+to aid development of new secure partitions. It implements one App RoT Service
+and one interrupt handler.
 
 ********************************
 How to run the example partition
@@ -25,7 +25,6 @@ How to run the example partition
       "name": "TF-M Example Partition",
       "short_name": "TFM_SP_EXAMPLE",
       "manifest": "secure_fw/partitions/example_partition/tfm_example_partition.yaml",
-      "tfm_partition_ipc": true,
       "conditional": "TFM_PARTITION_EXAMPLE",
       "version_major": 0,
       "version_minor": 1,

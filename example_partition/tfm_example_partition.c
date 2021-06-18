@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -85,7 +85,7 @@ void tfm_example_partition_main(void)
     psa_signal_t signals;
 
     /* Enable timer IRQ */
-    tfm_enable_irq(TFM_EXAMPLE_SIGNAL_TIMER_0_IRQ);
+    psa_irq_enable(TFM_EXAMPLE_SIGNAL_TIMER_0_IRQ);
 
     /* Continually wait for one or more of the partition's RoT Service or
      * interrupt signals to be asserted and then handle the asserted signal(s).
