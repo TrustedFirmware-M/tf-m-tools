@@ -1,0 +1,48 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+#*******************************************************************************
+#                               SCF HOOK
+#*******************************************************************************
+
+set_default()
+{
+    if test -z "$(eval echo '$'$1)"
+    then
+        eval $1='$2'
+    fi
+}
+
+#TODO: Modify accordingly for your environment ( i.e Windows )
+set_default TFM_ROOT_PATH $(readlink -f "$(dirname $(dirname $(dirname $0)))")
+
+#TODO: Modify if tf-m-tools and tf-m are not in the same root dir, or renamed.
+set_default SCF_TEST_PATH "$TFM_ROOT_PATH/../tf-m-tools/static_checks"
+
+set_default SCF_TEST_APP "$SCF_TEST_PATH/run_all_checks.sh"
+
+
+# Use Arm as default organisation unless set by user
+if [ ! -z "$SCF_ORG" ]; then
+  echo "[SCF] Setting Organisation to: $SCF_ORG"
+else
+  SCF_ORG="arm"
+fi
+
+
+# Only run the check if SCF_ENABLE is set by user
+if [ ! -z "$SCF_ENABLE" ]; then
+  echo "[SCF] Enabling Static Check Framework"
+  eval "$SCF_TEST_APP $SCF_ORG"
+  if [ ! "$?" -eq 0 ]; then
+    echo  "[SCF] Warnings Detected"
+    exit 1
+  fi
+fi
+
+#************************ SCF HOOK / *******************************************
