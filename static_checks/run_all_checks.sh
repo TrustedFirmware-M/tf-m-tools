@@ -32,11 +32,11 @@ echo ""
 
 bash "$root_path/clang_format/run_clang_format.sh"
 
-# echo ""
-# echo "[SCF] Running checkpatch"
-# echo ""
+echo ""
+echo "[SCF] Running checkpatch"
+echo ""
 
-# bash "$root_path/checkpatch/run_checkpatch.sh"
+bash "$root_path/checkpatch/run_checkpatch.sh"
 
 echo ""
 echo "[SCF] Running copyright header check"
