@@ -31,6 +31,19 @@ new warnings are generated, and 1 in all other occasions.
 Output reports if produced by each corresponding script, will be stored at
 `{TFM-Root}/checks_reports``
 
+.. toctree::
+   :caption: Table of Contents
+   :name: mastertoc
+   :maxdepth: 3
+   :hidden:
+
+   Home<self>
+   cppcheck/readme
+   clang_format/README
+   checkpatch/README
+   header_check/README
+   git_hooks/README
+
 --------------
 
 *Copyright (c) 2021, Arm Limited. All rights reserved.*
