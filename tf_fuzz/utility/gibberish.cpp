@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -189,7 +189,7 @@ int gibberish::pick_sentence_len (void)
 gibberish::gibberish (void)
 {
     string holder;
-    
+
     for (int i = 0;  i < n_avoids;  i++) {
         holder = avoid[i];
         for (long unsigned int j = 0;  j < holder.length();  j++) {

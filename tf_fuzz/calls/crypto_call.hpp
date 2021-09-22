@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -29,7 +29,6 @@ template<class T> bool copy_call_to_asset_t (psa_call *call, bool create_asset_b
             /* Note:  The vector is base-class, but the assets in this list
                       themselves *really are* policy_asset-type objects. */
         int i = call->asset_info.the_asset->set_data.n_set_vars;  // save this
-        call->asset_info.the_asset->exp_data.data = call->exp_data.data;
         call->asset_info.the_asset->set_data = call->set_data;
         call->asset_info.the_asset->set_data.n_set_vars = call->set_data.n_set_vars = ++i;
         call->asset_info.the_asset->policy = call->policy;

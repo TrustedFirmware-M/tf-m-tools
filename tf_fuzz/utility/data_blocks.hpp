@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -137,6 +137,10 @@ public:
         vector<string> asset_name_vector;
         vector<int> asset_id_n_vector;
         long asset_ser_no;  // unique ID for psa asset needed to find data string
+            /* Note:  The original theory is that we can't save away iterators to
+                      assets, because STL vectors could get relocated.  However,
+                      we've switched over to lists, which don't get moved around, so
+                      we should be safe now. */
         asset_search how_asset_found;
         uint64_t id_n;  // asset ID# (e.g., SST UID).
             /* Note:  This is just a holder to pass ID from template-line to call.  The

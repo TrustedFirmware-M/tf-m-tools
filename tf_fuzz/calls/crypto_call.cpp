@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -1110,59 +1110,20 @@ void copy_key_call::fill_in_prep_code (void)
 
 void copy_key_call::fill_in_command (void)
 {
-    vector<psa_asset*>::iterator key_asset;
-    vector<psa_asset*> *asset_vector;
-    int asset_pick;
+    // (call_code already loaded by constructor)
+    find_replace_all ("$master", policy.asset_3_name, call_code);
+    find_replace_all ("$policy", policy.asset_2_name, call_code);
+    find_replace_all ("$copy", asset_info.get_name(), call_code);
 
     // Calculate the expected results:
     asset_search find_result;
     vector<psa_asset*>::iterator asset;
     long dummy = 0L;
     // See if the source key does not exist:
-
-    if (random_asset != psa_asset_usage::all) {
-        // != psa_asset_usage::all means to choose some known asset at random:
-        if (random_asset == psa_asset_usage::active) {
-            asset_vector = &(test_state->active_key_asset);
-            find_result = asset_info.how_asset_found = asset_search::found_active;
-                // if empty, we'll error out, below.
-        } else if (random_asset == psa_asset_usage::deleted) {
-            asset_vector = &(test_state->deleted_key_asset);
-            find_result = asset_info.how_asset_found = asset_search::found_deleted;
-        } else {
-            // "invalid" assets are not currently used.
-            cerr << "\nError:  Tool-internal:  Please report error 1103 to " << endl
-                 << "TF-Fuzz developers."
-                 << endl;
-            exit(1103);
-        }
-        if (asset_vector->size() > 0) {
-            /* Pick an active or deleted asset at random: */
-            asset_pick = rand() % asset_vector->size();
-            key_asset = asset_vector->begin() + asset_pick;
-            /* Copy asset information into template tracker: */
-            asset_info.id_n = (*key_asset)->asset_info.id_n;
-            asset_info.asset_ser_no
-                    = (*key_asset)->asset_info.asset_ser_no;
-        } else {
-            if (random_asset == psa_asset_usage::active) {
-                cerr << "\nError:  A key call asks for a "
-                     << "randomly chosen active asset, when none " << endl
-                     << "is currently defined." << endl;
-                exit(1012);
-            } else if (random_asset == psa_asset_usage::deleted) {
-                cerr << "\nError:  A key call asks for a "
-                     << "randomly chosen deleted asset, when none " << endl
-                     << "is currently defined." << endl;
-                exit(1013);
-            }  // "invalid" assets are not currently used.
-        }
-    } else {
-        find_result = test_state->
-            find_or_create_key_asset (psa_asset_search::name, psa_asset_usage::active,
-                                      policy.asset_3_name, (uint64_t) 0, dummy,
-                                      dont_create_asset, key_asset);
-    }
+    find_result = test_state->
+        find_or_create_key_asset (psa_asset_search::name, psa_asset_usage::active,
+                                  policy.asset_3_name, (uint64_t) 0, dummy,
+                                  dont_create_asset, asset);
     if (find_result != asset_search::found_active) {
         exp_data.pf_specified = true;
         exp_data.pf_result_string = "PSA_ERROR_INVALID_ARGUMENT";
@@ -1184,11 +1145,6 @@ void copy_key_call::fill_in_command (void)
             exp_data.pf_result_string = "PSA_ERROR_NOT_PERMITTED";
         }
     }
-
-    // (call_code already loaded by constructor)
-    find_replace_all ("$master", (*key_asset)->asset_info.get_name(), call_code);
-    find_replace_all ("$policy", policy.asset_2_name, call_code);
-    find_replace_all ("$copy", asset_info.get_name(), call_code);
     calc_result_code();
 }
 
@@ -1249,10 +1205,13 @@ void read_key_data_call::fill_in_prep_code (void)
             find_replace_1st ("$var", length_var_name, prep_code);
             find_replace_1st ("$init", to_string(temp_string.length()), prep_code);
             // TODO:  Is these lengths in bits or bytes?
+            // Actual (output) data length:
+            actual_length_var_name.assign (exp_data.data_var + "_act_length");
+            prep_code.append (test_state->bplate->bplate_string[declare_size_t]);
+            find_replace_1st ("$var", actual_length_var_name, prep_code);
+            find_replace_1st ("$init", to_string(temp_string.length()), prep_code);
         }
     }
-    // else we're not comparing to named variable, so compare to assigned data.
-    // Actual (output) data length:
     if (assign_data_var_specified) {
         var_name.assign (assign_data_var + "_data");
         length_var_name.assign (assign_data_var + "_length");
@@ -1272,58 +1231,66 @@ void read_key_data_call::fill_in_prep_code (void)
             prep_code.append (test_state->bplate->bplate_string[declare_size_t]);
             find_replace_1st ("$var", length_var_name, prep_code);
             find_replace_1st ("$init", to_string(temp_string.length()), prep_code);
+            // Actual (output) data length:
+            prep_code.append (test_state->bplate->bplate_string[declare_size_t]);
+            find_replace_1st ("$var", actual_length_var_name, prep_code);
+            find_replace_1st ("$init", to_string(temp_string.length()), prep_code);
         }
     } else {
-        // Key data not read into a named variable, so use default C variable:
-        var_name = asset_info.get_name() + "_act_data";
+        // Single string of two lines declaring string data and its length:
+        var_name_suffix = "_set_data";
+        length_var_name_suffix = "_set_length";
+        if (set_data.n_set_vars > 0) {
+            var_name_suffix += "_" + to_string(set_data.n_set_vars);
+            length_var_name_suffix += "_" + to_string(set_data.n_set_vars);
+        }
+        var_name.assign (asset_info.get_name() + var_name_suffix);
+        length_var_name.assign (asset_info.get_name() + length_var_name_suffix);
         prep_code.append (test_state->bplate->bplate_string[declare_string]);
         find_replace_1st ("$var", var_name, prep_code);
         find_replace_1st ("$init", set_data.get(), prep_code);
-        actual_length_var_name.assign (asset_info.get_name() + "_act_length");
-        prep_code.append (test_state->bplate->bplate_string[declare_size_t]);
-        find_replace_1st ("$var", actual_length_var_name, prep_code);
+        temp_string.assign (test_state->bplate->bplate_string[declare_int]);
+        find_replace_1st ("static int", "static uint32_t", temp_string);
+        prep_code.append (temp_string);
+        find_replace_1st ("$var", length_var_name, prep_code);
         find_replace_1st ("$init", to_string(set_data.get().length()), prep_code);
     }
-    length_var_name_suffix = "_read_length";
-    var_name.assign (asset_info.get_name() + var_name_suffix);
-    length_var_name.assign (asset_info.get_name() + length_var_name_suffix);
-    prep_code.append (test_state->bplate->bplate_string[declare_size_t]);
-    find_replace_1st ("$var", length_var_name, prep_code);
-    find_replace_1st ("$init", to_string(set_data.get().length()), prep_code);
 }
 
 void read_key_data_call::fill_in_command (void)
 {
-    string var_name, length_var_name, exp_var_name, exp_length_var_name, 
-           actual_length_var_name, var_name_suffix, length_var_name_suffix, 
-           temp_string;
+    string var_name, length_var_name, actual_length_var_name, var_name_suffix,
+           length_var_name_suffix, temp_string;
 
     // Fill in the PSA command itself:
-    actual_length_var_name.assign (asset_info.get_name() + "_read_length");
+    if (exp_data.data_var_specified) {
+        var_name.assign (exp_data.data_var + "_data");
+        actual_length_var_name.assign (exp_data.data_var + "_act_length");
+    } else {
+        actual_length_var_name.assign (assign_data_var + "_act_length");
+    }
     if (assign_data_var_specified) {
         var_name.assign (assign_data_var + "_data");
         length_var_name.assign (assign_data_var + "_length");
     } else {
-        var_name_suffix = "_act_data";
+        var_name_suffix = "_set_data";
+        if (set_data.n_set_vars > 0) {
+            var_name_suffix += "_" + to_string(set_data.n_set_vars);
+        }
         var_name.assign (asset_info.get_name() + var_name_suffix);
-        length_var_name_suffix = "_act_length";
+        length_var_name_suffix = "_set_length";
+        if (set_data.n_set_vars > 0) {
+            length_var_name_suffix += "_" + to_string(set_data.n_set_vars);
+        }
         length_var_name.assign (asset_info.get_name() + length_var_name_suffix);
     }
     find_replace_1st ("$data", var_name, call_code);
     find_replace_1st ("$key", asset_info.get_name(), call_code);
     string id_string = to_string((long) asset_info.id_n++);
-    find_replace_1st ("$length", length_var_name, call_code);
     find_replace_1st ("$act_size", actual_length_var_name, call_code);
+    find_replace_1st ("$length", length_var_name, call_code);
 
-    // Check data:
-    if (exp_data.data_var_specified) {
-        check_code.assign (test_state->bplate->bplate_string[compare_data]);
-        exp_var_name.assign (exp_data.data_var + "_data");
-        exp_length_var_name.assign (exp_data.data_var + "_length");
-        find_replace_1st ("$act_data", var_name, check_code);
-        find_replace_1st ("$exp_data", exp_var_name, check_code);
-        find_replace_1st ("$length", exp_length_var_name, check_code);
-    }
+    // TODO:  check data?
 
     // See if the source key did not exist:
     if (!policy.exportable) {

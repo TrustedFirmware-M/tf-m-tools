@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 '''
-The functions here perform straight-forward line-by-line comparisons of regression 
+The functions here perform straight-forward line-by-line comparisons of regression
 TF-Fuzz regression tests.  These are not sufficient to address cases where the PSA
 calls are randomized.
 
@@ -13,29 +13,29 @@ as Python regex for the corresonding line in the actual/generated corresponding
 file.  Actually, the expected-file lines may need a little bit of tweaking first.
 There are three scenarios:
 *  The line in exp_* file contains no regex content at all.  In this case, the two
-   lines must be exactly identical, character for character. The actual/generated 
-   output files do not contain regexes, but can contain parentheses or other 
-   characters that "look like" regex content, and thus confuse re.match().  So, 
-   it's first checked for an exact string == match. 
+   lines must be exactly identical, character for character. The actual/generated
+   output files do not contain regexes, but can contain parentheses or other
+   characters that "look like" regex content, and thus confuse re.match().  So,
+   it's first checked for an exact string == match.
 *  The line in the exp_* file contains one or more standard-Python regex patterns
    to match.  In this case, a Python re.match() will still report a match.
 *  The line in the exp_* file contains one or more non-standard regex pattern, in
    which case that non-standard regex pattern needs to be replaced with the actual,
    expected character string.
 
-As described in the above-cited README, these non-standard regex wildcards in the 
+As described in the above-cited README, these non-standard regex wildcards in the
 exp_* files take either of two formats:
 *  "@@@" a 3-digit pattern number "@@@" (e.g., "@@@005@@@"):  This denotes a
    pattern of no particular length that must match the same text every occurrence
    in the actual/generated file.
 *  "@@" a 3-digit pattern number "@" a 2-digit length in chars "@@":  Same idea as
    the previous pattern, except that it also has a specific length.
-   
+
 To address these special regex wildcards, check_gen_test() below has to:
 1.  Isolate the wildcard from the rest of the string,
-2.  Check that wildcard against a Python dictionary relating the wildcard name to 
+2.  Check that wildcard against a Python dictionary relating the wildcard name to
     its expected-text substitution value,
-3.  If not present in the dictionary, create a new dictionary entry relating the 
+3.  If not present in the dictionary, create a new dictionary entry relating the
     wildcard text to the text found in that spot in the actual/generated file,
 4.  Replace that wildcard text with the expected value from the hash, then
 5.  As with all lines, perform the re.match() between the two lines.
@@ -72,14 +72,14 @@ def mask_other_wildcards (a_string):
 '''
 resolve_wildcards() resolves wildcards of the sort described above, in an expected
 file line (exp) from a wildcard dictionary (wildcard_dict).  In particular, it
-replaces them with what the wildcards are found to stand for in the actual test 
-output (act).  If it encounters a wildcard it has not seen before, it adds it to 
+replaces them with what the wildcards are found to stand for in the actual test
+output (act).  If it encounters a wildcard it has not seen before, it adds it to
 the dictionary, based upon what's in the test.c output.  Further occurrences of that
-wildcard, it pulls from the wildcard dictionary, meaning that the subsequent 
+wildcard, it pulls from the wildcard dictionary, meaning that the subsequent
 occurrences must resolve to the same text string.
 '''
 def resolve_wildcards (exp, act, wildcard_dict):
-    # Loop through each wildcard on the line, filling them in with values from the 
+    # Loop through each wildcard on the line, filling them in with values from the
     # wildcard dictionary, or filling them into the wildcard dictionary.
 
     #pdb.set_trace()
@@ -112,11 +112,11 @@ def resolve_wildcards (exp, act, wildcard_dict):
     return exp
 
 '''
-check_file() checks that an actual-output test file (act_test_file) matches an 
-expected-output file (exp_test_file), line by line, including resolving the 
+check_file() checks that an actual-output test file (act_test_file) matches an
+expected-output file (exp_test_file), line by line, including resolving the
 wildcards of the nature described above.
 '''
-def check_file (   exp_test_file, exp_test_file_name, 
+def check_file (   exp_test_file, exp_test_file_name,
                    act_test_file, act_test_file_name,
                    loud, quiet, ultra_quiet                   ):
     # This is the dictionary of wildcards, of the nature described above.

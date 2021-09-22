@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 '''
     Please read .../tf_fuzz/regression/README to understand this code.
-    
+
     Please also read the comments in .../tf_fuzz/regression/regress_lib/line_by_line.py.
 '''
 
@@ -14,7 +14,7 @@ import sys, os, re, string, pdb
 sys.path.append ("../regress_lib")
 import line_by_line
 
-        
+
 # Describe script usage:
 def usage():
     print ('''
@@ -24,7 +24,7 @@ def usage():
     3.  The actual/generated combined stdout/stderr output, nominally named "stdout_stderr",
     4.  The expected .c test file, nominally named "exp_test.c", and
     5.  The actual, generated .c test file, nominally named "test.c".
-    
+
     Optionally, *before* these five arguments, you may add switches thus:
     "--v" for verbose mode, to view line-by-line comparisons actual vs. expected,
     "--q" to only print error messages and a successful-completion message,
@@ -55,7 +55,7 @@ def main():
                 print ('The --s seed argument was not a number.')
                 usage()
                 sys.exit(1)
-        
+
     # Run TF-Fuzz:
     if not quiet: print ("Running TF-Fuzz...  ")
     os.system ('rm -f stdout_stderr test.c')
@@ -68,7 +68,7 @@ def main():
     else:
         print ('Could not run TF-Fuzz;  please see stdout_stderr file.')
         sys.exit(2)
-    
+
     # Attempt to open files indicated on command line:
     if len(sys.argv) != 6:
         message = '{} requires 5 command-line arguments. Exiting.'
@@ -99,19 +99,19 @@ def main():
         message =  '\nInput files:\n    {},\n    {},\n    {},\n'
         message += '    {}, and\n    {}\nopened successfully.\n'
         if not quiet:
-            print (message.format (template_file_name, exp_stdout_file_name, 
+            print (message.format (template_file_name, exp_stdout_file_name,
                    act_stdout_file_name, exp_test_file_name, act_test_file_name))
-    
+
     # Check it all:
     if not quiet: print ("\nChecking test C file:  ", end="")
-    line_by_line.check_file (   exp_test_file, exp_test_file_name, 
+    line_by_line.check_file (   exp_test_file, exp_test_file_name,
                                 act_test_file, act_test_file_name,
                                 loud, quiet, ultra_quiet                      )
     if not quiet: print ("Checking stdout and stderr:  ", end="")
-    line_by_line.check_file (   exp_stdout_file, exp_stdout_file_name, 
+    line_by_line.check_file (   exp_stdout_file, exp_stdout_file_name,
                                 act_stdout_file, act_stdout_file_name,
                                 loud, quiet, ultra_quiet                      )
-    
+
     # Ran to completion normally, so pass:
     if not ultra_quiet: print ("Regression test passed.")
     sys.exit(0)

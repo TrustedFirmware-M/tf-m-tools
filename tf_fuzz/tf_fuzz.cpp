@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -157,15 +157,10 @@ void tf_fuzz_info::teardown_test (void)
     string call;
     // Traverse through the SST-assets list, writing out remove commands:
     for (auto &asset : active_sst_asset) {
-        // It turns out you're not allowed to remove "WRITE_ONCE" assets:
-        if (   asset->set_data.flags_string.find("PSA_STORAGE_FLAG_WRITE_ONCE")
-            == string::npos
-           ) {
-            call = bplate->bplate_string[teardown_sst];
-            find_replace_1st ("$uid", to_string(asset->asset_info.id_n), call);
-            call.append (bplate->bplate_string[teardown_sst_check]);
-            output_C_file << call;
-        }
+        call = bplate->bplate_string[teardown_sst];
+        find_replace_1st ("$uid", to_string(asset->asset_info.id_n), call);
+        call.append (bplate->bplate_string[teardown_sst_check]);
+        output_C_file << call;
     }
     // Same, but with key assets:
     for (auto &asset : active_key_asset) {

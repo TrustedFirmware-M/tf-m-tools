@@ -13,9 +13,8 @@
 #include "../sst/non_secure/ns_test_helpers.h"
 #include "psa/protected_storage.h"
 #include "test/framework/test_framework_helpers.h"
+#include "crypto_tests_common.h"
 #include "tfm_memory_utils.h"
-#include "psa/crypto.h"
-#include "psa/crypto_sizes.h"
 
 /* This is not yet right for how to run a test;  need to register tests, etc. */
 
@@ -57,7 +56,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if \(tfm_memcmp\(snortwaggle_act_data, snortwaggle_exp_data, 
+    if \(memcmp\(snortwaggle_act_data, snortwaggle_exp_data,
                    snortwaggle_act_length\) != 0\) {
         TEST_FAIL("Read data should be equal to result data");
         return;

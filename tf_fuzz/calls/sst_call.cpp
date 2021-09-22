@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -56,7 +56,7 @@ bool sst_set_call::copy_call_to_asset (void)
             /* Note:  The vector is base-class, but the assets in this list
                       themselves *really are* sst_asset-type objects. */
         int i = asset_info.the_asset->set_data.n_set_vars;  // save this
-        asset_info.the_asset->set_data = set_data;  // TO DO:  does this make sense?!
+        asset_info.the_asset->set_data = set_data;
         asset_info.the_asset->set_data.n_set_vars = set_data.n_set_vars = ++i;
         asset_info.the_asset->set_data.flags_string.assign (set_data.flags_string);
         if (asset_info.how_asset_found == asset_search::created_new) {
@@ -113,7 +113,6 @@ void sst_set_call::fill_in_prep_code (void)
         if (set_data.n_set_vars > 0) {
             var_name_suffix += "_" + to_string(set_data.n_set_vars);
             length_var_name_suffix += "_" + to_string(set_data.n_set_vars);
-            // We'll increment set_data.n_set_vars after we fill in the call itself.
         }
         var_name.assign (asset_info.get_name() + var_name_suffix);
         length_var_name.assign (asset_info.get_name() + length_var_name_suffix);
@@ -261,6 +260,7 @@ void sst_get_call::fill_in_prep_code (void)
                 test_state->make_var (var_base);
                 exp_variable = test_state->find_var (var_base);
                 var_name = var_base + "_data";
+                length_var_name = var_base + "_length";
                 prep_code.append (test_state->bplate->bplate_string[declare_string]);
                 find_replace_1st ("$var", var_name, prep_code);
                 temp_string = (char *) exp_variable->value;
@@ -268,6 +268,9 @@ void sst_get_call::fill_in_prep_code (void)
                 // Expected-data length:
                 temp_string.assign (test_state->bplate->bplate_string[declare_int]);
                 find_replace_1st ("static int", "static size_t", temp_string);
+                prep_code.append (temp_string);
+                find_replace_1st ("$var", length_var_name, prep_code);
+                find_replace_1st ("$init", to_string(temp_string.length()), prep_code);
             }
         } else {
             if (exp_data.data_specified) {
@@ -370,7 +373,7 @@ void sst_get_call::fill_in_command (void)
               the check-data stuff will just simply not have any effect. */
     if (exp_data.data_var_specified) {
         // Check against data in variable:
-        exp_var_name.assign (exp_data.data_var + "_data");
+        exp_var_name.assign (exp_data.data_var);
     } else {
         var_name_suffix = "_exp_data";
         if (exp_data.n_exp_vars > 0) {
@@ -406,7 +409,7 @@ void sst_get_call::fill_in_command (void)
         find_replace_1st ("$message", act_var_name, check_code);
     }
     if (hash_data) {
-        hash_var_name.assign (asset_info.get_name() + "_act_hash");
+        hash_var_name.assign (asset_info.get_name() + "_hash");
             // this is where to put the hash of the data
         check_code.append (test_state->bplate->bplate_string[get_sst_hash]);
         find_replace_all ("$act_data_var", act_var_name, check_code);

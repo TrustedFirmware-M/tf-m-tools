@@ -13,9 +13,8 @@
 #include "../sst/non_secure/ns_test_helpers.h"
 #include "psa/protected_storage.h"
 #include "test/framework/test_framework_helpers.h"
+#include "crypto_tests_common.h"
 #include "tfm_memory_utils.h"
-#include "psa/crypto.h"
-#include "psa/crypto_sizes.h"
 
 /* This is not yet right for how to run a test;  need to register tests, etc. */
 
@@ -26,6 +25,7 @@ void test_thread (struct test_result_t *ret) {
     static uint8_t greebledorf_set_data\[\] = "@@002@10@@[a-z\ ]*[\.\?\!]";
     static uint32_t greebledorf_set_length = \d+;
     static uint8_t a_variable_data\[\] = "[A-Z][a-z ]*[\.\?\!]";
+    static size_t a_variable_length = \d+;
     static uint8_t greebledorf_act_data\[2048\] = "[A-Z][a-z ]*[\.\?\!]";
     static size_t greebledorf_act_length = \d+;
     (void)sst_status;
@@ -57,7 +57,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (tfm_memcmp(greebledorf_act_data, a_variable_data,
+    if (memcmp(greebledorf_act_data, a_variable,
                    greebledorf_act_length) != 0) {
         TEST_FAIL("Read data should be equal to result data");
         return;
@@ -68,7 +68,7 @@ void test_thread (struct test_result_t *ret) {
         TEST_FAIL("psa_ps_get() expected PSA_SUCCESS.");
         return;
     }
-    TEST_LOG\(\"greebledorf_act_data\"\);
+    TEST_LOG(greebledorf_act_data);
 
 
     /* Removing assets left over from testing: */

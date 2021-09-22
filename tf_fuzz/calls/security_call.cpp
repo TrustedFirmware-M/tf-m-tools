@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -73,8 +73,7 @@ void hash_call::fill_in_command (void)
             for (auto inner = outer+1;
                  inner < asset_info.asset_name_vector.end();
                  ++inner) {
-                call_code.append ("    if (  " + *outer + "_act_hash == " + *inner
-                                           + "_act_hash) {\n");
+                call_code.append ("    if (" + *outer + "_hash == " + *inner + "_hash) {\n");
                 call_code.append (  "        TEST_FAIL(\"Probable data leak between assets "
                                   + *outer + " and " + *inner + ".\\n\");\n");
                 call_code.append ("        return;\n");

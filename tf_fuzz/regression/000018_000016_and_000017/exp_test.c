@@ -13,9 +13,8 @@
 #include "../sst/non_secure/ns_test_helpers.h"
 #include "psa/protected_storage.h"
 #include "test/framework/test_framework_helpers.h"
+#include "crypto_tests_common.h"
 #include "tfm_memory_utils.h"
-#include "psa/crypto.h"
-#include "psa/crypto_sizes.h"
 
 /* This is not yet right for how to run a test;  need to register tests, etc. */
 
@@ -69,7 +68,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (tfm_memcmp(indecisive_act_data, indecisive_exp_data, 
+    if (memcmp(indecisive_act_data, indecisive_exp_data,
                    indecisive_act_length\) != 0\) {
         TEST_FAIL("Read data should be equal to result data");
         return;
@@ -88,7 +87,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (tfm_memcmp(indecisive_act_data, indecisive_exp_data_1,
+    if (memcmp(indecisive_act_data, indecisive_exp_data_1,
                    indecisive_act_length) != 0) {
         TEST_FAIL("Read data should be equal to result data");
         return;
@@ -114,7 +113,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (tfm_memcmp(indecisive_act_data, indecisive_exp_data_2,
+    if (memcmp(indecisive_act_data, indecisive_exp_data_2,
                    indecisive_act_length) != 0) {
         TEST_FAIL("Read data should be equal to result data");
         return;
@@ -139,7 +138,7 @@ void test_thread (struct test_result_t *ret) {
         TEST_FAIL("psa_ps_get() expected PSA_SUCCESS.");
         return;
     }
-    TEST_LOG\(\"indecisive_act_data\"\);
+    TEST_LOG(indecisive_act_data);
 
 
     /* Removing assets left over from testing: */

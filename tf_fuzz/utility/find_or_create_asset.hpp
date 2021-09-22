@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -25,7 +25,7 @@ enum class asset_search
 enum class psa_asset_usage  // one particular area or all
 {   active,  // found as an actively-used asset
     deleted,  // found as a previously-used, but now-unusable asset
-    invalid,  // (invalid assets aren't completely defined yet)
+    invalid,  // found as a previously-used, but now-unusable asset
     all,  // if not found and if not allowed to create it
     none  // just create it
 };
