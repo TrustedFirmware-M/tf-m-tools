@@ -14,41 +14,88 @@ the change between two different build results. The features are:
   their address and detail information.
 * Diff two databases to see the code size increasement or decreasement.
 
-***************
-Install sqlite3
-***************
+******************
+Install dependency
+******************
 
 Linux
 =====
-Install sqlite3 for python.
+Install curse and database.
 
 .. code-block:: bash
 
-    sudo apt-get install python3-dev libmysqlclient-dev
-    pip install mysqlclient
+    sudo apt-get install python3-dev libmysqlclient-dev libncursesw6 libncurses6
+    pip install mysqlclient XlsxWriter
 
+Windows
+=======
 
-*****
-Usage
-*****
-
-The command is:
+In power shell, use pip to install packages.
 
 .. code-block:: bash
 
-    python3 code_size_analyze.py -i <map file path> --gnuarm
-    python3 code_size_analyze.py -i <map file path> --armcc
-    python3 code_size_analyze.py --ui
+    pip install mysqlclient XlsxWriter windows-curses
 
-It is required to input map file path for the script before show the UI. While
-input the map file, compiler information such as ``--gnuarm`` or ``--armcc``
-is required.
+**********************
+Code size analyze tool
+**********************
 
-keys
-====
+The commands of code size analyze tool usage are:
+
+.. code-block:: bash
+
+    python3 code_size_analyze.py [-h] [-i MAP_FILE_INPUT] [-u]
+                                 <--gnuarm|--armcc>
+                                 [-a] [-s] [-l] [-o] [-f] [-d]
+                                 [--dump_section SECTION_NAME]
+                                 [--dump_library LIBRARY_NAME]
+                                 [--dump_obj OBJ_NAME]
+                                 [--dump_function DUMP_FUNCTION_NAME]
+                                 [--dump_data DUMP_DATA_NAME]
+                                 [--search_func FUNCTION_NAME]
+                                 [--search_data DATA_NAME]
+
+    options:
+        -h, --help                          show this help message and exit
+        -i MAP_FILE_INPUT                   map file path <path>/tfm_s.map
+        -u, --ui                            show UI
+        --gnuarm                            gnuarm map file input
+        --armcc                             armclang map file input
+        -a, --all                           show total
+        -s, --list_section                  list section
+        -l, --list_library                  list library
+        -o, --list_obj                      list object file
+        -f, --list_function                 list function
+        -d, --list_data                     list data
+        --dump_section SECTION_NAME         dump section
+        --dump_library LIBRARY_NAME         dump library
+        --dump_obj OBJ_NAME                 dump object file
+        --dump_function DUMP_FUNCTION_NAME  dump function
+        --dump_data DUMP_DATA_NAME          dump data
+        --search_func FUNCTION_NAME         search function
+        --search_data DATA_NAME             search data
+
+Create database
+===============
+
+It is required to input map file path for the script before show the UI. One of
+the options like ``--gnuarm`` or ``--armcc`` is required. Keep the compiler
+option same from the beginning to the end.
+
+.. code-block:: bash
+
+    python3 code_size_analyze.py -i MAP_FILE_INPUT <--gnuarm|--armcc>
+
+Show the UI
+===========
 
 The script ui.py supplies a menu to choose what developers may be interested.
-There are several keys to move cursor.
+
+.. code-block:: bash
+
+    python3 code_size_analyze.py -u <--gnuarm|--armcc>
+
+There are several keys to use UI.
 
 * UP: Move UP, mouse scrolling up is same.
 * DOWN: Move down, mouse scrolling down is same.
@@ -56,31 +103,34 @@ There are several keys to move cursor.
 * LEFT: Move left.
 * Enter: Move to next page if it can be unfolded.
 * ``Q`` or ``q``: Escape to previous page or close script if it in top menu.
+* ``s`` or ``S``: Enter output file name to save the content of current page.
+* ``:`` : Start search and enter the function or data name.
 
-Search
-======
+Dump detail information
+=======================
 
-In ``Function detail`` and ``library detail`` pages, developers can search for
-specific target with key word of target name. Press ``:`` to start search and
-enter the name in the last line of window. All the targets with key word will
-be given.
+You can get the list of all sections, libraries, object files, functions or
+data. You can also dump the specific symbol with the name.
 
-You can also search or dump the target in command line without Ui, for example:
 .. code-block:: bash
 
-    python3 code_size_analyze.py --search_func <func_name>
+    python3 code_size_analyze.py <--gnuarm|--armcc> -s
+    python3 code_size_analyze.py <--gnuarm|--armcc> --dump_section SECTION_NAME
 
-All the features provided by UI can be used in command line too. Enter ``-h`` to
-get the help information and choose the option to use.
 
-Save
-====
+Search specific function or data
+================================
 
-In any page, press ``s`` or ``S`` to start enter output file name to save the
-content of this page.
+You can search the target with keyword in command line. For example:
 
-Diff
-====
+.. code-block:: bash
+
+    python3 code_size_analyze.py <--gnuarm|--armcc> --search_func FUNCTION_NAME
+    python3 code_size_analyze.py <--gnuarm|--armcc> --search_data DATA_NAME
+
+*******************
+Code size diff tool
+*******************
 
 Use ``code_size_diff.py`` to diff two diffrent build results with same compiler.
 Firstly, use ``code_size_analyze.py`` to prepare two different databases. For
@@ -88,13 +138,18 @@ example:
 
 .. code-block:: bash
 
-    cd <TF-M workspace>
-    git checkout branch1
-    # Build with ARMCLANG
-    python3 code_size_analyze.py -i <map file 1> --armcc
-    mv data.db output/branch1.db
+    usage: code_size_diff.py [-h] -i [input_dbs [input_dbs ...]]
+                             [-a] [-f] [-d] [-o] [-l]
 
-    # Do the same steps to create branch2.db
+    optional arguments:
+    -h, --help            show this help message and exit
+    -i [input_dbs [input_dbs ...]], --input [input_dbs [input_dbs ...]]
+                          Input two different data base files
+    -a, --diff_all        diff summary
+    -f, --diff_function   diff function
+    -d, --diff_data       diff data
+    -o, --diff_obj        diff object file
+    -l, --diff_lib        diff library
 
 Then compare two database with the diff tool, the branch1 is base.
 
@@ -113,4 +168,4 @@ of diff tool.
 
 --------------
 
-*Copyright (c) 2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2022, Arm Limited. All rights reserved.*

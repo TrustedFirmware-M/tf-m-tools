@@ -1,9 +1,9 @@
-# -----------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 import sqlite3
 import argparse
@@ -12,9 +12,9 @@ def diff_summary():
     cursor1 = cur1.execute("select * from Summary")
     cursor2 = cur2.execute("select * from Summary")
     for row in cursor1:
-        data1 = [row[0], row[1], row[2], row[3], row[4], row[5]]
+        data1 = [row[0], row[1], row[2], row[3], row[6], row[7]]
     for row in cursor2:
-        data2 = [row[0], row[1], row[2], row[3], row[4], row[5]]
+        data2 = [row[0], row[1], row[2], row[3], row[6], row[7]]
     text = ["Code size:", "RO data:", "RW data:",
             "ZI data:", "Flash size:", "RAM size:"]
 
