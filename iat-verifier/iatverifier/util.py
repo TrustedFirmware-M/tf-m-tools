@@ -204,8 +204,12 @@ def _parse_raw_token(raw):
             value = _parse_raw_token(raw_value)
         elif (isinstance(raw_value, Iterable) and
                 not isinstance(raw_value, (str, bytes))):
-            # TODO  -- asumes dict elements
-            value = [_parse_raw_token(v) for v in raw_value]
+            value = []
+            for v in raw_value:
+                if hasattr(v, 'items'):
+                    value.append(_parse_raw_token(v))
+                else:
+                    value.append(claim_class.parse_raw(v))
         else:
             value = claim_class.parse_raw(raw_value)
 
