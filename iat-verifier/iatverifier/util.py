@@ -20,18 +20,18 @@ from cbor2 import CBORTag
 
 _logger = logging.getLogger("util")
 
-def sign_eat(token, key=None):
+def sign_eat(token, verifier, key=None):
     signed_msg = Sign1Message()
     signed_msg.payload = token
     if key:
         signed_msg.key = key
-        signed_msg.signature = signed_msg.compute_signature()
+        signed_msg.signature = signed_msg.compute_signature(alg=verifier.cose_alg)
     return signed_msg.encode()
 
 
 def hmac_eat(token, verifier, key=None):
     hmac_msg = Mac0Message(payload=token, key=key)
-    hmac_msg.compute_auth_tag(verifier.cose_alg)
+    hmac_msg.compute_auth_tag(alg=verifier.cose_alg)
     return hmac_msg.encode()
 
 
@@ -59,7 +59,7 @@ def convert_map_to_token(token_map, signing_key, verifier, wfh):
     if verifier.method == AttestationTokenVerifier.SIGN_METHOD_RAW:
         signed_token = token
     elif verifier.method == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
-        signed_token = sign_eat(token, signing_key)
+        signed_token = sign_eat(token, verifier, signing_key)
     elif verifier.method == AttestationTokenVerifier.SIGN_METHOD_MAC0:
         signed_token = hmac_eat(token, verifier, signing_key)
     else:

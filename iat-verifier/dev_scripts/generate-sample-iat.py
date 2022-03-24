@@ -20,6 +20,7 @@ from iatverifier.verifiers import ClientIdClaim, SecurityLifecycleClaim, Profile
 from iatverifier.verifiers import BootSeedClaim, SWComponentsClaim, SWComponentTypeClaim
 from iatverifier.verifiers import SignerIdClaim, SwComponentVersionClaim
 from iatverifier.verifiers import MeasurementValueClaim, MeasurementDescriptionClaim
+from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
 
 # First byte indicates "GUID"
 GUID = b'\x01' + struct.pack('QQQQ', 0x0001020304050607, 0x08090A0B0C0D0E0F,
@@ -87,7 +88,8 @@ if __name__ == '__main__':
 
     sk = SigningKey.from_pem(open(keyfile, 'rb').read())
     token = cbor2.dumps(token_map)
-    signed_token = sign_eat(token, sk)
+    verifier = PSAIoTProfile1TokenVerifier.get_verifier()
+    signed_token = sign_eat(token, verifier, sk)
 
     with open(outfile, 'wb') as wfh:
         wfh.write(signed_token)
