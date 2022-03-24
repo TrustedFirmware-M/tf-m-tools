@@ -90,11 +90,14 @@ def read_keyfile(keyfile, method=AttestationTokenVerifier.SIGN_METHOD_SIGN1):
 
     return None
 
-def get_cose_alg_from_key(key):
+def get_cose_alg_from_key(key, default):
     """Extract the algorithm from the key if possible
 
     Returns the signature algorithm ID defined by COSE
+    If key is None, default is returned.
     """
+    if key is None:
+        return default
     if not hasattr(key, "curve"):
         raise ValueError("Key has no curve specified in it.")
     return _known_curves[key.curve.name]

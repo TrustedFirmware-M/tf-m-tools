@@ -292,6 +292,8 @@ class CompositeAttestClaim(AttestationClaim):
                     msg = 'Unexpected {} claim: {}'
                     self.verifier.error(msg.format(self.get_claim_name(), key))
                 else:
+                    msg = 'Unexpected {} claim: {}, skipping.'
+                    self.verifier.warning(msg.format(self.get_claim_name(), key))
                     continue
             try:
                 claim = claims[key]
@@ -427,7 +429,7 @@ class AttestTokenRootClaims(CompositeAttestClaim):
         return None
 
     def get_claim_name(self=None):
-        return None
+        return "TOKEN_CLAIM"
 
 # This class inherits from NonVerifiedClaim. The actual claims in the token are
 # checked by the AttestTokenRootClaims object owned by this verifier. The

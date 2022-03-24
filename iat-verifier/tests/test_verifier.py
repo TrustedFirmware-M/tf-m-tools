@@ -11,8 +11,10 @@ import os
 import unittest
 
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
+from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
 from iatverifier.util import read_keyfile
-from iatverifier.attest_token_verifier import VerifierConfiguration, AttestationTokenVerifier
+from iatverifier.attest_token_verifier import AttestationClaim, VerifierConfiguration
+from iatverifier.attest_token_verifier import AttestationTokenVerifier
 from test_utils import create_and_read_iat, read_iat, create_token_tmp_file
 
 
@@ -20,6 +22,8 @@ THIS_DIR = os.path.dirname(__file__)
 
 DATA_DIR = os.path.join(THIS_DIR, 'data')
 KEYFILE = os.path.join(DATA_DIR, 'key.pem')
+KEYFILE_CCA_PLAT = os.path.join(DATA_DIR, 'cca_platform.pem')
+KEYFILE_CCA_REALM = os.path.join(DATA_DIR, 'cca_realm.pem')
 KEYFILE_ALT = os.path.join(DATA_DIR, 'key-alt.pem')
 
 class TestIatVerifier(unittest.TestCase):
@@ -77,14 +81,38 @@ class TestIatVerifier(unittest.TestCase):
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
         cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
         signing_key = read_keyfile(KEYFILE, method)
+        realm_token_key = read_keyfile(KEYFILE_CCA_REALM, method)
+        platform_token_key = read_keyfile(KEYFILE_CCA_PLAT, method)
 
         create_and_read_iat(
             DATA_DIR,
             'valid-iat.yaml',
-            PSAIoTProfile1TokenVerifier(method=method,
-            cose_alg=cose_alg,
-            signing_key=signing_key,
-            configuration=self.config))
+            PSAIoTProfile1TokenVerifier(
+                method=method,
+                cose_alg=cose_alg,
+                signing_key=signing_key,
+                configuration=self.config))
+        create_and_read_iat(
+            DATA_DIR,
+            'valid-cca-token.yaml',
+            CCATokenVerifier(
+                realm_token_method=method,
+                realm_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                realm_token_key=realm_token_key,
+                platform_token_method=method,
+                platform_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                platform_token_key=platform_token_key,
+                configuration=self.config))
+
+        create_and_read_iat(
+            DATA_DIR,
+            'cca_platform_token.yaml',
+            CCAPlatformTokenVerifier(
+                method=method,
+                cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                signing_key=platform_token_key,
+                configuration=self.config,
+                necessity=AttestationClaim.MANDATORY))
 
         with self.assertRaises(ValueError) as test_ctx:
             create_and_read_iat(

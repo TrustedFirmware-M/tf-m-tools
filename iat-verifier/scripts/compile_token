@@ -16,14 +16,16 @@ import sys
 from iatverifier.util import read_token_map, convert_map_to_token, read_keyfile
 from iatverifier.util import get_cose_alg_from_key
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
-from iatverifier.attest_token_verifier import AttestationTokenVerifier
-
+from iatverifier.attest_token_verifier import AttestationTokenVerifier, VerifierConfiguration
+from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     token_verifiers = {
         "PSA-IoT-Profile1-token": PSAIoTProfile1TokenVerifier,
+        "CCA-token": CCATokenVerifier,
+        "CCA-plat-token": CCAPlatformTokenVerifier,
     }
 
     parser = argparse.ArgumentParser()
@@ -31,10 +33,18 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--outfile',
                         help='''Output file for the compiled token. If this is not
                         specified, the token will be written to standard output.''')
-    parser.add_argument('-k', '--keyfile',
+    parser.add_argument('--psa-iot-profile1-keyfile',
                         help='''Path to the key in PEM format that should be used to
                         sign the token. If this is not specified, the token will be
                         unsigned.''')
+    parser.add_argument('--cca-platform-token-keyfile',
+                        help='''Path to the key in PEM format that should be used to
+                        sign the CCA platform token. If this is not specified,
+                        the token will be unsigned.''')
+    parser.add_argument('--cca-realm-token-keyfile',
+                        help='''Path to the key in PEM format that should be used to
+                        sign the CCA Realm token. If this is not specified, the
+                        token will be unsigned.''')
     group = parser.add_mutually_exclusive_group()
     parser.add_argument('-a', '--add-protected-header', action='store_true',
                         help='''
@@ -56,27 +66,60 @@ if __name__ == '__main__':
     if args.hmac:
         METHOD = AttestationTokenVerifier.SIGN_METHOD_MAC0
     elif args.raw:
-        if args.keyfile:
+        if args.psa_iot_profile1_keyfile:
             raise ValueError('A keyfile cannot be specified with --raw.')
         METHOD = AttestationTokenVerifier.SIGN_METHOD_RAW
     else:
         METHOD = AttestationTokenVerifier.SIGN_METHOD_SIGN1
 
-    key = read_keyfile(args.keyfile, METHOD)
-
-    COSE_ALG = None
-    if args.hmac:
-        COSE_ALG = AttestationTokenVerifier.COSE_ALG_HS256
-    elif not args.raw:
-        COSE_ALG = get_cose_alg_from_key(key)
+    configuration = VerifierConfiguration(strict=True, keep_going=False)
 
     verifier_class = token_verifiers[args.token_type]
     if verifier_class == PSAIoTProfile1TokenVerifier:
+        key = read_keyfile(args.psa_iot_profile1_keyfile, METHOD)
+        if METHOD == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
+            cose_alg = get_cose_alg_from_key(
+                key,
+                AttestationTokenVerifier.COSE_ALG_ES256)
+        else:
+            cose_alg = AttestationTokenVerifier.COSE_ALG_HS256
         verifier = PSAIoTProfile1TokenVerifier(
             method=METHOD,
-            cose_alg=COSE_ALG,
+            cose_alg=cose_alg,
             signing_key=key,
-            configuration=None)
+            configuration=configuration)
+    elif verifier_class == CCATokenVerifier:
+        if METHOD != AttestationTokenVerifier.SIGN_METHOD_SIGN1:
+            logging.error('Only sign1 method is supported by this token type.\n\t')
+            sys.exit(1)
+        platform_token_key = read_keyfile(args.cca_platform_token_keyfile, METHOD)
+        realm_token_key = read_keyfile(args.cca_realm_token_keyfile, METHOD)
+        realm_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
+        platform_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
+        realm_token_cose_alg = get_cose_alg_from_key(
+            realm_token_key,
+            AttestationTokenVerifier.COSE_ALG_ES384)
+        platform_token_cose_alg = get_cose_alg_from_key(
+            platform_token_key,
+            AttestationTokenVerifier.COSE_ALG_ES384)
+        verifier = CCATokenVerifier(
+            realm_token_method=realm_token_method,
+            realm_token_cose_alg=realm_token_cose_alg,
+            realm_token_key=realm_token_key,
+            platform_token_method=platform_token_method,
+            platform_token_cose_alg=platform_token_cose_alg,
+            platform_token_key=platform_token_key,
+            configuration=configuration)
+    elif verifier_class == CCAPlatformTokenVerifier:
+        key_checked = args.cca_platform_token_keyfile
+        key = read_keyfile(args.cca_platform_token_keyfile, METHOD)
+        cose_alg = get_cose_alg_from_key(key, AttestationTokenVerifier.COSE_ALG_ES384)
+        verifier = CCAPlatformTokenVerifier(
+            method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
+            cose_alg=cose_alg,
+            signing_key=key,
+            configuration=configuration,
+            necessity=None)
     else:
         logging.error(f'Invalid token type:{verifier_class}\n\t')
         sys.exit(1)
