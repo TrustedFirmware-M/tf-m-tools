@@ -186,18 +186,6 @@ class HardwareVersionClaim(AttestationClaim):
         return True
 
 
-class OriginatorClaim(NonVerifiedClaim):
-    def get_claim_key(self=None):
-        return ARM_RANGE - 10  # originator
-
-    def get_claim_name(self=None):
-        return 'ORIGINATOR'
-
-    def is_utf_8(self):
-        return True
-
-
-
 class SWComponentsClaim(AttestationClaim):
 
     def __init__(self, verifier, claims, necessity=AttestationClaim.MANDATORY):
@@ -392,7 +380,7 @@ class BootSeedClaim(AttestationClaim):
 
 class VerificationServiceClaim(NonVerifiedClaim):
     def get_claim_key(self=None):
-        return ARM_RANGE - 10
+        return ARM_RANGE - 10 # originator
 
     def get_claim_name(self=None):
         return 'VERIFICATION_SERVICE'

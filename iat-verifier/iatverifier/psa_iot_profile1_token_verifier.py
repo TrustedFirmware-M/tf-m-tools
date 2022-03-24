@@ -10,7 +10,7 @@ from iatverifier.verifiers import AttestationClaim as Claim
 from iatverifier.verifiers import ProfileIdClaim, ClientIdClaim, SecurityLifecycleClaim
 from iatverifier.verifiers import ImplementationIdClaim, BootSeedClaim, HardwareVersionClaim
 from iatverifier.verifiers import NoMeasurementsClaim, ChallengeClaim
-from iatverifier.verifiers import InstanceIdClaim, OriginatorClaim, SWComponentsClaim
+from iatverifier.verifiers import InstanceIdClaim, VerificationServiceClaim, SWComponentsClaim
 from iatverifier.verifiers import SWComponentTypeClaim, SwComponentVersionClaim
 from iatverifier.verifiers import MeasurementValueClaim, MeasurementDescriptionClaim, SignerIdClaim
 
@@ -41,6 +41,6 @@ class PSAIoTProfile1TokenVerifier(Verifier):
             NoMeasurementsClaim(verifier, Claim.OPTIONAL),
             ChallengeClaim(verifier, Claim.MANDATORY),
             InstanceIdClaim(verifier, 33, Claim.MANDATORY),
-            OriginatorClaim(verifier, Claim.OPTIONAL),
+            VerificationServiceClaim(verifier, Claim.OPTIONAL),
         ])
         return verifier
