@@ -20,6 +20,10 @@ from iatverifier.verifiers import AttestationTokenVerifier
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
+    token_verifiers = {
+        "PSA-IoT-Profile1-token": PSAIoTProfile1TokenVerifier,
+    }
+
     parser = argparse.ArgumentParser()
     parser.add_argument('source', help='Token source in YAML format')
     parser.add_argument('-o', '--outfile',
@@ -36,6 +40,10 @@ if __name__ == '__main__':
     group.add_argument('-m', '--hmac', action='store_true',
                        help='''Generate a token wrapped in a Mac0 rather than
                        Sign1 COSE structure.''')
+    parser.add_argument('-t', '--token-type',
+                        help='''The type of the Token.''',
+                        choices=token_verifiers.keys(),
+                        required=True)
 
     args = parser.parse_args()
     signing_key = None
@@ -58,7 +66,7 @@ if __name__ == '__main__':
             with open(args.keyfile) as fh:
                 signing_key = SigningKey.from_pem(fh.read())
 
-    verifier = PSAIoTProfile1TokenVerifier.get_verifier()
+    verifier = token_verifiers[args.token_type].get_verifier()
     if verifier.method != method:
         verifier.method = method
     if cose_alg is not None and verifier.cose_alg != cose_alg:

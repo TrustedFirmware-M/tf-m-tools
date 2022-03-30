@@ -15,14 +15,23 @@ from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerif
 
 
 if __name__ == '__main__':
+
+    token_verifiers = {
+        "PSA-IoT-Profile1-token": PSAIoTProfile1TokenVerifier,
+    }
+
     parser = argparse.ArgumentParser()
     parser.add_argument('source', help='A compiled COSE IAT token.')
     parser.add_argument('-o', '--outfile',
                         help='''Output file for the depompiled claims. If this is not
                         specified, the claims will be written to standard output.''')
+    parser.add_argument('-t', '--token-type',
+                        help='''The type of the Token.''',
+                        choices=token_verifiers.keys(),
+                        required=True)
     args = parser.parse_args()
 
-    verifier = PSAIoTProfile1TokenVerifier.get_verifier()
+    verifier = token_verifiers[args.token_type].get_verifier()
     with open(args.source, 'rb') as fh:
         token_map = convert_token_to_map(fh.read(), verifier)
 

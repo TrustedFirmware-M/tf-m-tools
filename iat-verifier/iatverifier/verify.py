@@ -18,6 +18,11 @@ from iatverifier.verifiers import VerifierConfiguration, AttestationTokenVerifie
 logger = logging.getLogger('iat-verify')
 
 def main():
+
+    token_verifiers = {
+        "PSA-IoT-Profile1-token": PSAIoTProfile1TokenVerifier,
+    }
+
     parser = argparse.ArgumentParser(
         description='''
         Validates a signed Initial Attestation Token (IAT), checking
@@ -49,12 +54,17 @@ def main():
                         Specify how this token is wrapped -- whether Sign1Message or
                         Mac0Message COSE structure is used.
                         ''')
+    parser.add_argument('-t', '--token-type',
+                        help='''The type of the Token.''',
+                        choices=token_verifiers.keys(),
+                        required=True)
+
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
 
     config = VerifierConfiguration(keep_going=args.keep_going, strict=args.strict)
-    verifier = PSAIoTProfile1TokenVerifier.get_verifier(config)
+    verifier = token_verifiers[args.token_type].get_verifier(config)
     if args.method == 'mac':
         verifier.method = AttestationTokenVerifier.SIGN_METHOD_MAC0
         verifier.cose_alg = AttestationTokenVerifier.COSE_ALG_HS256
