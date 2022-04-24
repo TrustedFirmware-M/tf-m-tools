@@ -25,13 +25,13 @@ def create_token(source_name, keyfile, verifier):
     source_path = os.path.join(DATA_DIR, source_name)
     fd, dest_path = tempfile.mkstemp()
     os.close(fd)
-    convert_map_to_token_files(source_path, keyfile, verifier, dest_path)
+    convert_map_to_token_files(source_path, keyfile, verifier, dest_path, True)
     return dest_path
 
 
 def read_iat(filename, keyfile, verifier):
     filepath = os.path.join(DATA_DIR, filename)
-    raw_iat = extract_iat_from_cose(keyfile, filepath, verifier)
+    raw_iat = extract_iat_from_cose(keyfile, filepath, verifier, True)
     return verifier.decode_and_validate_iat(raw_iat)
 
 
@@ -50,10 +50,10 @@ class TestIatVerifier(unittest.TestCase):
         good_sig = create_token('valid-iat.yaml', KEYFILE, verifier)
         bad_sig = create_token('valid-iat.yaml', KEYFILE_ALT, verifier)
 
-        raw_iat = extract_iat_from_cose(KEYFILE, good_sig, verifier)
+        raw_iat = extract_iat_from_cose(KEYFILE, good_sig, verifier, True)
 
         with self.assertRaises(ValueError) as cm:
-            raw_iat = extract_iat_from_cose(KEYFILE, bad_sig, verifier)
+            raw_iat = extract_iat_from_cose(KEYFILE, bad_sig, verifier, True)
 
         self.assertIn('Bad signature', cm.exception.args[0])
 

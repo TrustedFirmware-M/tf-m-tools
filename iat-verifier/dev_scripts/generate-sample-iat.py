@@ -89,7 +89,7 @@ if __name__ == '__main__':
     sk = SigningKey.from_pem(open(keyfile, 'rb').read())
     token = cbor2.dumps(token_map)
     verifier = PSAIoTProfile1TokenVerifier.get_verifier()
-    signed_token = sign_eat(token, verifier, sk)
+    signed_token = sign_eat(token, verifier, add_p_header=False, key=sk)
 
     with open(outfile, 'wb') as wfh:
         wfh.write(signed_token)

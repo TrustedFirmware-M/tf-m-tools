@@ -49,6 +49,10 @@ def main():
                         help='''
                         Report failure if unknown claim is encountered.
                         ''')
+    parser.add_argument('-c', '--check-protected-header', action='store_true',
+                        help='''
+                        Check the presence and content of COSE protected header.
+                        ''')
     parser.add_argument('-m', '--method', choices=['sign', 'mac'], default='sign',
                         help='''
                         Specify how this token is wrapped -- whether Sign1Message or
@@ -70,7 +74,7 @@ def main():
         verifier.cose_alg = AttestationTokenVerifier.COSE_ALG_HS256
 
     try:
-        raw_iat = extract_iat_from_cose(args.keyfile, args.tokenfile, verifier)
+        raw_iat = extract_iat_from_cose(args.keyfile, args.tokenfile, verifier, args.check_protected_header)
         if args.keyfile:
             print('Signature OK')
     except ValueError as e:

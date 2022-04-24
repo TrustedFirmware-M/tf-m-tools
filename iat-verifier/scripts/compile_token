@@ -34,6 +34,10 @@ if __name__ == '__main__':
                         sign the token. If this is not specified, the token will be
                         unsigned.''')
     group = parser.add_mutually_exclusive_group()
+    parser.add_argument('-a', '--add-protected-header', action='store_true',
+                        help='''
+                        Add protected header to the COSE wrapper.
+                        ''')
     group.add_argument('-r', '--raw', action='store_true',
                        help='''Generate raw CBOR and do not create a signature
                        or COSE wrapper.''')
@@ -75,7 +79,7 @@ if __name__ == '__main__':
 
     if args.outfile:
         with open(args.outfile, 'wb') as wfh:
-            convert_map_to_token(token_map, signing_key, verifier, wfh)
+            convert_map_to_token(token_map, signing_key, verifier, wfh, args.add_protected_header)
     else:
         with os.fdopen(sys.stdout.fileno(), 'wb') as wfh:
-            convert_map_to_token(token_map, signing_key, verifier, wfh)
+            convert_map_to_token(token_map, signing_key, verifier, wfh, args.add_protected_header)
