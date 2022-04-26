@@ -476,21 +476,7 @@ class AttestationTokenVerifier:
         self.claims.extend(claims)
 
     def check_cross_claim_requirements(self):
-        claims = {v.get_claim_key(): v for v in self.claims}
-
-        if SWComponentsClaim.get_claim_key() in claims:
-            sw_component_present = claims[SWComponentsClaim.get_claim_key()].verify_count > 0
-        else:
-            sw_component_present = False
-
-        if NoMeasurementsClaim.get_claim_key() in claims:
-            no_measurement_present = claims[NoMeasurementsClaim.get_claim_key()].verify_count > 0
-        else:
-            no_measurement_present = False
-
-        if not sw_component_present and not no_measurement_present:
-            self.error('Invalid IAT: no software measurements defined and '
-                  'NO_MEASUREMENTS claim is not present.')
+        pass
 
     def decode_and_validate_iat(self, encoded_iat):
         try:
