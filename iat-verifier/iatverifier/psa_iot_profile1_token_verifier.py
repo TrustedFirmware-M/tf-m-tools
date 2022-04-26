@@ -5,14 +5,14 @@
 #
 # -----------------------------------------------------------------------------
 
-from iatverifier.verifiers import AttestationTokenVerifier as Verifier
-from iatverifier.verifiers import AttestationClaim as Claim
-from iatverifier.verifiers import ProfileIdClaim, ClientIdClaim, SecurityLifecycleClaim
-from iatverifier.verifiers import ImplementationIdClaim, BootSeedClaim, HardwareVersionClaim
-from iatverifier.verifiers import NoMeasurementsClaim, ChallengeClaim
-from iatverifier.verifiers import InstanceIdClaim, VerificationServiceClaim, SWComponentsClaim
-from iatverifier.verifiers import SWComponentTypeClaim, SwComponentVersionClaim
-from iatverifier.verifiers import MeasurementValueClaim, MeasurementDescriptionClaim, SignerIdClaim
+from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
+from iatverifier.attest_token_verifier import AttestationClaim as Claim
+from iatverifier.psa_iot_profile1_token_claims import ProfileIdClaim, ClientIdClaim, SecurityLifecycleClaim
+from iatverifier.psa_iot_profile1_token_claims import ImplementationIdClaim, BootSeedClaim, HardwareVersionClaim
+from iatverifier.psa_iot_profile1_token_claims import NoMeasurementsClaim, ChallengeClaim
+from iatverifier.psa_iot_profile1_token_claims import InstanceIdClaim, VerificationServiceClaim, SWComponentsClaim
+from iatverifier.psa_iot_profile1_token_claims import SWComponentTypeClaim, SwComponentVersionClaim
+from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, MeasurementDescriptionClaim, SignerIdClaim
 
 class PSAIoTProfile1TokenVerifier(Verifier):
     @staticmethod

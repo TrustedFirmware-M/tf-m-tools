@@ -16,7 +16,7 @@ from ecdsa import SigningKey, VerifyingKey
 from pycose.attributes import CoseAttrs
 from pycose.sign1message import Sign1Message
 from pycose.mac0message import Mac0Message
-from iatverifier.verifiers import AttestationTokenVerifier
+from iatverifier.attest_token_verifier import AttestationTokenVerifier
 from cbor2 import CBORTag
 
 _logger = logging.getLogger("util")

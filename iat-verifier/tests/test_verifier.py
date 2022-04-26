@@ -11,7 +11,7 @@ import unittest
 
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
 from iatverifier.util import convert_map_to_token_files, extract_iat_from_cose
-from iatverifier.verifiers import VerifierConfiguration
+from iatverifier.attest_token_verifier import VerifierConfiguration
 
 
 THIS_DIR = os.path.dirname(__file__)

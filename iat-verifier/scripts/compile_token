@@ -14,7 +14,7 @@ import sys
 from ecdsa import SigningKey
 from iatverifier.util import read_token_map, convert_map_to_token
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
-from iatverifier.verifiers import AttestationTokenVerifier
+from iatverifier.attest_token_verifier import AttestationTokenVerifier
 
 
 if __name__ == '__main__':

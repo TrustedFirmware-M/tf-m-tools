@@ -15,11 +15,11 @@ from pycose.sign1message import Sign1Message
 
 from iatverifier.util import sign_eat
 
-from iatverifier.verifiers import InstanceIdClaim, ImplementationIdClaim, ChallengeClaim
-from iatverifier.verifiers import ClientIdClaim, SecurityLifecycleClaim, ProfileIdClaim
-from iatverifier.verifiers import BootSeedClaim, SWComponentsClaim, SWComponentTypeClaim
-from iatverifier.verifiers import SignerIdClaim, SwComponentVersionClaim
-from iatverifier.verifiers import MeasurementValueClaim, MeasurementDescriptionClaim
+from iatverifier.psa_iot_profile1_token_claims import InstanceIdClaim, ImplementationIdClaim, ChallengeClaim
+from iatverifier.psa_iot_profile1_token_claims import ClientIdClaim, SecurityLifecycleClaim, ProfileIdClaim
+from iatverifier.psa_iot_profile1_token_claims import BootSeedClaim, SWComponentsClaim, SWComponentTypeClaim
+from iatverifier.psa_iot_profile1_token_claims import SignerIdClaim, SwComponentVersionClaim
+from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, MeasurementDescriptionClaim
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
 
 # First byte indicates "GUID"

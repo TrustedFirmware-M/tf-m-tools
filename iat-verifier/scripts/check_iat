@@ -12,7 +12,7 @@ import sys
 
 from iatverifier.util import extract_iat_from_cose, recursive_bytes_to_strings
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
-from iatverifier.verifiers import VerifierConfiguration, AttestationTokenVerifier
+from iatverifier.attest_token_verifier import VerifierConfiguration, AttestationTokenVerifier
 
 logger = logging.getLogger('iat-verify')
 
