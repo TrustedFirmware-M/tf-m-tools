@@ -9,8 +9,8 @@ import os
 import tempfile
 import unittest
 
-from iatverifier.util import convert_map_to_token_files
-from iatverifier.verify import extract_iat_from_cose, PSAIoTProfile1TokenVerifier
+from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
+from iatverifier.util import convert_map_to_token_files, extract_iat_from_cose
 from iatverifier.verifiers import VerifierConfiguration
 
 
