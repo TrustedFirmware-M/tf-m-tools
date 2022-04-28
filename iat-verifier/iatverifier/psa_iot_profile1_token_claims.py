@@ -8,6 +8,7 @@
 import string
 
 from iatverifier.attest_token_verifier import AttestationClaim, NonVerifiedClaim
+from iatverifier.attest_token_verifier import CompositeAttestClaim
 
 # IAT custom claims
 ARM_RANGE = -75000
@@ -16,8 +17,8 @@ ARM_RANGE = -75000
 SW_COMPONENT_RANGE = 0
 
 class InstanceIdClaim(AttestationClaim):
-    def __init__(self, verifier, expected_len, necessity=AttestationClaim.MANDATORY):
-        super().__init__(verifier, necessity)
+    def __init__(self, verifier, *, expected_len, necessity=AttestationClaim.MANDATORY):
+        super().__init__(verifier, necessity=necessity)
         self.expected_len = expected_len
 
     def get_claim_key(self=None):
@@ -88,91 +89,13 @@ class HardwareVersionClaim(AttestationClaim):
         return True
 
 
-class SWComponentsClaim(AttestationClaim):
-
-    def __init__(self, verifier, claims, necessity=AttestationClaim.MANDATORY):
-        super().__init__(verifier, necessity)
-        self.claims = claims
-
+class SWComponentsClaim(CompositeAttestClaim):
 
     def get_claim_key(self=None):
         return ARM_RANGE - 6
 
     def get_claim_name(self=None):
         return 'SW_COMPONENTS'
-
-    def get_sw_component_claims(self):
-        return [claim(self.verifier, *args) for claim, args in self.claims]
-
-    def get_contained_claim_key_list(self):
-        ret = {}
-        for claim in self.get_sw_component_claims():
-            ret[claim.get_claim_key()] = claim.__class__
-        return ret
-
-    def verify(self, value):
-        if not self._check_type('SW_COMPONENTS', value, list):
-            return
-
-        for entry_number, sw_component in enumerate(value):
-            if not self._check_type('SW_COMPONENTS', sw_component, dict):
-                return
-
-            claims = {v.get_claim_key(): v for v in self.get_sw_component_claims()}
-            for k, v in sw_component.items():
-                if k not in claims.keys():
-                    if self.config.strict:
-                        msg = 'Unexpected SW_COMPONENT claim: {}'
-                        self.verifier.error(msg.format(k))
-                    else:
-                        continue
-                try:
-                    claims[k].verify(v)
-                except Exception:
-                    if not self.config.keep_going:
-                        raise
-
-            # Check claims' necessity
-            for claim in claims.values():
-                if not claim.claim_found():
-                    if claim.necessity==AttestationClaim.MANDATORY:
-                        msg = ('Invalid IAT: missing MANDATORY claim "{}" '
-                            'from sw_component at index {}')
-                        self.verifier.error(msg.format(claim.get_claim_name(),
-                                        entry_number))
-                    elif claim.necessity==AttestationClaim.RECOMMENDED:
-                        msg = ('Missing RECOMMENDED claim "{}" '
-                            'from sw_component at index {}')
-                        self.verifier.warning(msg.format(claim.get_claim_name(),
-                                        entry_number))
-
-        self.verify_count += 1
-
-    def decode_sw_component(self, raw_sw_component):
-        sw_component = {}
-        names = {claim.get_claim_key(): claim.get_claim_name() for claim in self.get_sw_component_claims()}
-        for k, v in raw_sw_component.items():
-            if isinstance(v, bytes):
-                v = self.decode(v)
-            try:
-                sw_component[names[k]] = v
-            except KeyError:
-                if self.config.strict:
-                    if not self.config.keep_going:
-                        raise
-                else:
-                    sw_component[k] = v
-        return sw_component
-
-    def add_tokens_to_dict(self, token, value):
-        entry_name = self.get_claim_name()
-        try:
-            token[entry_name] = []
-            for raw_sw_component in value:
-                decoded_component = self.decode_sw_component(raw_sw_component)
-                token[entry_name].append(decoded_component)
-        except TypeError:
-            self.verifier.error('Invalid SW_COMPONENT value: {}'.format(value))
 
 class SWComponentTypeClaim(NonVerifiedClaim):
     def get_claim_key(self=None):
@@ -235,7 +158,7 @@ class SecurityLifecycleClaim(AttestationClaim):
         self._check_type('SECURITY_LIFECYCLE', value, int)
         self.verify_count += 1
 
-    def add_tokens_to_dict(self, token, value):
+    def add_value_to_dict(self, token, value):
         entry_name = self.get_claim_name()
         try:
             name_idx = (value >> SecurityLifecycleClaim.SL_SHIFT) - 1

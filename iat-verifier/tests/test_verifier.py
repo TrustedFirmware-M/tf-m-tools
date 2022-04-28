@@ -85,7 +85,7 @@ class TestIatVerifier(unittest.TestCase):
 
         with self.assertLogs() as cm:
             iat = create_and_read_iat('missing-signer-id.yaml', KEYFILE, PSAIoTProfile1TokenVerifier.get_verifier(self.config))
-            self.assertIn('Missing RECOMMENDED claim "SIGNER_ID" from sw_component',
+            self.assertIn('Missing RECOMMENDED claim "SIGNER_ID" from SW_COMPONENTS',
                          cm.records[0].getMessage())
 
         with self.assertLogs() as cm:

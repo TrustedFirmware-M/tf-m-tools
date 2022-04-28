@@ -23,25 +23,25 @@ class PSAIoTProfile1TokenVerifier(Verifier):
             configuration=configuration)
 
         sw_component_claims = [
-            (SWComponentTypeClaim, (Claim.OPTIONAL, )),
-            (SwComponentVersionClaim, (Claim.OPTIONAL, )),
-            (MeasurementValueClaim, (Claim.MANDATORY, )),
-            (MeasurementDescriptionClaim, (Claim.OPTIONAL, )),
-            (SignerIdClaim, (Claim.RECOMMENDED, )),
+            (SWComponentTypeClaim, {'necessity':Claim.OPTIONAL}),
+            (SwComponentVersionClaim, {'necessity':Claim.OPTIONAL}),
+            (MeasurementValueClaim, {'necessity':Claim.MANDATORY}),
+            (MeasurementDescriptionClaim, {'necessity':Claim.OPTIONAL}),
+            (SignerIdClaim, {'necessity':Claim.RECOMMENDED}),
         ]
 
         verifier.add_claims([
-            ProfileIdClaim(verifier, Claim.OPTIONAL),
-            ClientIdClaim(verifier, Claim.MANDATORY),
-            SecurityLifecycleClaim(verifier, Claim.MANDATORY),
-            ImplementationIdClaim(verifier, Claim.MANDATORY),
-            BootSeedClaim(verifier, Claim.MANDATORY),
-            HardwareVersionClaim(verifier, Claim.OPTIONAL),
-            SWComponentsClaim(verifier, sw_component_claims, Claim.OPTIONAL),
-            NoMeasurementsClaim(verifier, Claim.OPTIONAL),
-            ChallengeClaim(verifier, Claim.MANDATORY),
-            InstanceIdClaim(verifier, 33, Claim.MANDATORY),
-            VerificationServiceClaim(verifier, Claim.OPTIONAL),
+            ProfileIdClaim(verifier, necessity=Claim.OPTIONAL),
+            ClientIdClaim(verifier, necessity=Claim.MANDATORY),
+            SecurityLifecycleClaim(verifier, necessity=Claim.MANDATORY),
+            ImplementationIdClaim(verifier, necessity=Claim.MANDATORY),
+            BootSeedClaim(verifier, necessity=Claim.MANDATORY),
+            HardwareVersionClaim(verifier, necessity=Claim.OPTIONAL),
+            SWComponentsClaim(verifier, claims=sw_component_claims, is_list=True, necessity=Claim.OPTIONAL),
+            NoMeasurementsClaim(verifier, necessity=Claim.OPTIONAL),
+            ChallengeClaim(verifier, necessity=Claim.MANDATORY),
+            InstanceIdClaim(verifier, expected_len=33, necessity=Claim.MANDATORY),
+            VerificationServiceClaim(verifier, necessity=Claim.OPTIONAL),
         ])
         return verifier
 
@@ -61,4 +61,3 @@ class PSAIoTProfile1TokenVerifier(Verifier):
         if not sw_component_present and not no_measurement_present:
             self.error('Invalid IAT: no software measurements defined and '
                   'NO_MEASUREMENTS claim is not present.')
-
