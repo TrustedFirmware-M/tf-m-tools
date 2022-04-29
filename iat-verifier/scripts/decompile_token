@@ -6,15 +6,19 @@
 #
 #-------------------------------------------------------------------------------
 
+"""CLI script for decompiling a cbor formatted IAT file"""
+
 import argparse
+import logging
 import sys
 
 import yaml
-from iatverifier.util import convert_token_to_map
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
+from iatverifier.attest_token_verifier import AttestationTokenVerifier
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
 
     token_verifiers = {
         "PSA-IoT-Profile1-token": PSAIoTProfile1TokenVerifier,
@@ -31,14 +35,24 @@ if __name__ == '__main__':
                         required=True)
     args = parser.parse_args()
 
-    verifier = token_verifiers[args.token_type].get_verifier()
+    verifier_class = token_verifiers[args.token_type]
+    if verifier_class == PSAIoTProfile1TokenVerifier:
+        verifier = PSAIoTProfile1TokenVerifier(
+            method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
+            cose_alg=AttestationTokenVerifier.COSE_ALG_ES256,
+            signing_key=None, configuration=None)
+    else:
+        logging.error(f'Invalid token type:{verifier_class}\n\t')
+        sys.exit(1)
     with open(args.source, 'rb') as fh:
-        token_map = convert_token_to_map(fh.read(), verifier)
+        token_map = verifier.parse_token(
+            token=fh.read(),
+            verify=False,
+            check_p_header=False,
+            lower_case_key=True)
 
     if args.outfile:
-        with open(args.outfile, 'w') as wfh:
+        with open(args.outfile, 'w', encoding="UTF-8") as wfh:
             yaml.dump(token_map, wfh)
     else:
         yaml.dump(token_map, sys.stdout)
-
-

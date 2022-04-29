@@ -5,49 +5,86 @@
 #
 # -----------------------------------------------------------------------------
 
+"""Contains class for verifying PSA Attestation Token profile PSA_IOT_PROFILE_1"""
+
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
 from iatverifier.attest_token_verifier import AttestationClaim as Claim
-from iatverifier.psa_iot_profile1_token_claims import ProfileIdClaim, ClientIdClaim, SecurityLifecycleClaim
-from iatverifier.psa_iot_profile1_token_claims import ImplementationIdClaim, BootSeedClaim, HardwareVersionClaim
+from iatverifier.psa_iot_profile1_token_claims import ProfileIdClaim, ClientIdClaim
+from iatverifier.psa_iot_profile1_token_claims import SecurityLifecycleClaim, ImplementationIdClaim
+from iatverifier.psa_iot_profile1_token_claims import BootSeedClaim, HardwareVersionClaim
 from iatverifier.psa_iot_profile1_token_claims import NoMeasurementsClaim, ChallengeClaim
-from iatverifier.psa_iot_profile1_token_claims import InstanceIdClaim, VerificationServiceClaim, SWComponentsClaim
-from iatverifier.psa_iot_profile1_token_claims import SWComponentTypeClaim, SwComponentVersionClaim
-from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, MeasurementDescriptionClaim, SignerIdClaim
+from iatverifier.psa_iot_profile1_token_claims import InstanceIdClaim, VerificationServiceClaim
+from iatverifier.psa_iot_profile1_token_claims import SWComponentsClaim, SWComponentTypeClaim
+from iatverifier.psa_iot_profile1_token_claims import SwComponentVersionClaim, MeasurementValueClaim
+from iatverifier.psa_iot_profile1_token_claims import MeasurementDescriptionClaim, SignerIdClaim
 
 class PSAIoTProfile1TokenVerifier(Verifier):
-    @staticmethod
-    def get_verifier(configuration=None):
-        verifier = PSAIoTProfile1TokenVerifier(
-            method=Verifier.SIGN_METHOD_SIGN1,
-            cose_alg=Verifier.COSE_ALG_ES256,
-            configuration=configuration)
+    """Verifier class for PSA Attestation Token profile PSA_IOT_PROFILE_1"""
 
+    def get_claim_key(self=None):
+        return 0xb5a101bc  #TODO: some made up claim. Change claim indexing to use name
+                           #      and this should return None
+
+    def get_claim_name(self=None):
+        return 'PSA_IOT_PROFILE1_TOKEN'
+
+    def _get_p_header(self):
+        return {'alg': self._get_cose_alg()}
+
+    def _get_wrapping_tag(self):
+        return None
+
+    def _parse_p_header(self, msg):
+        alg = self._get_cose_alg()
+        try:
+            msg_alg = msg.protected_header['alg']
+        except KeyError as exc:
+            raise ValueError(f'Missing algorithm from protected header (expected {alg})') from exc
+        if alg != msg_alg:
+            raise ValueError(f'Unexpected algorithm in protected header (expected {alg} ' +
+                f'instead of {msg_alg})')
+
+    def __init__(self, *, method, cose_alg, signing_key, configuration):
+
+        # First prepare the claim hierarchy for this token
         sw_component_claims = [
-            (SWComponentTypeClaim, {'necessity':Claim.OPTIONAL}),
-            (SwComponentVersionClaim, {'necessity':Claim.OPTIONAL}),
-            (MeasurementValueClaim, {'necessity':Claim.MANDATORY}),
-            (MeasurementDescriptionClaim, {'necessity':Claim.OPTIONAL}),
-            (SignerIdClaim, {'necessity':Claim.RECOMMENDED}),
+            (SWComponentTypeClaim, {'verifier': self, 'necessity': Claim.OPTIONAL}),
+            (SwComponentVersionClaim, {'verifier': self, 'necessity': Claim.OPTIONAL}),
+            (MeasurementValueClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
+            (MeasurementDescriptionClaim, {'verifier': self, 'necessity': Claim.OPTIONAL}),
+            (SignerIdClaim, {'verifier': self, 'necessity': Claim.RECOMMENDED}),
         ]
 
-        verifier.add_claims([
-            ProfileIdClaim(verifier, necessity=Claim.OPTIONAL),
-            ClientIdClaim(verifier, necessity=Claim.MANDATORY),
-            SecurityLifecycleClaim(verifier, necessity=Claim.MANDATORY),
-            ImplementationIdClaim(verifier, necessity=Claim.MANDATORY),
-            BootSeedClaim(verifier, necessity=Claim.MANDATORY),
-            HardwareVersionClaim(verifier, necessity=Claim.OPTIONAL),
-            SWComponentsClaim(verifier, claims=sw_component_claims, is_list=True, necessity=Claim.OPTIONAL),
-            NoMeasurementsClaim(verifier, necessity=Claim.OPTIONAL),
-            ChallengeClaim(verifier, necessity=Claim.MANDATORY),
-            InstanceIdClaim(verifier, expected_len=33, necessity=Claim.MANDATORY),
-            VerificationServiceClaim(verifier, necessity=Claim.OPTIONAL),
-        ])
-        return verifier
+        verifier_claims = [
+            (ProfileIdClaim, {'verifier': self, 'necessity': Claim.OPTIONAL}),
+            (ClientIdClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
+            (SecurityLifecycleClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
+            (ImplementationIdClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
+            (BootSeedClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
+            (HardwareVersionClaim, {'verifier': self, 'necessity': Claim.OPTIONAL}),
+            (SWComponentsClaim, {
+                'verifier': self,
+                'claims': sw_component_claims,
+                'is_list': True,
+                'cross_claim_requirement_checker': None,
+                'necessity': Claim.OPTIONAL}),
+            (NoMeasurementsClaim, {'verifier': self, 'necessity': Claim.OPTIONAL}),
+            (ChallengeClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
+            (InstanceIdClaim, {'verifier': self, 'expected_len': 33, 'necessity': Claim.MANDATORY}),
+            (VerificationServiceClaim, {'verifier': self, 'necessity': Claim.OPTIONAL}),
+        ]
 
-    def check_cross_claim_requirements(self):
-        claims = {v.get_claim_key(): v for v in self.claims}
+        # initialise the base part of the token
+        super().__init__(
+            claims=verifier_claims,
+            configuration=configuration,
+            necessity=Claim.MANDATORY,
+            method=method,
+            cose_alg=cose_alg,
+            signing_key=signing_key)
 
+    @staticmethod
+    def check_cross_claim_requirements(verifier, claims):
         if SWComponentsClaim.get_claim_key() in claims:
             sw_component_present = claims[SWComponentsClaim.get_claim_key()].verify_count > 0
         else:
@@ -59,5 +96,5 @@ class PSAIoTProfile1TokenVerifier(Verifier):
             no_measurement_present = False
 
         if not sw_component_present and not no_measurement_present:
-            self.error('Invalid IAT: no software measurements defined and '
+            verifier.error('Invalid IAT: no software measurements defined and '
                   'NO_MEASUREMENTS claim is not present.')

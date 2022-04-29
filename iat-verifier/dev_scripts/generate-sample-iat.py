@@ -6,20 +6,24 @@
 #
 # -----------------------------------------------------------------------------
 
-import base64
+"""
+Generate a sample token, signing it with the specified key, and writing
+the output to the specified file.
+
+This script is deprecated - use ``compile_token`` (see above) instead.
+"""
 import struct
 
-import cbor2
-from ecdsa import SigningKey
-from pycose.sign1message import Sign1Message
-
-from iatverifier.util import sign_eat
-
-from iatverifier.psa_iot_profile1_token_claims import InstanceIdClaim, ImplementationIdClaim, ChallengeClaim
-from iatverifier.psa_iot_profile1_token_claims import ClientIdClaim, SecurityLifecycleClaim, ProfileIdClaim
-from iatverifier.psa_iot_profile1_token_claims import BootSeedClaim, SWComponentsClaim, SWComponentTypeClaim
-from iatverifier.psa_iot_profile1_token_claims import SignerIdClaim, SwComponentVersionClaim
-from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, MeasurementDescriptionClaim
+from iatverifier.util import convert_map_to_token, read_keyfile
+from iatverifier.attest_token_verifier import AttestationTokenVerifier
+from iatverifier.psa_iot_profile1_token_claims import InstanceIdClaim, ImplementationIdClaim
+from iatverifier.psa_iot_profile1_token_claims import ChallengeClaim, ClientIdClaim
+from iatverifier.psa_iot_profile1_token_claims import SecurityLifecycleClaim, ProfileIdClaim
+from iatverifier.psa_iot_profile1_token_claims import BootSeedClaim, SWComponentsClaim
+from iatverifier.psa_iot_profile1_token_claims import SWComponentTypeClaim, SignerIdClaim
+from iatverifier.psa_iot_profile1_token_claims import SwComponentVersionClaim
+from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim
+from iatverifier.psa_iot_profile1_token_claims import MeasurementDescriptionClaim
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
 
 # First byte indicates "GUID"
@@ -81,15 +85,17 @@ token_map = {
 if __name__ == '__main__':
     import sys
     if len(sys.argv) != 3:
-        print('Usage: {} KEYFILE OUTFILE'.format(sys.argv[0]))
+        print(f'Usage: {sys.argv[0]} KEYFILE OUTFILE')
         sys.exit(1)
     keyfile = sys.argv[1]
     outfile = sys.argv[2]
 
-    sk = SigningKey.from_pem(open(keyfile, 'rb').read())
-    token = cbor2.dumps(token_map)
-    verifier = PSAIoTProfile1TokenVerifier.get_verifier()
-    signed_token = sign_eat(token, verifier, add_p_header=False, key=sk)
-
+    key = read_keyfile(keyfile,
+                       method=AttestationTokenVerifier.SIGN_METHOD_SIGN1)
+    verifier = PSAIoTProfile1TokenVerifier(signing_key=key,
+                                           method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
+                                           cose_alg=AttestationTokenVerifier.COSE_ALG_ES256,
+                                           configuration=None)
     with open(outfile, 'wb') as wfh:
-        wfh.write(signed_token)
+        convert_map_to_token(token_map, verifier, wfh, add_p_header=False,
+            name_as_key=False, parse_raw_value=False)

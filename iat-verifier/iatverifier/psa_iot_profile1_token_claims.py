@@ -5,6 +5,10 @@
 #
 # -----------------------------------------------------------------------------
 
+"""
+This module contains classes that represent claims for PSA IoT Profile1 Attestation token.
+"""
+
 import string
 
 from iatverifier.attest_token_verifier import AttestationClaim, NonVerifiedClaim
@@ -17,8 +21,9 @@ ARM_RANGE = -75000
 SW_COMPONENT_RANGE = 0
 
 class InstanceIdClaim(AttestationClaim):
-    def __init__(self, verifier, *, expected_len, necessity=AttestationClaim.MANDATORY):
-        super().__init__(verifier, necessity=necessity)
+    """Class representing a PSA Attestation Token Instance ID claim"""
+    def __init__(self, *, verifier, expected_len, necessity=AttestationClaim.MANDATORY):
+        super().__init__(verifier=verifier, necessity=necessity)
         self.expected_len = expected_len
 
     def get_claim_key(self=None):
@@ -36,7 +41,7 @@ class InstanceIdClaim(AttestationClaim):
 
 
 class ChallengeClaim(AttestationClaim):
-
+    """Class representing a PSA Attestation Token Challenge claim"""
     HASH_SIZES = [32, 48, 64]
 
     def get_claim_key(self=None):
@@ -56,6 +61,7 @@ class ChallengeClaim(AttestationClaim):
 
 
 class ImplementationIdClaim(NonVerifiedClaim):
+    """Class representing a PSA Attestation Token Implementation ID claim"""
     def get_claim_key(self=None):
         return ARM_RANGE - 3
 
@@ -64,6 +70,7 @@ class ImplementationIdClaim(NonVerifiedClaim):
 
 
 class HardwareVersionClaim(AttestationClaim):
+    """Class representing a PSA Attestation Token Hardware version claim"""
     def verify(self, value):
         self._check_type('HARDWARE_VERSION', value, str)
 
@@ -85,12 +92,13 @@ class HardwareVersionClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'HARDWARE_VERSION'
 
-    def is_utf_8(self):
+    @classmethod
+    def is_utf_8(cls):
         return True
 
 
 class SWComponentsClaim(CompositeAttestClaim):
-
+    """Class representing a PSA Attestation Token Software Components claim"""
     def get_claim_key(self=None):
         return ARM_RANGE - 6
 
@@ -98,17 +106,20 @@ class SWComponentsClaim(CompositeAttestClaim):
         return 'SW_COMPONENTS'
 
 class SWComponentTypeClaim(NonVerifiedClaim):
+    """Class representing a PSA Attestation Token Software Component Measurement Type claim"""
     def get_claim_key(self=None):
         return SW_COMPONENT_RANGE + 1
 
     def get_claim_name(self=None):
         return 'SW_COMPONENT_TYPE'
 
-    def is_utf_8(self):
+    @classmethod
+    def is_utf_8(cls):
         return True
 
 
 class NoMeasurementsClaim(NonVerifiedClaim):
+    """Class representing a PSA Attestation Token No Software Measurements claim"""
     def get_claim_key(self=None):
         return ARM_RANGE - 7
 
@@ -117,6 +128,7 @@ class NoMeasurementsClaim(NonVerifiedClaim):
 
 
 class ClientIdClaim(AttestationClaim):
+    """Class representing a PSA Attestation Token Client ID claim"""
     def get_claim_key(self=None):
         return ARM_RANGE - 1
 
@@ -128,7 +140,7 @@ class ClientIdClaim(AttestationClaim):
         self.verify_count += 1
 
 class SecurityLifecycleClaim(AttestationClaim):
-
+    """Class representing a PSA Attestation Token Security Lifecycle claim"""
     SL_SHIFT = 12
 
     SL_NAMES = [
@@ -158,25 +170,18 @@ class SecurityLifecycleClaim(AttestationClaim):
         self._check_type('SECURITY_LIFECYCLE', value, int)
         self.verify_count += 1
 
-    def add_value_to_dict(self, token, value):
-        entry_name = self.get_claim_name()
-        try:
-            name_idx = (value >> SecurityLifecycleClaim.SL_SHIFT) - 1
-            token[entry_name] = SecurityLifecycleClaim.SL_NAMES[name_idx]
-        except IndexError:
-            token[entry_name] = 'CUSTOM({})'.format(value)
+    @classmethod
+    def parse_raw(cls, raw_value):
+        name_idx = cls.SL_NAMES.index(raw_value.upper())
+        return (name_idx + 1) << cls.SL_SHIFT
 
-    @staticmethod
-    def parse_raw(raw_value):
-        name_idx = SecurityLifecycleClaim.SL_NAMES.index(raw_value.upper())
-        return (name_idx + 1) << SecurityLifecycleClaim.SL_SHIFT
-
-    @staticmethod
-    def get_formatted_value(value):
-        return SecurityLifecycleClaim.SL_NAMES[(value >> SecurityLifecycleClaim.SL_SHIFT) - 1]
+    @classmethod
+    def get_formatted_value(cls, value):
+        return cls.SL_NAMES[(value >> cls.SL_SHIFT) - 1]
 
 
 class ProfileIdClaim(AttestationClaim):
+    """Class representing a PSA Attestation Token Profile Definition claim"""
     def get_claim_key(self=None):
         return ARM_RANGE
 
@@ -187,11 +192,13 @@ class ProfileIdClaim(AttestationClaim):
         self._check_type('PROFILE_ID', value, str)
         self.verify_count += 1
 
-    def is_utf_8(self):
+    @classmethod
+    def is_utf_8(cls):
         return True
 
 
 class BootSeedClaim(AttestationClaim):
+    """Class representing a PSA Attestation Token Boot Seed claim"""
     def get_claim_key(self=None):
         return ARM_RANGE - 4
 
@@ -204,17 +211,20 @@ class BootSeedClaim(AttestationClaim):
 
 
 class VerificationServiceClaim(NonVerifiedClaim):
+    """Class representing a PSA Attestation Token Verification Service Indicator claim"""
     def get_claim_key(self=None):
         return ARM_RANGE - 10 # originator
 
     def get_claim_name(self=None):
         return 'VERIFICATION_SERVICE'
 
-    def is_utf_8(self):
+    @classmethod
+    def is_utf_8(cls):
         return True
 
 
 class SignerIdClaim(AttestationClaim):
+    """Class representing a PSA Attestation Token Software Component Signer ID claim"""
     def get_claim_key(self=None):
         return SW_COMPONENT_RANGE + 5
 
@@ -227,17 +237,20 @@ class SignerIdClaim(AttestationClaim):
 
 
 class SwComponentVersionClaim(NonVerifiedClaim):
+    """Class representing a PSA Attestation Token Software Component Version claim"""
     def get_claim_key(self=None):
         return SW_COMPONENT_RANGE + 4
 
     def get_claim_name(self=None):
         return 'SW_COMPONENT_VERSION'
 
-    def is_utf_8(self):
+    @classmethod
+    def is_utf_8(cls):
         return True
 
 
 class MeasurementValueClaim(AttestationClaim):
+    """Class representing a PSA Attestation Token Software Component Measurement value claim"""
     def get_claim_key(self=None):
         return SW_COMPONENT_RANGE + 2
 
@@ -250,11 +263,13 @@ class MeasurementValueClaim(AttestationClaim):
 
 
 class MeasurementDescriptionClaim(NonVerifiedClaim):
+    """Class representing PSA Attestation Token Software Component Measurement description claim"""
     def get_claim_key(self=None):
         return SW_COMPONENT_RANGE + 6
 
     def get_claim_name(self=None):
         return 'MEASUREMENT_DESCRIPTION'
 
-    def is_utf_8(self):
+    @classmethod
+    def is_utf_8(cls):
         return True

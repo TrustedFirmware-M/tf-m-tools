@@ -5,18 +5,21 @@
 #
 # -----------------------------------------------------------------------------
 
+"""CLI script for verifying an IAT."""
+
 import argparse
 import json
 import logging
 import sys
 
-from iatverifier.util import extract_iat_from_cose, recursive_bytes_to_strings
+from iatverifier.util import recursive_bytes_to_strings, read_keyfile, get_cose_alg_from_key
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
 from iatverifier.attest_token_verifier import VerifierConfiguration, AttestationTokenVerifier
 
 logger = logging.getLogger('iat-verify')
 
 def main():
+    """Main function for verifying an IAT"""
 
     token_verifiers = {
         "PSA-IoT-Profile1-token": PSAIoTProfile1TokenVerifier,
@@ -67,25 +70,44 @@ def main():
     logging.basicConfig(level=logging.INFO)
 
     config = VerifierConfiguration(keep_going=args.keep_going, strict=args.strict)
-    verifier = token_verifiers[args.token_type].get_verifier(config)
     if args.method == 'mac':
-        verifier.method = AttestationTokenVerifier.SIGN_METHOD_MAC0
-        verifier.cose_alg = AttestationTokenVerifier.COSE_ALG_HS256
+        method = AttestationTokenVerifier.SIGN_METHOD_MAC0
+    else:
+        method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
 
-    try:
-        raw_iat = extract_iat_from_cose(args.keyfile, args.tokenfile, verifier, args.check_protected_header)
-        if args.keyfile:
-            print('Signature OK')
-    except ValueError as e:
-        logger.error('Could not extract IAT from COSE:\n\t{}'.format(e))
+    key = read_keyfile(keyfile=args.keyfile, method=method)
+
+    if args.method == 'mac':
+        cose_alg = AttestationTokenVerifier.COSE_ALG_HS256
+    else:
+        if key is not None:
+            cose_alg = get_cose_alg_from_key(key)
+        else:
+            cose_alg = AttestationTokenVerifier.COSE_ALG_ES256
+
+    verifier_class = token_verifiers[args.token_type]
+    if verifier_class == PSAIoTProfile1TokenVerifier:
+        verifier = PSAIoTProfile1TokenVerifier(
+            method=method,
+            cose_alg=cose_alg,
+            signing_key=key,
+            configuration=config)
+    else:
+        logger.error(f'Invalid token type:{verifier_class}\n\t')
         sys.exit(1)
 
     try:
-        token = verifier.decode_and_validate_iat(raw_iat)
-        if not verifier.seen_errors:
-            print('Token format OK')
-    except ValueError as e:
-        logger.error('Could not validate IAT:\n\t{}'.format(e))
+        with open(args.tokenfile, 'rb') as token_file:
+            token = verifier.parse_token(
+                token=token_file.read(),
+                verify=True,
+                check_p_header=args.check_protected_header,
+                lower_case_key=False)
+        if args.keyfile:
+            print('Signature OK')
+        print('Token format OK')
+    except ValueError as exc:
+        logger.error(f'Could not extract IAT from COSE:\n\t{exc}')
         sys.exit(1)
 
     if args.print_iat:
