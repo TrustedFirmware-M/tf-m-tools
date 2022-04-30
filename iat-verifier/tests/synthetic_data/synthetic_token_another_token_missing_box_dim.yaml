@@ -1,0 +1,25 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2022, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+syn_claim_int: 12
+syn_boxes:
+    - box_color: red
+    - box_width: 7
+      box_height: 7
+      box_depth: 7
+      box_color: blue
+    - box_width: 5
+      box_height: 5
+      box_depth: 5
+      box_color: green
+      synthetic_internal_token:
+        syn_claim_int: 1000
+        syn_boxes:
+        - box_color: grey
+        - box_width: 5
+          box_depth: 5
+          box_color: pink

@@ -8,12 +8,12 @@
 """Unittests for iat-verifier using PSAIoTProfile1TokenVerifier"""
 
 import os
-import tempfile
 import unittest
 
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
-from iatverifier.util import read_token_map, convert_map_to_token, read_keyfile
+from iatverifier.util import read_keyfile
 from iatverifier.attest_token_verifier import VerifierConfiguration, AttestationTokenVerifier
+from test_utils import create_and_read_iat, read_iat, create_token_tmp_file
 
 
 THIS_DIR = os.path.dirname(__file__)
@@ -21,40 +21,6 @@ THIS_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(THIS_DIR, 'data')
 KEYFILE = os.path.join(DATA_DIR, 'key.pem')
 KEYFILE_ALT = os.path.join(DATA_DIR, 'key-alt.pem')
-
-def create_token(source_name, verifier):
-    """Create a CBOR encoded token and save it to a temp file
-
-    Return the name of the temp file."""
-    source_path = os.path.join(DATA_DIR, source_name)
-    temp_file, dest_path = tempfile.mkstemp()
-    os.close(temp_file)
-
-    token_map = read_token_map(source_path)
-    with open(dest_path, 'wb') as wfh:
-        convert_map_to_token(
-            token_map,
-            verifier,
-            wfh,
-            add_p_header=False,
-            name_as_key=True,
-            parse_raw_value=True)
-    return dest_path
-
-def read_iat(filename, verifier):
-    """Parse a token file"""
-    filepath = os.path.join(DATA_DIR, filename)
-    with open(filepath, 'rb') as token_file:
-        return verifier.parse_token(
-            token=token_file.read(),
-            verify=True,
-            check_p_header=False,
-            lower_case_key=False)
-
-def create_and_read_iat(source_name, verifier):
-    """Create a cbor encoded token in a temp file and parse it back"""
-    token_file = create_token(source_name, verifier)
-    return read_iat(token_file, verifier)
 
 class TestIatVerifier(unittest.TestCase):
     """A class used for testing iat-verifier.
@@ -75,7 +41,7 @@ class TestIatVerifier(unittest.TestCase):
             cose_alg=cose_alg,
             signing_key=signing_key,
             configuration=self.config)
-        good_sig = create_token('valid-iat.yaml', verifier_good_sig)
+        good_sig = create_token_tmp_file(DATA_DIR, 'valid-iat.yaml', verifier_good_sig)
 
         signing_key = read_keyfile(KEYFILE_ALT, method)
         verifier_bad_sig = PSAIoTProfile1TokenVerifier(
@@ -83,7 +49,7 @@ class TestIatVerifier(unittest.TestCase):
             cose_alg=cose_alg,
             signing_key=signing_key,
             configuration=self.config)
-        bad_sig = create_token('valid-iat.yaml', verifier_bad_sig)
+        bad_sig = create_token_tmp_file(DATA_DIR, 'valid-iat.yaml', verifier_bad_sig)
 
         #dump_file_binary(good_sig)
 
@@ -113,6 +79,7 @@ class TestIatVerifier(unittest.TestCase):
         signing_key = read_keyfile(KEYFILE, method)
 
         create_and_read_iat(
+            DATA_DIR,
             'valid-iat.yaml',
             PSAIoTProfile1TokenVerifier(method=method,
             cose_alg=cose_alg,
@@ -121,6 +88,7 @@ class TestIatVerifier(unittest.TestCase):
 
         with self.assertRaises(ValueError) as test_ctx:
             create_and_read_iat(
+            DATA_DIR,
                 'invalid-profile-id.yaml',
                 PSAIoTProfile1TokenVerifier(method=method,
                 cose_alg=cose_alg,
@@ -130,6 +98,7 @@ class TestIatVerifier(unittest.TestCase):
 
         with self.assertRaises(ValueError) as test_ctx:
             read_iat(
+                DATA_DIR,
                 'malformed.cbor',
                 PSAIoTProfile1TokenVerifier(method=method,
                 cose_alg=cose_alg,
@@ -139,6 +108,7 @@ class TestIatVerifier(unittest.TestCase):
 
         with self.assertRaises(ValueError) as test_ctx:
             create_and_read_iat(
+                DATA_DIR,
                 'missing-claim.yaml',
                 PSAIoTProfile1TokenVerifier(method=method,
                 cose_alg=cose_alg,
@@ -148,6 +118,7 @@ class TestIatVerifier(unittest.TestCase):
 
         with self.assertRaises(ValueError) as test_ctx:
             create_and_read_iat(
+                DATA_DIR,
                 'submod-missing-claim.yaml',
                 PSAIoTProfile1TokenVerifier(method=method,
                 cose_alg=cose_alg,
@@ -157,6 +128,7 @@ class TestIatVerifier(unittest.TestCase):
 
         with self.assertRaises(ValueError) as test_ctx:
             create_and_read_iat(
+                DATA_DIR,
                 'missing-sw-comps.yaml',
                 PSAIoTProfile1TokenVerifier(method=method,
                 cose_alg=cose_alg,
@@ -167,6 +139,7 @@ class TestIatVerifier(unittest.TestCase):
 
         with self.assertLogs() as test_ctx:
             create_and_read_iat(
+                DATA_DIR,
                 'missing-signer-id.yaml',
                 PSAIoTProfile1TokenVerifier(method=method,
                 cose_alg=cose_alg,
@@ -177,6 +150,7 @@ class TestIatVerifier(unittest.TestCase):
 
         with self.assertLogs() as test_ctx:
             create_and_read_iat(
+                DATA_DIR,
                 'invalid-type-length.yaml',
                 PSAIoTProfile1TokenVerifier(method=method,
                 cose_alg=cose_alg,
@@ -193,6 +167,7 @@ class TestIatVerifier(unittest.TestCase):
 
         with self.assertLogs() as test_ctx:
             create_and_read_iat(
+                DATA_DIR,
                 'invalid-hw-version.yaml',
                 PSAIoTProfile1TokenVerifier(method=method,
                 cose_alg=cose_alg,
@@ -213,6 +188,7 @@ class TestIatVerifier(unittest.TestCase):
         cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
         signing_key = read_keyfile(KEYFILE, method)
         iat = create_and_read_iat(
+            DATA_DIR,
             'valid-iat.yaml',
             PSAIoTProfile1TokenVerifier(method=method,
             cose_alg=cose_alg,
@@ -226,6 +202,7 @@ class TestIatVerifier(unittest.TestCase):
         cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
         signing_key = read_keyfile(KEYFILE, method)
         iat = create_and_read_iat(
+            DATA_DIR,
             'valid-iat.yaml',
             PSAIoTProfile1TokenVerifier(method=method,
             cose_alg=cose_alg,
