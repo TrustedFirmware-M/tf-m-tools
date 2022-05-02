@@ -6,8 +6,6 @@
 # ------------------------------------------------------------------------------
 
 import sqlite3
-import os
-import glob
 from xlsxwriter.workbook import Workbook
 
 class SQ(object):
@@ -22,7 +20,8 @@ class SQ(object):
     - Variables:
       - SQ().armcc     - ARMCLANG option.
       - SQ().gnuarm    - GNUARM option.
-      - SQ().file_path - The map file path which detail information comes from.
+      - SQ().map_file  - The map file path which detail information comes from.
+      - SQ().db_name   - The database file name to be saved.
     """
     def __init__(self):
         """
@@ -30,27 +29,20 @@ class SQ(object):
         """
         self.gnuarm = False
         self.armcc = False
-        self.file_path = ""
+        self.map_file = ""
+        self.db_name = ""
 
         self.__gnuarm_info = []
         self.__sec_dict = {}
-        self.__delete()
-        self.__con = sqlite3.connect("data.db")
-        self.__cur = self.__con.cursor()
-
-    def __delete(self):
-        """
-        Search and delete the previous database file and excel file.
-        """
-        for infile in glob.glob(os.path.join(os.getcwd(), '*.db')):
-            os.remove(infile)
-        for infile in glob.glob(os.path.join(os.getcwd(), '*.xlsx')):
-            os.remove(infile)
+        self.__excel_name = ""
 
     def __new(self):
         """
         Create tables in a new empty database.
         """
+        self.__con = sqlite3.connect(self.db_name)
+        self.__cur = self.__con.cursor()
+        self.__excel_name = self.db_name +'.xlsx'
         self.__cur.execute('''create table Summary
                              (Code               INT     NOT NULL,
                               RO_data            INT     NOT NULL,
@@ -82,7 +74,7 @@ class SQ(object):
                               lib_file           TEXT    NOT_NULL);''')
         self.__cur.execute('''create table Library
                              (name               TEXT    NOT NULL,
-                              flashsize          INT     NOT NULL,
+                              size               INT     NOT NULL,
                               ramsize            INT     NOT NULL,
                               code               INT     NOT NULL,
                               rodata             INT     NOT NULL,
@@ -92,8 +84,8 @@ class SQ(object):
                               Debug              INT     NOT NULL);''')
         self.__cur.execute('''create table Object
                              (name               TEXT    NOT NULL,
-                              library            TEXT    NOT NULL,
-                              flashsize          INT     NOT NULL,
+                              lib_file           TEXT    NOT NULL,
+                              size               INT     NOT NULL,
                               ramsize            INT     NOT NULL,
                               code               INT     NOT NULL,
                               rodata             INT     NOT NULL,
@@ -101,6 +93,9 @@ class SQ(object):
                               zidata             INT     NOT NULL,
                               incdata            INT     NOT_NULL,
                               Debug              INT     NOT NULL);''')
+        self.__cur.execute('''create table Compiler
+                             (Compiler           TEXT    NOT NULL,
+                              flag               INT     NOT NULL);''')
         if self.gnuarm:
             self.__cur.execute('''create table Unknown
                              (name               TEXT    NOT NULL,
@@ -110,6 +105,12 @@ class SQ(object):
                               type               TEXT    NOT NULL,
                               obj_file           TEXT    NOT_NULL,
                               lib_file           TEXT    NOT_NULL);''')
+
+    def __collect_compiler(self):
+        if self.gnuarm:
+            self.__cur.execute("insert into Compiler values (?, ?)", ("gnuarm", 1))
+        if self.armcc:
+            self.__cur.execute("insert into Compiler values (?, ?)", ("armcc", 0))
 
     def __collect_summary(self):
         code_size = ro_data = rw_data = zi_data = flash_size = ram_size = extra_ram = extra_flash = 0
@@ -150,7 +151,7 @@ class SQ(object):
             """
             For Secure image, the TFM_DATA part is loaded from Flash.
             """
-            for line in open(self.file_path, "r"):
+            for line in open(self.map_file, "r"):
                 if line.find("load address") >= 0:
                     extra_flash_addr = int(line.split()[-1] ,16)
                     extra_flash_data = int(line.split()[-4], 16)
@@ -158,7 +159,7 @@ class SQ(object):
                         flash_size += extra_flash_data
 
         elif self.armcc:
-            for line in open(self.file_path, "r"):
+            for line in open(self.map_file, "r"):
                 if line.find("gram Size: Code=") > 0:
                     content = line.split()
                     code_size = int(content[2].split('=')[1])
@@ -208,7 +209,7 @@ class SQ(object):
             section_addr = ""
             section_size = 0
             section_pad_size = 0
-            for line in open(self.file_path, "r"):
+            for line in open(self.map_file, "r"):
                 line_idx += 1
 
                 if line.find("Execution Region") > 0:
@@ -284,7 +285,7 @@ class SQ(object):
 
         elif self.armcc:
             line_idx, line_start = 0, 0
-            for line in open(self.file_path, "r"):
+            for line in open(self.map_file, "r"):
                 line_idx += 1
                 if line.find("Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Name") > 0:
                     line_start = line_idx + 1
@@ -325,7 +326,7 @@ class SQ(object):
                                      0, 0))
         elif self.armcc:
             line_idx, line_start = 0, 0
-            for line in open(self.file_path, "r"):
+            for line in open(self.map_file, "r"):
                 line_idx += 1
                 if line.find("Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name") > 0:
                     line_start = line_idx + 1
@@ -346,7 +347,7 @@ class SQ(object):
                     else:
                         break
             line_idx, line_start = 0, 0
-            for line in open(self.file_path, "r"):
+            for line in open(self.map_file, "r"):
                 line_idx += 1
                 if line.find("Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Member Name") > 0:
                     line_start = line_idx + 1
@@ -355,7 +356,7 @@ class SQ(object):
                     if len(content) == 7:
                         obj_name = content[6]
                         library_file = ""
-                        for line in open(self.file_path, "r"):
+                        for line in open(self.map_file, "r"):
                             if line.find(obj_name) > 0:
                                 ch_r = line[line.find(obj_name) + len(obj_name)]
                                 ch_l = line[line.find(obj_name) - 1]
@@ -379,7 +380,7 @@ class SQ(object):
 
     def __get_ram_and_flash_start_addr(self):
         start = False
-        for line in open(self.file_path, "r"):
+        for line in open(self.map_file, "r"):
             if line.find('Memory Configuration') >= 0:
                 start = True
             if line.find('Linker script and memory map') == 0:
@@ -397,7 +398,7 @@ class SQ(object):
         def get_key_content():
                 start, end, real_start = False, False, False
                 content = ""
-                for line in open(self.file_path, "r"):
+                for line in open(self.map_file, "r"):
                     if line.find('Linker script and memory map') >= 0:
                         start = True
                     if line.find('OUTPUT(') == 0:
@@ -558,7 +559,7 @@ class SQ(object):
         table_list = ["Summary", "Section", "Library", "Object", "Function", "Data"]
         if self.gnuarm:
             table_list.append("Unknown")
-        workbook = Workbook('data.xlsx')
+        workbook = Workbook(self.__excel_name)
         title_m = workbook.add_format({'bold': True,
                                        'align': 'left',
                                        'font_size': 12})
@@ -603,6 +604,7 @@ class SQ(object):
         self.__new()
         if self.gnuarm:
             self.__get_info_from_gnuarm_map()
+        self.__collect_compiler()
         self.__collect_summary()
         self.__collect_section()
         self.__collect_library()

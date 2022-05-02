@@ -20,6 +20,7 @@ class UI(object):
     - Methods:
       - UI().run()              - Run the UI in terminal.
       - UI.draw_<symbol>_page() - Get the information of specific symbol
+      - UI.open_db()            - Open database.
 
     - Variables:
       - UI().items              - The result searched from database.
@@ -31,6 +32,9 @@ class UI(object):
       - UI().section_name       - Specific section name.
       - UI().library_name       - Specific library name.
       - UI().obj_file           - Specific object file name.
+      - UI().db_file            - Database file.
+      - UI().sort               - Database list order: size, name and so on.
+      - UI().order              - Database sort order: DESC and ASC.
     """
 
     def __init__(self):
@@ -45,9 +49,10 @@ class UI(object):
         self.gnuarm = False
         self.armcc = False
         self.items = []
-        self.con = sqlite3.connect("data.db")
+        self.db_file = ""
+        self.sort = "size"
+        self.order = "DESC"
 
-        self.__cur = self.con.cursor()
         self.__window = None
         self.__width = 0
         self.__height = 0
@@ -61,6 +66,17 @@ class UI(object):
         self.__cmd_file="Enter the file name:"
         self.__cmd_func="Enter the function name:"
         self.__cmd_data="Enter the data name:"
+
+    def open_db(self):
+        self.con = sqlite3.connect(self.db_file)
+        self.__cur = self.con.cursor()
+        cursor = self.__cur.execute("select * from Compiler")
+        for row in cursor:
+            compiler = row[1]
+            if compiler == 1:
+                self.gnuarm = True
+            elif compiler == 0:
+                self.armcc = True
 
     def __init_curses(self):
         """
@@ -413,7 +429,7 @@ class UI(object):
         self.items = ["{:<50}{:<16}{:<16}{:<16}".
                       format("Name", "Size", "Address", "PAD size")]
 
-        cursor = self.__cur.execute("select * from Section ORDER BY size DESC")
+        cursor = self.__cur.execute("select * from Section ORDER BY {} {}".format(self.sort, self.order))
         for row in cursor:
             self.items.append("{:<50}{:<16}{:<16}{:<16}".
                               format(row[0], row[1], row[2], row[3]))
@@ -559,7 +575,7 @@ class UI(object):
         Dump library information.
         """
         self.items = [self.__line1]
-        insert_column_line("\t\t\t\t\t\t\tSection libraries")
+        insert_column_line(" " * ((128 - len("Section libraries"))//2) + "Section libraries")
         for s in lib_list:
             if s['Name'].find(".o") > 0:
                 exsit_no_lib_obj = True
@@ -571,7 +587,7 @@ class UI(object):
         """
         Dump object file information.
         """
-        insert_column_line("\t\t\t\t\t\t\tSection object files")
+        insert_column_line(" " * ((128 - len("Section object files"))//2) + "Section object files")
         for s in obj_list:
             quick_insert_data_line(s)
         ret = sum_data(obj_list)
@@ -581,8 +597,8 @@ class UI(object):
         Dump NOT-IN-LIBRARY object file information.
         """
         if exsit_no_lib_obj:
-            insert_column_line(
-                "\t\t\t\t\t\t\tSection NOT-IN-LIBRARY object files")
+            insert_column_line(" " * ((128 - len("Section NOT-IN-LIBRARY object files"))//2) +
+                "Section NOT-IN-LIBRARY object files")
             tmp_list = []
             for s in lib_list:
                 if s['Name'].find(".o") > 0:
@@ -600,14 +616,14 @@ class UI(object):
                               format(self.section_name, row[1], total_flash_size, total_ram_size, row[3]))
             break
         self.items.insert(0, self.__line2)
-        self.items.insert(0, "\t\t\t\t\t\t\tSection information")
+        self.items.insert(0, " " * ((128 - len("Section information"))//2) + "Section information")
         self.items.insert(0, self.__line1)
 
         """
         Dump detail information of the section.
         """
         index = 4 * ' '
-        self.items.append("\t\t\t\t\t\t\tDetail information")
+        self.items.append(" " * ((128 - len("Detail information"))//2) + "Detail information")
         self.items.append(self.__line2)
         for s in lib_list:
             self.items.append("{} Code Size = {} RO Data = {} RW Data = {} ZI Data = {}".
@@ -617,10 +633,12 @@ class UI(object):
                     self.items.append(index + "{} Code Size = {} RO Data = {} RW Data = {} ZI Data = {}".format(
                         t['Name'], t['Code'], t['RO'], t['RW'], t['ZI']))
                     count = 0
-                    cursor = self.__cur.execute("select * from Function WHERE section = '{}' and lib_file = '{}' and obj_file = '{}' ORDER BY size DESC".
+                    cursor = self.__cur.execute("select * from Function WHERE section = '{}' and lib_file = '{}' and obj_file = '{}' ORDER BY {} {}".
                                                 format(self.section_name,
                                                        s['Name'],
-                                                       t['Name']))
+                                                       t['Name'],
+                                                       self.sort,
+                                                       self.order))
                     for row in cursor:
                         if row and count == 0:
                             self.items.append(index * 2 + "Code size = {}".
@@ -631,11 +649,13 @@ class UI(object):
 
                     def get_certain_data(type_name, s, t):
                         count = 0
-                        cursor = self.__cur.execute("select * from Data WHERE section = '{}' and lib_file = '{}' and obj_file = '{}'  and type = '{}' ORDER BY size DESC".
+                        cursor = self.__cur.execute("select * from Data WHERE section = '{}' and lib_file = '{}' and obj_file = '{}'  and type = '{}' ORDER BY {} {}".
                                                     format(self.section_name,
                                                            s['Name'],
                                                            t['Name'],
-                                                           type_name))
+                                                           type_name,
+                                                           self.sort,
+                                                           self.order))
                         for row in cursor:
                             if row and count == 0:
                                 self.items.append(index * 2 + "{} Data = {}".
@@ -648,6 +668,7 @@ class UI(object):
                     get_certain_data('RW', s, t)
                     get_certain_data('ZI', s, t)
             self.items.append(self.__line2)
+        self.items[-1] = self.__line1
 
     def draw_section_func(self):
         self.items = ["{:<50}{:<32}{:<10}{:<16}{:<40}{:<40}".
@@ -657,8 +678,8 @@ class UI(object):
                              "Address",
                              "Object File",
                              "Library")]
-        cursor = self.__cur.execute("select * from Function WHERE section = '{}' ORDER BY size DESC".
-                                  format(self.section_name))
+        cursor = self.__cur.execute("select * from Function WHERE section = '{}' ORDER BY {} {}".
+                                  format(self.section_name, self.sort, self.order))
         for row in cursor:
             self.items.append("{:<50}{:<32}{:<10}{:<16}{:<40}{:<40}".
                               format(row[0], row[1], row[2], row[3], row[4], row[5]))
@@ -673,8 +694,8 @@ class UI(object):
                              "Object File",
                              "Library")]
 
-        cursor = self.__cur.execute("select * from Data WHERE section = '{}' ORDER BY size DESC".
-                                  format(self.section_name))
+        cursor = self.__cur.execute("select * from Data WHERE section = '{}' ORDER BY {} {}".
+                                  format(self.section_name, self.sort, self.order))
         for row in cursor:
             data_name = row[0]
             if len(data_name) >= 50:
@@ -718,7 +739,7 @@ class UI(object):
                              "Debug")]
 
         cursor = self.__cur.execute(
-            "select * from Library ORDER BY flashsize DESC")
+            "select * from Library ORDER BY {} {}".format(self.sort, self.order))
         for row in cursor:
             self.items.append("{:<50}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}".
                               format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
@@ -761,8 +782,8 @@ class UI(object):
                                  "Inc. data"))
         self.items.append(self.__line2)
 
-        cursor = self.__cur.execute("select * from Object WHERE library = '{}' ORDER BY flashsize DESC".
-                                  format(self.library_name))
+        cursor = self.__cur.execute("select * from Object WHERE lib_file = '{}' ORDER BY {} {}".
+                                  format(self.library_name, self.sort, self.order))
         for row in cursor:
             self.items.append("{:<50}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}".
                               format(row[0], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
@@ -770,8 +791,8 @@ class UI(object):
         """
         Draw functions.
         """
-        cursor = self.__cur.execute("select * from Function WHERE lib_file = '{}' ORDER BY size DESC".
-                                  format(self.library_name))
+        cursor = self.__cur.execute("select * from Function WHERE lib_file = '{}' ORDER BY {} {}".
+                                  format(self.library_name, self.sort, self.order))
         for row in cursor:
             if not flag:
                 self.__quick_append()
@@ -782,22 +803,22 @@ class UI(object):
         """
         Draw RO data.
         """
-        cursor = self.__cur.execute("select * from Data WHERE type = 'RO' and lib_file = '{}' ORDER BY size DESC".
-                                  format(self.library_name))
+        cursor = self.__cur.execute("select * from Data WHERE type = 'RO' and lib_file = '{}' ORDER BY {} {}".
+                                  format(self.library_name, self.sort, self.order))
         self.__quick_append_data(cursor)
 
         """
         Draw RW data.
         """
-        cursor = self.__cur.execute("select * from Data WHERE type = 'RW' and lib_file = '{}' ORDER BY size DESC".
-                                  format(self.library_name))
+        cursor = self.__cur.execute("select * from Data WHERE type = 'RW' and lib_file = '{}' ORDER BY {} {}".
+                                  format(self.library_name, self.sort, self.order))
         self.__quick_append_data(cursor)
 
         """
         Draw ZI data.
         """
-        cursor = self.__cur.execute("select * from Data WHERE type = 'ZI' and lib_file = '{}' ORDER BY size DESC".
-                                  format(self.library_name))
+        cursor = self.__cur.execute("select * from Data WHERE type = 'ZI' and lib_file = '{}' ORDER BY {} {}".
+                                  format(self.library_name, self.sort, self.order))
         self.__quick_append_data(cursor)
         self.items.append(self.__line1)
 
@@ -813,13 +834,12 @@ class UI(object):
                              "ZI data",
                              "Inc. data",
                              "Debug")]
-        cursor = self.__cur.execute(
-            "select * from Object WHERE library = 'no library' ORDER BY flashsize DESC")
+        cursor = self.__cur.execute("select * from Object WHERE lib_file = 'no library' ORDER BY {} {}".format(self.sort, self.order))
         for row in cursor:
             self.items.append("{:<50}{:<50}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}".
                               format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
         cursor = self.__cur.execute(
-            "select * from Object WHERE library != 'no library' ORDER BY flashsize DESC")
+            "select * from Object WHERE lib_file != 'no library' ORDER BY {} {}".format(self.sort, self.order))
         for row in cursor:
             self.items.append("{:<50}{:<50}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}{:<12}".
                               format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
@@ -845,8 +865,8 @@ class UI(object):
                               format(row[0], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
             break
 
-        cursor = self.__cur.execute("select * from Function WHERE obj_file = '{}' ORDER BY size DESC".
-                                  format(self.obj_file))
+        cursor = self.__cur.execute("select * from Function WHERE obj_file = '{}' ORDER BY {} {}".
+                                  format(self.obj_file, self.sort, self.order))
         for row in cursor:
             if not flag:
                 self.__quick_append()
@@ -854,16 +874,16 @@ class UI(object):
                               format(row[0], row[1], row[2], "Code", row[4]))
             flag = True
 
-        cursor = self.__cur.execute("select * from Data WHERE type = 'RO' and obj_file = '{}' ORDER BY size DESC".
-                                  format(self.obj_file))
+        cursor = self.__cur.execute("select * from Data WHERE type = 'RO' and obj_file = '{}' ORDER BY {} {}".
+                                  format(self.obj_file, self.sort, self.order))
         self.__quick_append_data(cursor)
 
-        cursor = self.__cur.execute("select * from Data WHERE type = 'RW' and obj_file = '{}' ORDER BY size DESC".
-                                  format(self.obj_file))
+        cursor = self.__cur.execute("select * from Data WHERE type = 'RW' and obj_file = '{}' ORDER BY {} {}".
+                                  format(self.obj_file, self.sort, self.order))
         self.__quick_append_data(cursor)
 
-        cursor = self.__cur.execute("select * from Data WHERE type = 'ZI' and obj_file = '{}' ORDER BY size DESC".
-                                  format(self.obj_file))
+        cursor = self.__cur.execute("select * from Data WHERE type = 'ZI' and obj_file = '{}' ORDER BY {} {}".
+                                  format(self.obj_file, self.sort, self.order))
         self.__quick_append_data(cursor)
         self.items.append(self.__line1)
 
@@ -880,8 +900,7 @@ class UI(object):
             cursor = self.__cur.execute("select * from Function WHERE name LIKE '%{}%'".
                                       format(search_func))
         else:
-            cursor = self.__cur.execute(
-                "select * from Function ORDER BY size DESC")
+            cursor = self.__cur.execute("select * from Function ORDER BY {} {}".format(self.sort, self.order))
         for row in cursor:
             self.items.append("{:<50}{:<50}{:<10}{:<16}{:<40}{:<40}".
                               format(row[0], row[1], row[2], row[3], row[4], row[5]))
@@ -917,7 +936,7 @@ class UI(object):
             cursor = self.__cur.execute("select * from Data WHERE name LIKE '%{}%'".
                                       format(search_data))
         else:
-            cursor = self.__cur.execute("select * from Data ORDER BY size DESC")
+            cursor = self.__cur.execute("select * from Data ORDER BY {} {}".format(self.sort, self.order))
         for row in cursor:
             data_name = row[0]
             if len(data_name) >= 50:
@@ -948,6 +967,7 @@ class UI(object):
         """
         Continue running the TUI until get interrupted
         """
+        self.open_db()
         self.__init_curses()
         try:
             self.__draw_page()
@@ -955,4 +975,5 @@ class UI(object):
         except KeyboardInterrupt:
             pass
         finally:
+            self.con.close()
             curses.endwin()

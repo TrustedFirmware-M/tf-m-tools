@@ -83,7 +83,7 @@ def diff_function():
         print("{:<50}{:<10}{:<10}{:<50}".format(
             s['name'], s['sign'], s['delta'], s['obj']))
     print("─" * 120)
-    print("Total Function Size cahnge = {:<6} B\t= {:<8.2f} KB".format(
+    print("Total Function Size change = {:<6} B\t= {:<8.2f} KB".format(
         total_code_change, total_code_change/1024))
     print("─" * 120)
 
@@ -314,14 +314,14 @@ def diff_lib():
 
 def main(args):
     global con1, cur1, con2, cur2
-    if args.input_dbs:
-        if len(args.input_dbs) == 2:
-            con1 = sqlite3.connect(args.input_dbs[0])
-            cur1 = con1.cursor()
-            con2 = sqlite3.connect(args.input_dbs[1])
-            cur2 = con2.cursor()
-        else:
-            print("Error! Two database files shall be input.")
+
+    if args.based_db and args.compared_db:
+        con1 = sqlite3.connect(args.based_db)
+        cur1 = con1.cursor()
+        con2 = sqlite3.connect(args.compared_db)
+        cur2 = con2.cursor()
+    else:
+        print("Error! Two database files shall be input.")
     if args.diff_function:
         diff_function()
     if args.diff_data:
@@ -342,32 +342,29 @@ def main(args):
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-i', '--input',
-                        dest='input_dbs',
-                        nargs='*',
-                        required=True,
-                        metavar='input_dbs',
-                        help='Input two different data base files')
-    parser.add_argument('-a', '--diff_all',
-                        dest='diff_all',
-                        action='store_true',
-                        help='diff summary')
-    parser.add_argument('-f', '--diff_function',
-                        dest='diff_function',
-                        action='store_true',
-                        help='diff function')
-    parser.add_argument('-d', '--diff_data',
-                        dest='diff_data',
-                        action='store_true',
-                        help='diff data')
-    parser.add_argument('-o', '--diff_obj',
-                        dest='diff_obj',
-                        action='store_true',
-                        help='diff object file')
-    parser.add_argument('-l', '--diff_lib',
-                        dest='diff_lib',
-                        action='store_true',
-                        help='diff library')
+    parser.add_argument('based_db', help='based databse')
+    parser.add_argument('compared_db', help='compared databse')
+    opt = parser.add_mutually_exclusive_group(required=True)
+    opt.add_argument('-S', '--diff-Summary',
+                     dest='diff_all',
+                     action='store_true',
+                     help='diff summary')
+    opt.add_argument('-f', '--diff-function',
+                     dest='diff_function',
+                     action='store_true',
+                     help='diff function')
+    opt.add_argument('-d', '--diff-data',
+                     dest='diff_data',
+                     action='store_true',
+                     help='diff data')
+    opt.add_argument('-o', '--diff-obj',
+                     dest='diff_obj',
+                     action='store_true',
+                     help='diff object file')
+    opt.add_argument('-l', '--diff-lib',
+                     dest='diff_lib',
+                     action='store_true',
+                     help='diff library')
 
     args = parser.parse_args()
     return args
