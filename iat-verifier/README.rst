@@ -43,10 +43,13 @@ check_iat
 ---------
 
 After installing, you should have ``check_iat`` script in your ``PATH``. The
-script expects a single parameter – a path to the signed IAT in COSE
-format.
+script expects two parameters:
 
-You can find an example in the “sample” directory.
+* a path to the signed IAT in COSE format
+
+* the token type
+
+You can find an example in the ``sample`` directory.
 
 The script will extract the COSE payload and make sure that it is a
 valid IAT (i.e. all mandatory fields are present, and all known
@@ -54,7 +57,7 @@ fields have correct size/type):
 
 .. code:: bash
 
-   $ check_iat sample/cbor/iat.cbor
+   $ check_iat -t PSA-IoT-Profile1-token sample/cbor/iat.cbor
    Token format OK
 
 If you want the script to verify the signature, you need to specify the
@@ -63,7 +66,7 @@ used to sign sample/iat.cbor is inside sample/key.pem.
 
 ::
 
-   $ check_iat -k sample/key.pem  sample/cbor/iat.cbor
+   $ check_iat -t PSA-IoT-Profile1-token -k sample/key.pem sample/cbor/iat.cbor
    Signature OK
    Token format OK
 
@@ -73,41 +76,42 @@ this:
 
 .. code:: json
 
-   {
-       "INSTANCE_ID": "\u0001\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018",
-       "IMPLEMENTATION_ID": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018",
-       "CHALLEGE": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018",
-       "CLIENT_ID": 2,
-       "SECURITY_LIFECYCLE": 2,
-       "VERSION": 1,
-           "BOOT_SEED": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018"
-       "SUBMOD": [
-       {
-           "SUBMOD_NAME": "BL",
-           "SIGNER_ID": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018",
-           "SUBMOD_VERSION": "3.4.2",
-           "MEASUREMENT": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018"
-       },
-       {
-           "SUBMOD_NAME": "M1",
-           "SIGNER_ID": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018",
-           "SUBMOD_VERSION": "3.4.2",
-           "MEASUREMENT": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018"
-       },
-       {
-           "SUBMOD_NAME": "M2",
-           "SIGNER_ID": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018",
-           "SUBMOD_VERSION": "3.4.2",
-           "MEASUREMENT": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018"
-       },
-       {
-           "SUBMOD_NAME": "M3",
-           "SIGNER_ID": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018",
-           "SUBMOD_VERSION": "3.4.2",
-           "MEASUREMENT": "\u0007\u0006\u0005\u0004\u0003\u0002\u0001\u0000\u000f\u000e\r\f\u000b\n\t\b\u0017\u0016\u0015\u0014\u0013\u0012\u0011\u0010\u001f\u001e\u001d\u001c\u001b\u001a\u0019\u0018"
-       }
-       ]
-   }
+    {
+        "INSTANCE_ID": "b'0107060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+        "IMPLEMENTATION_ID": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+        "CHALLENGE": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+        "CLIENT_ID": 2,
+        "SECURITY_LIFECYCLE": "SL_SECURED",
+        "PROFILE_ID": "http://example.com",
+        "BOOT_SEED": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+        "SW_COMPONENTS": [
+            {
+                "SW_COMPONENT_TYPE": "BL",
+                "SIGNER_ID": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+                "SW_COMPONENT_VERSION": "3.4.2",
+                "MEASUREMENT_VALUE": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+                "MEASUREMENT_DESCRIPTION": "TF-M_SHA256MemPreXIP"
+            },
+            {
+                "SW_COMPONENT_TYPE": "M1",
+                "SIGNER_ID": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+                "SW_COMPONENT_VERSION": "1.2",
+                "MEASUREMENT_VALUE": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'"
+            },
+            {
+                "SW_COMPONENT_TYPE": "M2",
+                "SIGNER_ID": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+                "SW_COMPONENT_VERSION": "1.2.3",
+                "MEASUREMENT_VALUE": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'"
+            },
+            {
+                "SW_COMPONENT_TYPE": "M3",
+                "SIGNER_ID": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+                "SW_COMPONENT_VERSION": "1",
+                "MEASUREMENT_VALUE": "b'07060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'"
+            }
+        ]
+    }
 
 compile_token
 -------------
@@ -117,7 +121,7 @@ CBOR token:
 
 .. code:: bash
 
-   $ compile_token -k sample/key.pem sample/yaml/iat.yaml > sample_token.cbor
+   $ compile_token -t PSA-IoT-Profile1-token -k sample/key.pem sample/yaml/iat.yaml > sample_token.cbor
 
 *No validation* is performed as part of this, so there is no guarantee that a
 valid IAT will be produced.
@@ -137,44 +141,44 @@ as part of this) into a YAML description of its claims.
 
 .. code:: bash
 
-   $decompile_token  sample/cbor/iat.cbor
-   boot_seed: !!binary |
-     BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-   challenge: !!binary |
-     BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-   client_id: 2
-   implementation_id: !!binary |
-     BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-   instance_id: !!binary |
-     AQcGBQQDAgEADw4NDAsKCQgXFhUUExIREB8eHRwbGhkY
-   profile_id: http://example.com
-   security_lifecycle: SL_SECURED
-   sw_components:
-   - measurement_description: TF-M_SHA256MemPreXIP
-     measurement_value: !!binary |
-       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-     signer_id: !!binary |
-       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-     sw_component_type: BL
-     sw_component_version: 3.4.2
-   - measurement_value: !!binary |
-       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-     signer_id: !!binary |
-       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-     sw_component_type: M1
-     sw_component_version: 1.2
-   - measurement_value: !!binary |
-       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-     signer_id: !!binary |
-       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-     sw_component_type: M2
-     sw_component_version: 1.2.3
-   - measurement_value: !!binary |
-       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-     signer_id: !!binary |
-       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
-     sw_component_type: M3
-     sw_component_version: 1
+    $ decompile_token -t PSA-IoT-Profile1-token sample/cbor/iat.cbor
+    boot_seed: !!binary |
+      BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+    challenge: !!binary |
+      BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+    client_id: 2
+    implementation_id: !!binary |
+      BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+    instance_id: !!binary |
+      AQcGBQQDAgEADw4NDAsKCQgXFhUUExIREB8eHRwbGhkY
+    profile_id: http://example.com
+    security_lifecycle: SL_SECURED
+    sw_components:
+    - measurement_description: TF-M_SHA256MemPreXIP
+      measurement_value: !!binary |
+        BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+      signer_id: !!binary |
+        BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+      sw_component_type: BL
+      sw_component_version: 3.4.2
+    - measurement_value: !!binary |
+        BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+      signer_id: !!binary |
+        BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+      sw_component_type: M1
+      sw_component_version: '1.2'
+    - measurement_value: !!binary |
+        BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+      signer_id: !!binary |
+        BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+      sw_component_type: M2
+      sw_component_version: 1.2.3
+    - measurement_value: !!binary |
+        BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+      signer_id: !!binary |
+        BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
+      sw_component_type: M3
+      sw_component_version: '1'
 
 This description can then be compiled back into CBOR using ``compile_token``.
 
@@ -190,7 +194,7 @@ the ``-m mac`` flag:
 
 ::
 
-    $ check_iat -m mac -k sample/hmac.key sample/iat-hmac.cbor
+    $ check_iat -t PSA-IoT-Profile1-token -m mac -k sample/hmac.key sample/iat-hmac.cbor
     Signature OK
     Token format OK
 
@@ -230,6 +234,57 @@ the output to the specified file.
 .. note::
    This script is deprecated -- use ``compile_token`` (see above) instead.
 
+*********************
+Adding new token type
+*********************
+
+#. Create a file with the claims for the new token type in
+   `tf-m-tools/iat-verifier/iatverifier`.
+
+   * For each claim a new class must be created that inherits from
+     ``AttestationClaim`` or from one of its descendants
+
+   * ``NonVerifiedClaim`` and ``CompositeAttestClaim`` are descendants of
+     ``AttestationClaim``, for details on how to use them see the documentation
+     in the class definition.
+
+   * For each claim non-composite claim, the methods
+     ``get_claim_key(self=None)``, ``get_claim_name(self=None)`` and
+     ``verify(self, value)`` methods must be implemented. for composite claims
+     (that inherit from ``CompositeAttestClaim``), ``verify(self, value)`` is
+     implemented by the base class.
+   * Other methods of ``AttestationClaim`` are optional to override.
+
+#. Create a file for the new token in `tf-m-tools/iat-verifier/iatverifier`.
+
+   * Create a new class for the token type. It must inherit from the class
+     ``AttestationTokenVerifier``.
+
+   * Implement ``get_claim_key(self=None)`` and ``get_claim_name(self=None)``
+     (The return value of ``get_claim_key(self=None)`` is not used)
+
+   * Implement the ``__init__(self, ...)`` function. This function must create a
+     list with the claims that are accepted by this token. (Note that the
+     ``AttestationTokenVerifier`` class inherits from ``AttestationClaim``. this
+     makes it possible to create nested token). Each item is the list is a
+     tuple:
+
+     * first element is the class of the claim
+
+     * Second is a dictionary containing the ``__init__`` function parameters
+       for the claim
+
+       * the key is the name of the parameter
+
+       * the value is the value of the parameter
+
+     The list of claims must be passed to the init function of the base class.
+
+   * Implement ``check_cross_claim_requirements`` for the token if necessary
+
+#. Add handling of the new token type to the ``check_iat``, ``decompile_token``,
+   and ``compile_token`` scripts.
+
 --------------
 
-*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*

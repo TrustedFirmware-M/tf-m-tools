@@ -228,6 +228,15 @@ class CompositeAttestClaim(AttestationClaim):
     a value representing this claim is a dictionary. This claim contains further
     claims which represent the possible key-value pairs in the value for this
     claim.
+
+    It is possible that there are requirement that the claims in this claim must
+    satisfy, but this can't be checked in the `verify` function of a claim.
+
+    For example the composite claim can contain a claim type `A`, and a claim
+    type `B`, exactly one of the two can be present.
+
+    In this case a method must be passed in the `cross_claim_requirement_checker`
+    parameter of the `__init__` function, that does this check.
     """
 
     def __init__(self,
@@ -261,6 +270,8 @@ class CompositeAttestClaim(AttestationClaim):
 
 
     def verify(self, value):
+        # No actual verification is done here. The `verify` function of the contained claims
+        # is called during traversing of the token tree.
         self.verify_count += 1
 
     def _parse_token_dict(self, *, entry_number, token, verify, check_p_header, lower_case_key):
