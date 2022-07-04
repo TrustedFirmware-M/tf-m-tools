@@ -1,0 +1,29 @@
+boot_seed: !!binary |
+  oKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr8=
+challenge: !!binary |
+  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  AAAAAAAAAA==
+client_id: 3002
+hardware_version: 0604565272829-10010
+implementation_id: !!binary |
+  qqqqqqqqqqq7u7u7u7u7u8zMzMzMzMzM3d3d3d3d3d0=
+instance_id: !!binary |
+  AfpYdV9lhifOVGDym3UpZxMkjK562eKYS5AoDvy8tQJI
+profile_id: http://arm.com/psa/2.0.0
+security_lifecycle: SL_SECURED
+sw_components:
+- measurement_description: sha-256
+  measurement_value: !!binary |
+    4z6h4ALS/nlNGhZ521i7aiOo9lm7d/icRYzs+dWZX/0=
+  signer_id: !!binary |
+    v+bYb4gm9P+X+5bE5vvEmT5GGfxWXaJq3zTDKUia3Dg=
+  sw_component_type: SPE
+  sw_component_version: "1.6.0"
+- measurement_description: sha-256
+  measurement_value: !!binary |
+    CH0Txo8yqq+4xPwKIlNEVDIAl2XiFvuFw5jJWAUiwb8=
+  signer_id: !!binary |
+    s2DK9cmMa5QqSIL6nUgj77Fmqe9qbkqjfBkZ7R/MwEk=
+  sw_component_type: NSPE
+  sw_component_version: "0.0.0"
+verification_service: www.trustedfirmware.org

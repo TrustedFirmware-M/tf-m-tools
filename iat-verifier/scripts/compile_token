@@ -16,6 +16,7 @@ import sys
 from iatverifier.util import read_token_map, convert_map_to_token, read_keyfile
 from iatverifier.util import get_cose_alg_from_key
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
+from iatverifier.psa_2_0_0_token_verifier import PSA_2_0_0_TokenVerifier
 from iatverifier.attest_token_verifier import AttestationTokenVerifier, VerifierConfiguration
 from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
 
@@ -26,6 +27,7 @@ if __name__ == '__main__':
         "PSA-IoT-Profile1-token": PSAIoTProfile1TokenVerifier,
         "CCA-token": CCATokenVerifier,
         "CCA-plat-token": CCAPlatformTokenVerifier,
+        "PSA-2.0.0-token": PSA_2_0_0_TokenVerifier,
     }
 
     parser = argparse.ArgumentParser()
@@ -120,6 +122,18 @@ if __name__ == '__main__':
             signing_key=key,
             configuration=configuration,
             necessity=None)
+    elif verifier_class == PSA_2_0_0_TokenVerifier:
+        key_checked = args.psa_iot_profile1_keyfile
+        key = read_keyfile(keyfile=args.psa_iot_profile1_keyfile, method=METHOD)
+        if METHOD == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
+            cose_alg = get_cose_alg_from_key(key, AttestationTokenVerifier.COSE_ALG_ES256)
+        else:
+            cose_alg = AttestationTokenVerifier.COSE_ALG_HS256
+        verifier = PSA_2_0_0_TokenVerifier(
+            method=METHOD,
+            cose_alg=cose_alg,
+            signing_key=key,
+            configuration=configuration)
     else:
         logging.error(f'Invalid token type:{verifier_class}\n\t')
         sys.exit(1)
