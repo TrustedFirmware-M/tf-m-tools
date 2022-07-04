@@ -169,17 +169,19 @@ class TestIatVerifier(unittest.TestCase):
             create_and_read_iat(
                 DATA_DIR,
                 'invalid-hw-version.yaml',
-                PSAIoTProfile1TokenVerifier(method=method,
+                PSAIoTProfile1TokenVerifier(
+                method=method,
                 cose_alg=cose_alg,
                 signing_key=signing_key,
                 configuration=keep_going_conf))
-            self.assertIn("Invalid HARDWARE_VERSION length; must be 13 digits, found 10 characters",
+            self.assertIn("Invalid HARDWARE_VERSION length; "
+                            "must be 19 characters, found 10 characters",
                          test_ctx.records[0].getMessage())
-            self.assertIn("Invalid digit   at position 1",
+            self.assertIn("Invalid character   at position 1",
                          test_ctx.records[1].getMessage())
-            self.assertIn("Invalid digit - at position 4",
+            self.assertIn("Invalid character - at position 4",
                          test_ctx.records[2].getMessage())
-            self.assertIn("Invalid digit a at position 10",
+            self.assertIn("Invalid character a at position 10",
                          test_ctx.records[3].getMessage())
 
     def test_binary_string_decoding(self):

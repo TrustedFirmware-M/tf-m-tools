@@ -75,14 +75,15 @@ class HardwareVersionClaim(AttestationClaim):
         self._check_type('HARDWARE_VERSION', value, str)
 
         value_len = len(value)
-        expected_len = 13
+        expected_len = 19 # 'EAN13-Version' 13 + 1 + 5. e.g.:0604565272829-10010
         if len(value) != expected_len:
-            msg = 'Invalid HARDWARE_VERSION length; must be {} digits, found {} characters'
+            msg = 'Invalid HARDWARE_VERSION length; must be {} characters, found {} characters'
             self.verifier.error(msg.format(expected_len, value_len))
         for idx, character in enumerate(value):
             if character not in string.digits:
-                msg = 'Invalid digit {} at position {}'
-                self.verifier.error(msg.format(character, idx+1))
+                if idx != 13 or character not in '-':
+                    msg = 'Invalid character {} at position {}'
+                    self.verifier.error(msg.format(character, idx+1))
 
         self.verify_count += 1
 
