@@ -56,7 +56,7 @@ class PSA_2_0_0_TokenVerifier(Verifier):
             (ImplementationIdClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
             (BootSeedClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
             (CertificationReference, {'verifier': self, 'necessity': Claim.OPTIONAL}),
-            (SWComponentsClaim, {'verifier': self, 'claims': sw_component_claims, 'is_list': True, 'cross_claim_requirement_checker':None, 'necessity': Claim.MANDATORY}),
+            (SWComponentsClaim, {'verifier': self, 'claims': sw_component_claims, 'is_list': True, 'necessity': Claim.MANDATORY}),
             (ChallengeClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
             (InstanceIdClaim, {'verifier': self, 'expected_len': 33, 'necessity': Claim.MANDATORY}),
             (VerificationServiceClaim, {'verifier': self, 'necessity': Claim.OPTIONAL}),
@@ -74,7 +74,3 @@ class PSA_2_0_0_TokenVerifier(Verifier):
         # Set the properties of this token:
         self.signing_key_set = False # None is a valid value for signing_key
         self.signing_key = signing_key
-
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
-        pass

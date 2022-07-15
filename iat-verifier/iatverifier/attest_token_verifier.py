@@ -29,6 +29,36 @@ _CBOR_MAJOR_TYPE_ARRAY = 4
 _CBOR_MAJOR_TYPE_MAP = 5
 _CBOR_MAJOR_TYPE_SEMANTIC_TAG = 6
 
+class TokenItem:
+    """This class represents an item in the token map
+
+    The Field `claim_type` contains an AttestationClaim object, that determines how to interpret the
+    `value` field.
+    The field `value` contains either another TokenItem object or a representation of a claim value
+    (list, dictionary, bytestring...) depending on the value of `claim_type`
+
+    A TokenItem object might have extra fields beyond these as it might be necessary to store
+    properties during parsing, that can aid verifying.
+    """
+    def __init__(self, *, value, claim_type):
+        self.value = value # The value of the claim
+        self.claim_type = claim_type # an AttestationClaim instance
+
+    @classmethod
+    def _call_verify_with_parents(cls, claim_type_class, claim_type, token_item, indent):
+        for parent_class in claim_type_class.__bases__:
+            cls._call_verify_with_parents(parent_class, claim_type, token_item, indent + 2)
+        if "verify" in claim_type_class.__dict__:
+            claim_type_class.verify(claim_type, token_item)
+
+    def verify(self):
+        """Calls claim_type's and its parents' verify method"""
+        claim_type = self.claim_type
+        self.__class__._call_verify_with_parents(claim_type.__class__, claim_type, self, 0)
+
+    def get_token_map(self):
+        return self.claim_type.get_token_map(self)
+
 class AttestationClaim(ABC):
     """
     This class represents a claim.
@@ -38,12 +68,6 @@ class AttestationClaim(ABC):
 
     This class contains methods that are not abstract. These are here as a
     default behavior, that a derived class might either keep, or override.
-
-    A token is built up as a hierarchy of claim classes. Although it is
-    important, that claim objects don't have a 'value' field. The actual parsed
-    token is stored in a map structure. It is possible to execute operations
-    on a token map, and the operations are defined by claim classes/objects.
-    Such operations are for example verifying a token.
     """
 
     MANDATORY = 0
@@ -54,19 +78,10 @@ class AttestationClaim(ABC):
         self.config = verifier.config
         self.verifier = verifier
         self.necessity = necessity
-        self.verify_count = 0
-        self.cross_claim_requirement_checker = None
 
     #
     # Abstract methods
     #
-
-    @abstractmethod
-    def verify(self, value):
-        """Verify this claim
-
-        Throw an exception if the claim is not valid"""
-        raise NotImplementedError
 
     @abstractmethod
     def get_claim_key(self=None):
@@ -92,7 +107,7 @@ class AttestationClaim(ABC):
         """
         Decode the value of the claim if the value is an UTF-8 string
         """
-        if type(self).is_utf_8():
+        if self.__class__.is_utf_8():
             try:
                 return value.decode()
             except UnicodeDecodeError as exc:
@@ -101,10 +116,6 @@ class AttestationClaim(ABC):
                 return str(value)[2:-1]
         else:  # not a UTF-8 value, i.e. a bytestring
             return value
-
-    def claim_found(self):
-        """Return true if verify was called on tis claim instance"""
-        return self.verify_count>0
 
     @classmethod
     def is_utf_8(cls):
@@ -121,32 +132,19 @@ class AttestationClaim(ABC):
         # pylint: disable=unused-argument
         value = token_map
         if parse_raw_value:
-            value = type(self).parse_raw(value)
+            value = self.__class__.parse_raw(value)
         return token_encoder.encode(value)
 
-    def parse_token(self, *, token, verify, check_p_header, lower_case_key):
+    def parse_token(self, *, token, check_p_header, lower_case_key):
         """Parse a token into a map
 
         This function is recursive for composite claims and for token verifiers.
-        A big difference is that the parameter token should be a map for claim
-        objects, and a 'bytes' object for verifiers. The entry point to this
-        function is calling the parse_token function of a verifier.
 
-        From some aspects it would be cleaner to have different functions for
-        this in verifiers and claims, but that would require to do a type check
-        in every recursive step to see which method to call. So instead the
-        method name is the same, and the 'token' parameter is interpreted
-        differently."""
-        # pylint: disable=unused-argument
-        if verify:
-            self.verify(token)
-
-        formatted = type(self).get_formatted_value(token)
-
-        # If the formatted value is still a bytestring then try to decode
-        if isinstance(formatted, bytes):
-            formatted = self.decode(formatted)
-        return formatted
+        The `token` parameter can be interpreted differently in derived classes:
+        - as a raw token that is decoded by the CBOR parsing library
+        - as CBOR encoded token in case of (nested) tokens.
+        """
+        return TokenItem(value=token, claim_type=self)
 
     @classmethod
     def parse_raw(cls, raw_value):
@@ -213,22 +211,23 @@ class AttestationClaim(ABC):
             msg = 'Invalid {} length: must be at least {} bytes, found {} bytes'
             self.verifier.error(msg.format(name, minimal_length, value_len))
 
+    def get_token_map(self, token_item):
+        formatted = self.__class__.get_formatted_value(token_item.value)
 
-class NonVerifiedClaim(AttestationClaim):
-    """An abstract claim type for which verify() always passes.
+        # If the formatted value is still a bytestring then try to decode
+        if isinstance(formatted, bytes):
+            formatted = self.decode(formatted)
 
-    Can be used for claims for which no verification is implemented."""
-    def verify(self, value):
-        self.verify_count += 1
+        return formatted
 
 class CompositeAttestClaim(AttestationClaim):
     """
     This class represents composite claim.
 
     This class is still abstract, but can contain other claims. This means that
-    a value representing this claim is a dictionary. This claim contains further
-    claims which represent the possible key-value pairs in the value for this
-    claim.
+    a value representing this claim is a dictionary, or a list of dictionaries.
+    This claim contains further claims which represent the possible key-value
+    pairs in the value for this claim.
 
     It is possible that there are requirement that the claims in this claim must
     satisfy, but this can't be checked in the `verify` function of a claim.
@@ -236,15 +235,14 @@ class CompositeAttestClaim(AttestationClaim):
     For example the composite claim can contain a claim type `A`, and a claim
     type `B`, exactly one of the two can be present.
 
-    In this case a method must be passed in the `cross_claim_requirement_checker`
-    parameter of the `__init__` function, that does this check.
+    In this case the class inheriting from this class can have its own verify()
+    method.
     """
 
     def __init__(self,
                  *, verifier,
                  claims,
                  is_list,
-                 cross_claim_requirement_checker,
                  necessity=AttestationClaim.MANDATORY):
         """ Initialise a composite claim.
 
@@ -257,107 +255,128 @@ class CompositeAttestClaim(AttestationClaim):
         super().__init__(verifier=verifier, necessity=necessity)
         self.is_list = is_list
         self.claims = claims
-        self.cross_claim_requirement_checker = cross_claim_requirement_checker
 
     def _get_contained_claims(self):
-        claims = []
         for claim, args in self.claims:
             try:
-                claims.append(claim(**args))
+                yield claim(**args)
             except TypeError as exc:
                 raise TypeError(f"Failed to instantiate '{claim}' with args '{args}' in token " +
                                 f"{type(self.verifier)}\nSee error in exception above.") from exc
-        return claims
 
 
-    def verify(self, value):
-        # No actual verification is done here. The `verify` function of the contained claims
-        # is called during traversing of the token tree.
-        self.verify_count += 1
+    def _verify_dict(self, claim_type, entry_number, dictionary):
+        if not isinstance(dictionary, dict):
+            if self.config.strict:
+                msg = 'The values in token {} must be a dict.'
+                self.verifier.error(msg.format(claim_type.get_claim_name()))
+            else:
+                msg = 'The values in token {} must be a dict, skipping'
+                self.verifier.warning(msg.format(claim_type.get_claim_name()))
+                return
 
-    def _parse_token_dict(self, *, entry_number, token, verify, check_p_header, lower_case_key):
-        ret = {}
-
-        if verify:
-            self.verify(token)
-            if not self._check_type(self.get_claim_name(), token, dict):
-                return None
-        else:
-            if not isinstance(token, dict):
-                return token
-
-        claims = {val.get_claim_key(): val for val in self._get_contained_claims()}
-        for key, val in token.items():
-            if key not in claims.keys():
-                if verify and self.config.strict:
+        claim_names = [val.get_claim_name() for val in claim_type._get_contained_claims()]
+        for claim_name, _ in dictionary.items():
+            if claim_name not in claim_names:
+                if self.config.strict:
                     msg = 'Unexpected {} claim: {}'
-                    self.verifier.error(msg.format(self.get_claim_name(), key))
+                    self.verifier.error(msg.format(claim_type.get_claim_name(), claim_name))
                 else:
                     msg = 'Unexpected {} claim: {}, skipping.'
-                    self.verifier.warning(msg.format(self.get_claim_name(), key))
+                    self.verifier.warning(msg.format(claim_type.get_claim_name(), claim_name))
                     continue
-            try:
-                claim = claims[key]
-                name = claim.get_claim_name()
-                if lower_case_key:
-                    name = name.lower()
-                ret[name] = claim.parse_token(
-                    token=val,
-                    verify=verify,
-                    check_p_header=check_p_header,
-                    lower_case_key=lower_case_key)
-            except Exception:
-                if not self.config.keep_going:
-                    raise
 
-        if verify:
-            self._check_claims_necessity(entry_number, claims)
-            if self.cross_claim_requirement_checker is not None:
-                self.cross_claim_requirement_checker(self.verifier, claims)
+        claims = {val.get_claim_key(): val for val in claim_type._get_contained_claims()}
+        self._check_claims_necessity(entry_number, claims, dictionary)
+        for token_item in dictionary.values():
+            if isinstance(token_item, TokenItem):
+                token_item.verify()
+            else:
+                # the parse of this token item failed. So it cannot be verified.
+                # Warning had been reported during parsing.
+                pass
 
-        return ret
+    def verify(self, token_item):
+        if self.is_list:
+            if not isinstance(token_item.value, list):
+                if self.config.strict:
+                    msg = 'The value of this token {} must be a list.'
+                    self.verifier.error(msg.format(self.get_claim_name()))
+                else:
+                    msg = 'The value of this token {} must be a list, skipping'
+                    self.verifier.warning(msg.format(self.get_claim_name()))
+                    return
+            for entry_number, list_item in enumerate(token_item.value):
+                self._verify_dict(token_item.claim_type, entry_number, list_item)
+        else:
+            self._verify_dict(token_item.claim_type, None, token_item.value)
 
-    def _check_claims_necessity(self, entry_number, claims):
-        for claim in claims.values():
-            if not claim.claim_found():
-                if claim.necessity==AttestationClaim.MANDATORY:
-                    msg = (f'Invalid IAT: missing MANDATORY claim "{claim.get_claim_name()}" '
-                        f'from {self.get_claim_name()}')
-                    if entry_number is not None:
-                        msg += f' at index {entry_number}'
-                    self.verifier.error(msg)
-                elif claim.necessity==AttestationClaim.RECOMMENDED:
-                    msg = (f'Missing RECOMMENDED claim "{claim.get_claim_name()}" '
-                        f'from {self.get_claim_name()}')
-                    if entry_number is not None:
-                        msg += f' at index {entry_number}'
-                    self.verifier.warning(msg)
+    def _parse_token_dict(self, *, entry_number, token, check_p_header, lower_case_key):
+        claim_value = {}
 
-    def parse_token(self, *, token, verify, check_p_header, lower_case_key):
+        if not isinstance(token, dict):
+            claim_value = token
+        else:
+            claims = {val.get_claim_key(): val for val in self._get_contained_claims()}
+            for key, val in token.items():
+                try:
+                    claim = claims[key]
+                    name = claim.get_claim_name()
+                    if lower_case_key:
+                        name = name.lower()
+                    claim_value[name] = claim.parse_token(
+                        token=val,
+                        check_p_header=check_p_header,
+                        lower_case_key=lower_case_key)
+                except KeyError:
+                    claim_value[key] = val
+                except Exception:
+                    if not self.config.keep_going:
+                        raise
+        return claim_value
+
+    def _check_claims_necessity(self, entry_number, claims, dictionary):
+        mandatory_claim_names = [claim.get_claim_name() for claim in claims.values() if claim.necessity == AttestationClaim.MANDATORY]
+        recommended_claim_names = [claim.get_claim_name() for claim in claims.values() if claim.necessity == AttestationClaim.RECOMMENDED]
+        dictionary_claim_names = dictionary.keys()
+
+        for mandatory_claim_name in mandatory_claim_names:
+            if mandatory_claim_name not in dictionary_claim_names:
+                msg = (f'Invalid IAT: missing MANDATORY claim "{mandatory_claim_name}" '
+                    f'from {self.get_claim_name()}')
+                if entry_number is not None:
+                    msg += f' at index {entry_number}'
+                self.verifier.error(msg)
+
+        for recommended_claim_name in recommended_claim_names:
+            if recommended_claim_name not in dictionary_claim_names:
+                msg = (f'Missing RECOMMENDED claim "{recommended_claim_name}" '
+                    f'from {self.get_claim_name()}')
+                if entry_number is not None:
+                    msg += f' at index {entry_number}'
+                self.verifier.warning(msg)
+
+    def parse_token(self, *, token, check_p_header, lower_case_key):
         """This expects a raw token map as 'token'"""
 
         if self.is_list:
-            ret = []
-            if verify:
-                if not self._check_type(self.get_claim_name(), token, list):
-                    return None
+            claim_value = []
+            if not isinstance(token, list):
+                claim_value = token
             else:
-                if not isinstance(token, list):
-                    return token
-            for entry_number, entry in enumerate(token):
-                ret.append(self._parse_token_dict(
-                    entry_number=entry_number,
-                    check_p_header=check_p_header,
-                    token=entry,
-                    verify=verify,
-                    lower_case_key=lower_case_key))
-            return ret
-        return self._parse_token_dict(
-            entry_number=None,
-            check_p_header=check_p_header,
-            token=token,
-            verify=verify,
-            lower_case_key=lower_case_key)
+                for entry_number, entry in enumerate(token):
+                    claim_value.append(self._parse_token_dict(
+                            entry_number=entry_number,
+                            check_p_header=check_p_header,
+                            token=entry,
+                            lower_case_key=lower_case_key))
+        else:
+            claim_value = self._parse_token_dict(
+                entry_number=None,
+                check_p_header=check_p_header,
+                token=token,
+                lower_case_key=lower_case_key)
+        return TokenItem(value=claim_value, claim_type=self)
 
 
     def _encode_dict(self, token_encoder, token_map, *, add_p_header, name_as_key, parse_raw_value):
@@ -410,6 +429,20 @@ class CompositeAttestClaim(AttestationClaim):
                 name_as_key=name_as_key,
                 parse_raw_value=parse_raw_value)
 
+    def get_token_map(self, token_item):
+        if self.is_list:
+            ret = []
+            for token_item_dict in token_item.value:
+                token_dict = {}
+                for key, claim_token_item in token_item_dict.items():
+                    token_dict[key] = claim_token_item.get_token_map()
+                ret.append(token_dict)
+            return ret
+        else:
+            token_dict = {}
+            for key, claim_token_item in token_item.value.items():
+                token_dict[key] = claim_token_item.get_token_map()
+            return token_dict
 
 @dataclass
 class VerifierConfiguration:
@@ -430,13 +463,9 @@ class AttestTokenRootClaims(CompositeAttestClaim):
         return None
 
     def get_claim_name(self=None):
-        return "TOKEN_CLAIM"
+        return "TOKEN_ROOT_CLAIMS"
 
-# This class inherits from NonVerifiedClaim. The actual claims in the token are
-# checked by the AttestTokenRootClaims object owned by this verifier. The
-# verify() function of the AttestTokenRootClaims object is called during
-# traversing the claim tree.
-class AttestationTokenVerifier(NonVerifiedClaim):
+class AttestationTokenVerifier(AttestationClaim):
     """Abstract base class for attestation token verifiers"""
 
     SIGN_METHOD_SIGN1 = "sign"
@@ -472,11 +501,6 @@ class AttestationTokenVerifier(NonVerifiedClaim):
     def _parse_p_header(self, msg):
         """Throw exception in case of error"""
 
-    @staticmethod
-    @abstractmethod
-    def check_cross_claim_requirements(verifier, claims):
-        """Throw exception in case of error"""
-
     def _get_cose_alg(self):
         return self.cose_alg
 
@@ -503,7 +527,6 @@ class AttestationTokenVerifier(NonVerifiedClaim):
                 verifier=self,
                 claims=claims,
                 is_list=False,
-                cross_claim_requirement_checker=type(self).check_cross_claim_requirements,
                 necessity=necessity)
 
         super().__init__(verifier=self, necessity=necessity)
@@ -594,7 +617,6 @@ class AttestationTokenVerifier(NonVerifiedClaim):
         err_msg = f'Unexpected method "{self._get_method()}"; must be one of: sign, mac'
         raise ValueError(err_msg)
 
-
     def convert_map_to_token(
             self,
             token_encoder,
@@ -635,7 +657,7 @@ class AttestationTokenVerifier(NonVerifiedClaim):
             else:
                 token_encoder.encode_bytestring(signed_token)
 
-    def parse_token(self, *, token, verify, check_p_header, lower_case_key):
+    def parse_token(self, *, token, check_p_header, lower_case_key):
         if self._get_method() == AttestationTokenVerifier.SIGN_METHOD_RAW:
             payload = token
         else:
@@ -643,7 +665,8 @@ class AttestationTokenVerifier(NonVerifiedClaim):
                 payload = self._get_cose_payload(
                     token,
                     check_p_header=check_p_header,
-                    verify_signature=(verify and self._get_signing_key() is not None))
+                    # signature verification is done in the verify function
+                    verify_signature=False)
             except Exception as exc:
                 msg = f'Bad COSE: {exc}'
                 self.error(msg)
@@ -654,30 +677,52 @@ class AttestationTokenVerifier(NonVerifiedClaim):
             msg = f'Invalid CBOR: {exc}'
             self.error(msg)
 
-        wrapping_tag = self._get_wrapping_tag()
-
         if isinstance(raw_map, _cbor2.CBORTag):
+            raw_map_tag = raw_map.tag
+            raw_map = raw_map.value
+        else:
+            raw_map_tag = None
+
+        token_items = self.claims.parse_token(
+            token=raw_map,
+            check_p_header=check_p_header,
+            lower_case_key=lower_case_key)
+
+        ret = TokenItem(value=token_items, claim_type=self)
+        ret.wrapping_tag = raw_map_tag
+        ret.token = token
+        ret.check_p_header = check_p_header
+        return ret
+
+    def verify(self, token_item):
+        if self._get_method() != AttestationTokenVerifier.SIGN_METHOD_RAW:
+            try:
+                self._get_cose_payload(
+                    token_item.token,
+                    check_p_header=token_item.check_p_header,
+                    verify_signature=(self._get_signing_key() is not None))
+            except Exception as exc:
+                msg = f'Bad COSE: {exc}'
+                raise ValueError(msg) from exc
+
+        wrapping_tag = self._get_wrapping_tag()
+        if token_item.wrapping_tag is not None:
             if wrapping_tag is None:
-                msg = f'Invalid token: Unexpected tag (0x{raw_map.tag:x}) in token {self.get_claim_name()}'
+                msg = f'Invalid token: Unexpected tag (0x{token_item.wrapping_tag:x}) in token {self.get_claim_name()}'
                 self.error(msg)
             else:
-                if wrapping_tag != raw_map.tag:
-                    msg = f'Invalid token: token {self.get_claim_name()} is wrapped in tag 0x{raw_map.tag:x} instead of 0x{wrapping_tag:x}'
+                if wrapping_tag != token_item.wrapping_tag:
+                    msg = f'Invalid token: token {self.get_claim_name()} is wrapped in tag 0x{token_item.wrapping_tag:x} instead of 0x{wrapping_tag:x}'
                     self.error(msg)
-            raw_map = raw_map.value
         else:
             if wrapping_tag is not None:
                 msg = f'Invalid token: token {self.get_claim_name()} should be wrapped in tag 0x{wrapping_tag:x}'
                 self.error(msg)
 
-        if verify:
-            self.verify(token)
+        token_item.value.verify()
 
-        return self.claims.parse_token(
-            token=raw_map,
-            check_p_header=check_p_header,
-            verify=verify,
-            lower_case_key=lower_case_key)
+    def get_token_map(self, token_item):
+        return self.claims.get_token_map(token_item.value)
 
     def error(self, message, *, exception=None):
         """Act on an error depending on the configuration of this verifier"""

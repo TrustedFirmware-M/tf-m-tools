@@ -153,9 +153,9 @@ def main():
         with open(args.tokenfile, 'rb') as token_file:
             token = verifier.parse_token(
                 token=token_file.read(),
-                verify=True,
                 check_p_header=args.check_protected_header,
                 lower_case_key=False)
+            token.verify()
         if key_checked:
             print('Signature OK')
         print('Token format OK')
@@ -165,7 +165,8 @@ def main():
 
     if args.print_iat:
         print('Token:')
-        json.dump(recursive_bytes_to_strings(token, in_place=True),
+        token_map = token.get_token_map()
+        json.dump(recursive_bytes_to_strings(token_map, in_place=True),
                   sys.stdout, indent=4)
         print('')
 

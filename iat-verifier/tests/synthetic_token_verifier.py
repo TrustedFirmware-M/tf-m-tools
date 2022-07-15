@@ -85,10 +85,6 @@ class SyntheticTokenVerifier(Verifier):
             configuration=configuration,
             necessity=Claim.MANDATORY)
 
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
-        pass
-
 class SyntheticTokenVerifier2(Verifier):
     """Another test token that may contain other tokens"""
     def get_claim_key(self=None):
@@ -165,10 +161,6 @@ class SyntheticTokenVerifier2(Verifier):
             configuration=configuration,
             necessity=Claim.MANDATORY)
 
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
-        pass
-
 class SyntheticInternalTokenVerifier(Verifier):
     """A Test token that is intended to use inside another token"""
 
@@ -211,11 +203,6 @@ class SyntheticInternalTokenVerifier(Verifier):
             configuration=configuration,
             necessity=necessity)
 
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
-        pass
-
-
 class SyntheticInternalTokenVerifier2(Verifier):
     """Another Test token that is intended to use inside another token"""
 
@@ -250,7 +237,3 @@ class SyntheticInternalTokenVerifier2(Verifier):
             claims=claims,
             configuration=configuration,
             necessity=necessity)
-
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
-        pass

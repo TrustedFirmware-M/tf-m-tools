@@ -65,7 +65,6 @@ class PSAIoTProfile1TokenVerifier(Verifier):
                 'verifier': self,
                 'claims': sw_component_claims,
                 'is_list': True,
-                'cross_claim_requirement_checker': None,
                 'necessity': Claim.OPTIONAL}),
             (NoMeasurementsClaim, {'verifier': self, 'necessity': Claim.OPTIONAL}),
             (ChallengeClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
@@ -82,18 +81,21 @@ class PSAIoTProfile1TokenVerifier(Verifier):
             cose_alg=cose_alg,
             signing_key=signing_key)
 
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
-        if SWComponentsClaim.get_claim_key() in claims:
-            sw_component_present = claims[SWComponentsClaim.get_claim_key()].verify_count > 0
-        else:
-            sw_component_present = False
+    def verify(self, token_item):
 
-        if NoMeasurementsClaim.get_claim_key() in claims:
-            no_measurement_present = claims[NoMeasurementsClaim.get_claim_key()].verify_count > 0
-        else:
-            no_measurement_present = False
+        root_claims_token_item = token_item.value
+        root_claims_dict = root_claims_token_item.value
+
+        assert(isinstance(root_claims_dict, dict))
+
+        sw_component_present = False
+        no_measurement_present = False
+        for claim_token_item in root_claims_dict.values():
+            if (isinstance(claim_token_item.claim_type, SWComponentsClaim)):
+                sw_component_present = True
+            if (isinstance(claim_token_item.claim_type, NoMeasurementsClaim)):
+                no_measurement_present = True
 
         if not sw_component_present and not no_measurement_present:
-            verifier.error('Invalid IAT: no software measurements defined and '
+            self.error('Invalid IAT: no software measurements defined and '
                   'NO_MEASUREMENTS claim is not present.')

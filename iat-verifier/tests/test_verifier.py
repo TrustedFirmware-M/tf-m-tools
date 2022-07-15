@@ -58,20 +58,19 @@ class TestIatVerifier(unittest.TestCase):
         #dump_file_binary(good_sig)
 
         with open(good_sig, 'rb') as wfh:
-            verifier_good_sig.parse_token(
-                token=wfh.read(),
-                verify=True,
-                check_p_header=False,
-                lower_case_key=False)
-
+            token_item = verifier_good_sig.parse_token(
+                         token=wfh.read(),
+                         check_p_header=False,
+                         lower_case_key=False)
+            token_item.verify()
 
         with self.assertRaises(ValueError) as test_ctx:
             with open(bad_sig, 'rb') as wfh:
-                verifier_good_sig.parse_token(
+                token_item = verifier_good_sig.parse_token(
                     token=wfh.read(),
-                    verify=True,
                     check_p_header=False,
                     lower_case_key=False)
+                token_item.verify()
 
         self.assertIn('Bad signature', test_ctx.exception.args[0])
 
@@ -223,7 +222,7 @@ class TestIatVerifier(unittest.TestCase):
             PSAIoTProfile1TokenVerifier(method=method,
             cose_alg=cose_alg,
             signing_key=signing_key,
-            configuration=self.config))
+            configuration=self.config)).get_token_map()
         self.assertEqual(iat['SECURITY_LIFECYCLE'], 'SL_SECURED')
 
     def test_security_lifecycle_decoding(self):
@@ -237,5 +236,5 @@ class TestIatVerifier(unittest.TestCase):
             PSAIoTProfile1TokenVerifier(method=method,
             cose_alg=cose_alg,
             signing_key=signing_key,
-            configuration=self.config))
+            configuration=self.config)).get_token_map()
         self.assertEqual(iat['SECURITY_LIFECYCLE'], 'SL_SECURED')

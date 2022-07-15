@@ -71,11 +71,12 @@ def read_iat(data_dir, filename, verifier, *, check_p_header=False):
     """Read a cbor file and returns the parsed dictionary"""
     filepath = os.path.join(data_dir, filename)
     with open(filepath, 'rb') as file:
-        return verifier.parse_token(
+        token_item = verifier.parse_token(
             token=file.read(),
-            verify=True,
             check_p_header=check_p_header,
             lower_case_key=False)
+    token_item.verify()
+    return token_item
 
 def create_and_read_iat(data_dir, source_name, verifier):
     """Read a yaml file, compile it into a cbor token, and read it back"""

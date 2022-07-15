@@ -244,16 +244,27 @@ Adding new token type
    * For each claim a new class must be created that inherits from
      ``AttestationClaim`` or from one of its descendants
 
-   * ``NonVerifiedClaim`` and ``CompositeAttestClaim`` are descendants of
-     ``AttestationClaim``, for details on how to use them see the documentation
-     in the class definition.
+   * ``CompositeAttestClaim`` is descendants of ``AttestationClaim``, for
+     details on how to use it see the documentation in the class definition.
 
-   * For each claim non-composite claim, the methods
-     ``get_claim_key(self=None)``, ``get_claim_name(self=None)`` and
-     ``verify(self, value)`` methods must be implemented. for composite claims
-     (that inherit from ``CompositeAttestClaim``), ``verify(self, value)`` is
-     implemented by the base class.
+   * For each claim, the methods ``get_claim_key(self=None)``,
+     ``get_claim_name(self=None)`` must be implemented.
+
    * Other methods of ``AttestationClaim`` are optional to override.
+
+   * Any claim that inherits from ``AttestationClaim`` might have a ``verify``
+     method (``def verify(self, token_item):``). This method is called when the
+     ``verify()`` method of a ``TokenItem`` object is called. ``TokenItem``'s
+     ``verify()`` method walks up the inheritance tree of the ``claim_type``
+     object's class in that ``TokenItem``. If a class in the walk path has a
+     ``verify()`` method, calls it. For further details see ``TokenItem``'s
+     ``_call_verify_with_parents()`` method.
+
+     Any verify method needs to call ``AttestationClaim``'s ``error()`` or
+     ``warning()`` in case of a problem. If the actual class inherits from
+     ``AttestationTokenVerifier`` this can be done like
+     ``self.error('Meaningful error message.')``. In other cases
+     ``self.verifier.error('Meaningful error message.')``
 
 #. Create a file for the new token in `tf-m-tools/iat-verifier/iatverifier`.
 
@@ -261,7 +272,6 @@ Adding new token type
      ``AttestationTokenVerifier``.
 
    * Implement ``get_claim_key(self=None)`` and ``get_claim_name(self=None)``
-     (The return value of ``get_claim_key(self=None)`` is not used)
 
    * Implement the ``__init__(self, ...)`` function. This function must create a
      list with the claims that are accepted by this token. (Note that the
@@ -280,7 +290,7 @@ Adding new token type
 
      The list of claims must be passed to the init function of the base class.
 
-   * Implement ``check_cross_claim_requirements`` for the token if necessary
+     For example see *iat-verifier/iatverifier/cca_token_verifier.py*.
 
 #. Add handling of the new token type to the ``check_iat``, ``decompile_token``,
    and ``compile_token`` scripts.

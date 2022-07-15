@@ -7,7 +7,7 @@
 
 import string
 
-from iatverifier.attest_token_verifier import AttestationClaim, NonVerifiedClaim
+from iatverifier.attest_token_verifier import AttestationClaim
 from iatverifier.attest_token_verifier import CompositeAttestClaim
 
 # IAT custom claims
@@ -28,12 +28,11 @@ class InstanceIdClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'INSTANCE_ID'
 
-    def verify(self, value):
-        self._validate_bytestring_length_equals(value, 'INSTANCE_ID', self.expected_len)
-        if value[0] != 0x01:
+    def verify(self, token_item):
+        self._validate_bytestring_length_equals(token_item.value, 'INSTANCE_ID', self.expected_len)
+        if token_item.value[0] != 0x01:
             msg = 'Invalid INSTANCE_ID: first byte must be 0x01, found: 0x{}'
-            self.verifier.error(msg.format(value[0]))
-        self.verify_count += 1
+            self.verifier.error(msg.format(token_item.value[0]))
 
 
 class ChallengeClaim(AttestationClaim):
@@ -46,17 +45,16 @@ class ChallengeClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'CHALLENGE'
 
-    def verify(self, value):
-        self._check_type('CHALLENGE', value, bytes)
+    def verify(self, token_item):
+        self._check_type('CHALLENGE', token_item.value, bytes)
 
-        value_len = len(value)
+        value_len = len(token_item.value)
         if value_len not in ChallengeClaim.HASH_SIZES:
             msg = 'Invalid CHALLENGE length; must one of {}, found {} bytes'
             self.verifier.error(msg.format(ChallengeClaim.HASH_SIZES, value_len))
-        self.verify_count += 1
 
 
-class ImplementationIdClaim(NonVerifiedClaim):
+class ImplementationIdClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Implementation ID claim"""
     def get_claim_key(self=None):
         return ARM_RANGE + 3
@@ -67,20 +65,19 @@ class ImplementationIdClaim(NonVerifiedClaim):
 
 class CertificationReference(AttestationClaim):
     """Class representing a PSA Attestation Token Certification Reference claim"""
-    def verify(self, value):
-        self._check_type('CERTIFICATION_REFERENCE', value, str)
+    def verify(self, token_item):
+        self._check_type('CERTIFICATION_REFERENCE', token_item.value, str)
 
-        value_len = len(value)
+        value_len = len(token_item.value)
         expected_len = 19 # 'EAN13-Version' 13 + '-' + 5. e.g.:0604565272829-10010
-        if len(value) != expected_len:
+        if len(token_item.value) != expected_len:
             msg = 'Invalid CERTIFICATION_REFERENCE length; must be {} characters, found {} characters'
             self.verifier.error(msg.format(expected_len, value_len))
-        for idx, character in enumerate(value):
+        for idx, character in enumerate(token_item.value):
             if character not in string.digits and character not in '-':
                 msg = 'Invalid character {} at position {}'
                 self.verifier.error(msg.format(character, idx+1))
 
-        self.verify_count += 1
 
     def get_claim_key(self=None):
         return ARM_RANGE + 5
@@ -101,7 +98,7 @@ class SWComponentsClaim(CompositeAttestClaim):
     def get_claim_name(self=None):
         return 'SW_COMPONENTS'
 
-class SWComponentTypeClaim(NonVerifiedClaim):
+class SWComponentTypeClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Software Component Measurement Type claim"""
     def get_claim_key(self=None):
         return SW_COMPONENT_RANGE + 1
@@ -121,9 +118,8 @@ class ClientIdClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'CLIENT_ID'
 
-    def verify(self, value):
-        self._check_type('CLIENT_ID', value, int)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._check_type('CLIENT_ID', token_item.value, int)
 
 class SecurityLifecycleClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Security Lifecycle claim"""
@@ -152,9 +148,8 @@ class SecurityLifecycleClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'SECURITY_LIFECYCLE'
 
-    def verify(self, value):
-        self._check_type('SECURITY_LIFECYCLE', value, int)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._check_type('SECURITY_LIFECYCLE', token_item.value, int)
 
     @staticmethod
     def parse_raw(raw_value):
@@ -174,13 +169,12 @@ class ProfileIdClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'PROFILE_ID'
 
-    def verify(self, value):
+    def verify(self, token_item):
         expected_value = "http://arm.com/psa/2.0.0"
-        self._check_type(self.get_claim_name(), value, str)
-        if value != expected_value:
+        self._check_type(self.get_claim_name(), token_item.value, str)
+        if token_item.value != expected_value:
             msg = 'Invalid Attest profile "{}": must be "{}"'
-            self.verifier.error(msg.format(value, expected_value))
-        self.verify_count += 1
+            self.verifier.error(msg.format(token_item.value, expected_value))
 
     @classmethod
     def is_utf_8(cls):
@@ -195,12 +189,11 @@ class BootSeedClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'BOOT_SEED'
 
-    def verify(self, value):
-        self._validate_bytestring_length_is_at_least(value, 'BOOT_SEED', 32)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._validate_bytestring_length_is_at_least(token_item.value, 'BOOT_SEED', 32)
 
 
-class VerificationServiceClaim(NonVerifiedClaim):
+class VerificationServiceClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Verification Service Indicator claim"""
     def get_claim_key(self=None):
         return ARM_RANGE + 7 # originator
@@ -221,12 +214,11 @@ class SignerIdClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'SIGNER_ID'
 
-    def verify(self, value):
-        self._validate_bytestring_length_is_at_least(value, 'SIGNER_ID', 32)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._validate_bytestring_length_is_at_least(token_item.value, 'SIGNER_ID', 32)
 
 
-class SwComponentVersionClaim(NonVerifiedClaim):
+class SwComponentVersionClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Software Component Version claim"""
     def get_claim_key(self=None):
         return SW_COMPONENT_RANGE + 4
@@ -247,12 +239,11 @@ class MeasurementValueClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'MEASUREMENT_VALUE'
 
-    def verify(self, value):
-        self._validate_bytestring_length_is_at_least(value, 'MEASUREMENT', 32)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._validate_bytestring_length_is_at_least(token_item.value, 'MEASUREMENT', 32)
 
 
-class MeasurementDescriptionClaim(NonVerifiedClaim):
+class MeasurementDescriptionClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Software Component Measurement description claim"""
     def get_claim_key(self=None):
         return SW_COMPONENT_RANGE + 6

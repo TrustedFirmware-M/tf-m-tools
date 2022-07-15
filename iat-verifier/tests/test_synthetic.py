@@ -213,9 +213,9 @@ class TestSynthetic(unittest.TestCase):
                 'unknown_claims.cbor',
                 test_verifier)
         self.assertEquals(4, len(test_ctx.output))
-        self.assertIn('Unexpected TOKEN_CLAIM claim: 9901, skipping', test_ctx.output[0])
+        self.assertIn('Unexpected TOKEN_ROOT_CLAIMS claim: 9901, skipping', test_ctx.output[0])
         self.assertIn('Unexpected SYN_BOXES claim: 9902, skipping', test_ctx.output[1])
-        self.assertIn('Unexpected TOKEN_CLAIM claim: 9903, skipping', test_ctx.output[2])
+        self.assertIn('Unexpected TOKEN_ROOT_CLAIMS claim: 9903, skipping', test_ctx.output[2])
         self.assertIn('Unexpected SYN_BOXES claim: 9904, skipping', test_ctx.output[3])
 
         config = VerifierConfiguration(keep_going=True, strict=True)
@@ -232,9 +232,9 @@ class TestSynthetic(unittest.TestCase):
                 'unknown_claims.cbor',
                 test_verifier)
         self.assertEquals(4, len(test_ctx.output))
-        self.assertIn('ERROR:iat-verifiers:Unexpected TOKEN_CLAIM claim: 9901', test_ctx.output[0])
+        self.assertIn('ERROR:iat-verifiers:Unexpected TOKEN_ROOT_CLAIMS claim: 9901', test_ctx.output[0])
         self.assertIn('ERROR:iat-verifiers:Unexpected SYN_BOXES claim: 9902', test_ctx.output[1])
-        self.assertIn('ERROR:iat-verifiers:Unexpected TOKEN_CLAIM claim: 9903', test_ctx.output[2])
+        self.assertIn('ERROR:iat-verifiers:Unexpected TOKEN_ROOT_CLAIMS claim: 9903', test_ctx.output[2])
         self.assertIn('ERROR:iat-verifiers:Unexpected SYN_BOXES claim: 9904', test_ctx.output[3])
 
         config = VerifierConfiguration(keep_going=False, strict=False)
@@ -250,9 +250,9 @@ class TestSynthetic(unittest.TestCase):
                 DATA_DIR,
                 'unknown_claims.cbor',
                 test_verifier)
-        self.assertIn('Unexpected TOKEN_CLAIM claim: 9901, skipping', test_ctx.output[0])
+        self.assertIn('Unexpected TOKEN_ROOT_CLAIMS claim: 9901, skipping', test_ctx.output[0])
         self.assertIn('Unexpected SYN_BOXES claim: 9902, skipping', test_ctx.output[1])
-        self.assertIn('Unexpected TOKEN_CLAIM claim: 9903, skipping', test_ctx.output[2])
+        self.assertIn('Unexpected TOKEN_ROOT_CLAIMS claim: 9903, skipping', test_ctx.output[2])
         self.assertIn('Unexpected SYN_BOXES claim: 9904, skipping', test_ctx.output[3])
 
         config = VerifierConfiguration(keep_going=False, strict=True)
@@ -269,4 +269,4 @@ class TestSynthetic(unittest.TestCase):
                 'unknown_claims.cbor',
                 test_verifier)
         self.assertIn(
-                'Unexpected TOKEN_CLAIM claim: 9901', test_ctx.exception.args[0])
+                'Unexpected TOKEN_ROOT_CLAIMS claim: 9901', test_ctx.exception.args[0])

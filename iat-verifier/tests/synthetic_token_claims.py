@@ -23,17 +23,15 @@ class SynClaimInt(AttestationClaim):
     def get_claim_name(self=None):
         return 'SYN_CLAIM_INT'
 
-    def verify(self, value):
-        self._check_type(self.get_claim_name(), value, int)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._check_type(self.get_claim_name(), token_item.value, int)
 
 class SynBoxesClaim(CompositeAttestClaim):
-    """A composite claim with a cross claim checker."""
+    """A claim that contains other claims with a verifier"""
     def __init__(self, verifier, *, claims, is_list, necessity=AttestationClaim.MANDATORY):
         super().__init__(
             verifier=verifier,
             claims=claims,
-            cross_claim_requirement_checker=type(self).check_cross_claim_requirements,
             is_list=is_list,
             necessity=necessity)
 
@@ -43,19 +41,19 @@ class SynBoxesClaim(CompositeAttestClaim):
     def get_claim_name(self=None):
         return 'SYN_BOXES'
 
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
+    def verify(self, token_item):
         """Checking the claims for a box.
 
         A box must have either all its dimensions defined, or none of them
         """
-        box_size_prop_count = 0
-        for c in [BoxWidthClaim, BoxHeightClaim, BoxDepthClaim]:
-            if claims[c.get_claim_key()].claim_found():
-                box_size_prop_count += 1
+        for box in token_item.value:
+            box_size_prop_count = 0
+            for c in [BoxWidthClaim, BoxHeightClaim, BoxDepthClaim]:
+                if c.get_claim_name() in box.keys():
+                    box_size_prop_count += 1
 
-        if box_size_prop_count not in (0, 3):
-            verifier.error('Invalid IAT: Box size must have all 3 dimensions')
+            if box_size_prop_count not in (0, 3):
+                self.verifier.error('Invalid IAT: Box size must have all 3 dimensions')
 
 class BoxWidthClaim(AttestationClaim):
     """A simple claim that has an int value."""
@@ -65,9 +63,8 @@ class BoxWidthClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'BOX_WIDTH'
 
-    def verify(self, value):
-        self._check_type(self.get_claim_name(), value, int)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._check_type(self.get_claim_name(), token_item.value, int)
 
 class BoxHeightClaim(AttestationClaim):
     """A simple claim that has an int value."""
@@ -77,9 +74,8 @@ class BoxHeightClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'BOX_HEIGHT'
 
-    def verify(self, value):
-        self._check_type(self.get_claim_name(), value, int)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._check_type(self.get_claim_name(), token_item.value, int)
 
 class BoxDepthClaim(AttestationClaim):
     """A simple claim that has an int value."""
@@ -89,9 +85,8 @@ class BoxDepthClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'BOX_DEPTH'
 
-    def verify(self, value):
-        self._check_type(self.get_claim_name(), value, int)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._check_type(self.get_claim_name(), token_item.value, int)
 
 class BoxColorClaim(AttestationClaim):
     """A simple claim that has a string value."""
@@ -101,9 +96,8 @@ class BoxColorClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'BOX_COLOR'
 
-    def verify(self, value):
-        self._check_type(self.get_claim_name(), value, str)
-        self.verify_count += 1
+    def verify(self, token_item):
+        self._check_type(self.get_claim_name(), token_item.value, str)
 
     @classmethod
     def is_utf_8(cls):

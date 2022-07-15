@@ -66,11 +66,6 @@ class CCATokenVerifier(Verifier):
             cose_alg=Verifier.COSE_ALG_ES256,
             signing_key=None)
 
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
-        pass
-
-
 class CCARealmTokenVerifier(Verifier):
     def get_claim_key(self=None):
         return 44241
@@ -113,11 +108,6 @@ class CCARealmTokenVerifier(Verifier):
             cose_alg=cose_alg,
             signing_key=signing_key)
 
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
-        pass
-
-
 class CCAPlatformTokenVerifier(Verifier):
     def get_claim_key(self=None):
         return 44234 #0xACCA
@@ -159,7 +149,7 @@ class CCAPlatformTokenVerifier(Verifier):
             (CCAPlatformInstanceIdClaim, {'verifier':self, 'necessity': Claim.MANDATORY}),
             (CCAPlatformConfigClaim, {'verifier':self, 'necessity': Claim.MANDATORY}),
             (CCAPlatformLifecycleClaim, {'verifier':self, 'necessity': Claim.MANDATORY}),
-            (CCAPlatformSwComponentsClaim, {'verifier':self, 'claims': sw_component_claims, 'is_list': True, 'cross_claim_requirement_checker':None, 'necessity': Claim.MANDATORY}),
+            (CCAPlatformSwComponentsClaim, {'verifier':self, 'claims': sw_component_claims, 'is_list': True, 'necessity': Claim.MANDATORY}),
             (CCAPlatformVerificationServiceClaim, {'verifier':self, 'necessity': Claim.OPTIONAL}),
             (CCAPlatformHashAlgorithmIdClaim, {'verifier':self, 'necessity': Claim.MANDATORY}),
         ]
@@ -172,8 +162,3 @@ class CCAPlatformTokenVerifier(Verifier):
             method=method,
             cose_alg=cose_alg,
             signing_key=signing_key)
-
-    @staticmethod
-    def check_cross_claim_requirements(verifier, claims):
-        pass
-
