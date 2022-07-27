@@ -15,8 +15,8 @@ import unittest
 
 from iatverifier.util import read_token_map, read_keyfile
 from iatverifier.attest_token_verifier import VerifierConfiguration, AttestationTokenVerifier
-from tests.synthetic_token_verifier import SyntheticTokenVerifier
-from test_utils import create_and_read_iat, convert_map_to_token_bytes, bytes_equal_to_file
+from tests.synthetic_token_verifier import SyntheticTokenVerifier2, SyntheticTokenVerifier
+from test_utils import read_iat, create_and_read_iat, convert_map_to_token_bytes, bytes_equal_to_file
 
 
 THIS_DIR = os.path.dirname(__file__)
@@ -105,3 +105,61 @@ class TestSynthetic(unittest.TestCase):
             bytes_equal_to_file(token_p_header, os.path.join(DATA_DIR, 'p_header_on.cbor')))
         self.assertTrue(
             bytes_equal_to_file(token_no_p_header, os.path.join(DATA_DIR, 'p_header_off.cbor')))
+
+    def test_tagging_support(self):
+        method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
+        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
+
+        signing_key = read_keyfile(KEYFILE, method)
+
+        # test with unexpected tag
+        with self.assertLogs() as test_ctx:
+            read_iat(
+                DATA_DIR,
+                'unexpected_tags.cbor',
+                SyntheticTokenVerifier(method=method,
+                    cose_alg=cose_alg,
+                    signing_key=signing_key,
+                    configuration=self.config,
+                    internal_signing_key=signing_key))
+        self.assertEquals(2, len(test_ctx.output))
+        self.assertIn('Unexpected tag (0xcdcd) in token SYNTHETIC_TOKEN', test_ctx.output[0])
+        self.assertIn('Unexpected tag (0xabab) in token SYNTHETIC_INTERNAL_TOKEN', test_ctx.output[1])
+
+        # test with missing tag
+        with self.assertLogs() as test_ctx:
+            read_iat(
+                DATA_DIR,
+                'missing_tags.cbor',
+                SyntheticTokenVerifier2(method=method,
+                    cose_alg=cose_alg,
+                    signing_key=signing_key,
+                    configuration=self.config,
+                    internal_signing_key=signing_key))
+        self.assertEquals(2, len(test_ctx.output))
+        self.assertIn('token SYNTHETIC_TOKEN_2 should be wrapped in tag 0xaabb', test_ctx.output[0])
+        self.assertIn('token SYNTHETIC_INTERNAL_TOKEN_2 should be wrapped in tag 0xbbaa', test_ctx.output[1])
+
+        # Test Invalid tag values
+        with self.assertLogs() as test_ctx:
+            read_iat(
+                DATA_DIR,
+                'invalid_tags.cbor',
+                SyntheticTokenVerifier2(method=method,
+                    cose_alg=cose_alg,
+                    signing_key=signing_key,
+                    configuration=self.config,
+                    internal_signing_key=signing_key))
+        self.assertEquals(2, len(test_ctx.output))
+        self.assertIn('token SYNTHETIC_TOKEN_2 is wrapped in tag 0xabab instead of 0xaabb', test_ctx.output[0])
+        self.assertIn('token SYNTHETIC_INTERNAL_TOKEN_2 is wrapped in tag 0xbaba instead of 0xbbaa', test_ctx.output[1])
+
+        # Test proper tagging
+        read_iat(
+            DATA_DIR,
+            'correct_tagging.cbor',
+            SyntheticTokenVerifier2(method=method,
+                cose_alg=cose_alg,
+                signing_key=signing_key,
+                configuration=self.config,
+                internal_signing_key=signing_key))

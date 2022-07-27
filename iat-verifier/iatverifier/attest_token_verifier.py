@@ -21,6 +21,7 @@ from pycose.mac0message import Mac0Message
 
 import cbor2
 from cbor2 import CBOREncoder
+import _cbor2
 
 logger = logging.getLogger('iat-verifiers')
 
@@ -648,11 +649,29 @@ class AttestationTokenVerifier(NonVerifiedClaim):
             raise ValueError(msg) from exc
 
         wrapping_tag = self._get_wrapping_tag()
-        if wrapping_tag is not None:
-            if verify and wrapping_tag != raw_map.tag:
-                msg = 'Invalid token: token is wrapped in tag {} instead of {}'
-                raise ValueError(msg.format(raw_map.tag, wrapping_tag))
+
+        if isinstance(raw_map, _cbor2.CBORTag):
+            if wrapping_tag is None:
+                msg = f'Invalid token: Unexpected tag (0x{raw_map.tag:x}) in token {self.get_claim_name()}'
+                if self.config.strict:
+                    self.verifier.error(msg)
+                else:
+                    self.verifier.warning(msg)
+            else:
+                if wrapping_tag != raw_map.tag:
+                    msg = f'Invalid token: token {self.get_claim_name()} is wrapped in tag 0x{raw_map.tag:x} instead of 0x{wrapping_tag:x}'
+                    if self.config.strict:
+                        self.verifier.error(msg)
+                    else:
+                        self.verifier.warning(msg)
             raw_map = raw_map.value
+        else:
+            if wrapping_tag is not None:
+                msg = f'Invalid token: token {self.get_claim_name()} should be wrapped in tag 0x{wrapping_tag:x}'
+                if self.config.strict:
+                    self.verifier.error(msg)
+                else:
+                    self.verifier.warning(msg)
 
         if verify:
             self.verify(token)
