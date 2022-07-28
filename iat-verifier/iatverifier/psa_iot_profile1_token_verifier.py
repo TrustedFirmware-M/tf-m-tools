@@ -22,8 +22,7 @@ class PSAIoTProfile1TokenVerifier(Verifier):
     """Verifier class for PSA Attestation Token profile PSA_IOT_PROFILE_1"""
 
     def get_claim_key(self=None):
-        return 0xb5a101bc  #TODO: some made up claim. Change claim indexing to use name
-                           #      and this should return None
+        return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):
         return 'PSA_IOT_PROFILE1_TOKEN'

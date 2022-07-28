@@ -22,8 +22,7 @@ from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, Sig
 class CCATokenVerifier(Verifier):
 
     def get_claim_key(self=None):
-        return 0xb5a101bf  #TODO: some made up claim. Change claim indexing to use name
-                           #      and this should return None
+        return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):
         return 'CCA_TOKEN'

@@ -18,8 +18,7 @@ from tests.synthetic_token_claims import BoxHeightClaim, BoxDepthClaim, BoxColor
 class SyntheticTokenVerifier(Verifier):
     """A test token that may contain other tokens"""
     def get_claim_key(self=None):
-        return 0x54a14e11  #TODO: some made up claim. Change claim indexing to use name
-                           #      and this should return None
+        return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):
         return 'SYNTHETIC_TOKEN'
@@ -93,8 +92,7 @@ class SyntheticTokenVerifier(Verifier):
 class SyntheticTokenVerifier2(Verifier):
     """Another test token that may contain other tokens"""
     def get_claim_key(self=None):
-        return 0x54a14e11  #TODO: some made up claim. Change claim indexing to use name
-                           #      and this should return None
+        return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):
         return 'SYNTHETIC_TOKEN_2'
@@ -175,8 +173,7 @@ class SyntheticInternalTokenVerifier(Verifier):
     """A Test token that is intended to use inside another token"""
 
     def get_claim_key(self=None):
-        return 0x54a14e12  #TODO: some made up claim. Change claim indexing to use name
-                           #      and this should return None
+        return 0x54a14e12
 
     def get_claim_name(self=None):
         return 'SYNTHETIC_INTERNAL_TOKEN'
@@ -223,8 +220,7 @@ class SyntheticInternalTokenVerifier2(Verifier):
     """Another Test token that is intended to use inside another token"""
 
     def get_claim_key(self=None):
-        return 0x54a14e12  #TODO: some made up claim. Change claim indexing to use name
-                           #      and this should return None
+        return 0x54a14e13
 
     def get_claim_name(self=None):
         return 'SYNTHETIC_INTERNAL_TOKEN_2'
