@@ -31,7 +31,8 @@ class SyntheticTokenVerifier(Verifier):
         return None
 
     def _parse_p_header(self, msg):
-        pass
+        if (len(msg.protected_header) > 0):
+            raise ValueError('Unexpected protected header')
 
     def __init__(self, *, method, cose_alg, signing_key, configuration, internal_signing_key):
         # First prepare the claim hierarchy for this token
@@ -232,8 +233,8 @@ class SyntheticInternalTokenVerifier2(Verifier):
         return None
 
     def _parse_p_header(self, msg):
-        pass
-
+        if (len(msg.protected_header) > 0):
+            raise ValueError('Unexpected protected header')
 
     def _get_wrapping_tag(self):
         return 0xbbaa

@@ -90,6 +90,7 @@ class TestSynthetic(unittest.TestCase):
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
         cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
         signing_key = read_keyfile(KEYFILE, method)
+        config = VerifierConfiguration(keep_going=True, strict=True)
 
         verifier = SyntheticTokenVerifier(
             method=method,
@@ -106,11 +107,40 @@ class TestSynthetic(unittest.TestCase):
         self.assertTrue(
             bytes_equal_to_file(token_no_p_header, os.path.join(DATA_DIR, 'p_header_off.cbor')))
 
+        with self.assertLogs() as test_ctx:
+            read_iat(
+                DATA_DIR,
+                'inverted_p_header.cbor',
+                SyntheticTokenVerifier(method=method,
+                    cose_alg=cose_alg,
+                    signing_key=signing_key,
+                    configuration=config,
+                    internal_signing_key=signing_key),
+                check_p_header=True)
+        self.assertEquals(2, len(test_ctx.output))
+        self.assertIn('Unexpected protected header', test_ctx.output[0])
+        self.assertIn('Missing alg from protected header (expected ES256)', test_ctx.output[1])
+
+        with self.assertLogs() as test_ctx:
+            read_iat(
+                DATA_DIR,
+                'inverted_p_header2.cbor',
+                SyntheticTokenVerifier2(method=method,
+                    cose_alg=cose_alg,
+                    signing_key=signing_key,
+                    configuration=config,
+                    internal_signing_key=signing_key),
+                check_p_header=True)
+        self.assertEquals(2, len(test_ctx.output))
+        self.assertIn('Missing alg from protected header (expected ES256)', test_ctx.output[0])
+        self.assertIn('Unexpected protected header', test_ctx.output[1])
+
     def test_tagging_support(self):
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
         cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
 
         signing_key = read_keyfile(KEYFILE, method)
+        config = VerifierConfiguration(keep_going=True, strict=True)
 
         # test with unexpected tag
         with self.assertLogs() as test_ctx:
@@ -120,7 +150,7 @@ class TestSynthetic(unittest.TestCase):
                 SyntheticTokenVerifier(method=method,
                     cose_alg=cose_alg,
                     signing_key=signing_key,
-                    configuration=self.config,
+                    configuration=config,
                     internal_signing_key=signing_key))
         self.assertEquals(2, len(test_ctx.output))
         self.assertIn('Unexpected tag (0xcdcd) in token SYNTHETIC_TOKEN', test_ctx.output[0])
@@ -134,7 +164,7 @@ class TestSynthetic(unittest.TestCase):
                 SyntheticTokenVerifier2(method=method,
                     cose_alg=cose_alg,
                     signing_key=signing_key,
-                    configuration=self.config,
+                    configuration=config,
                     internal_signing_key=signing_key))
         self.assertEquals(2, len(test_ctx.output))
         self.assertIn('token SYNTHETIC_TOKEN_2 should be wrapped in tag 0xaabb', test_ctx.output[0])
@@ -148,7 +178,7 @@ class TestSynthetic(unittest.TestCase):
                 SyntheticTokenVerifier2(method=method,
                     cose_alg=cose_alg,
                     signing_key=signing_key,
-                    configuration=self.config,
+                    configuration=config,
                     internal_signing_key=signing_key))
         self.assertEquals(2, len(test_ctx.output))
         self.assertIn('token SYNTHETIC_TOKEN_2 is wrapped in tag 0xabab instead of 0xaabb', test_ctx.output[0])

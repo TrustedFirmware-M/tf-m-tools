@@ -549,7 +549,10 @@ class AttestationTokenVerifier(NonVerifiedClaim):
         if verify_signature:
             key = self._get_signing_key()
             if check_p_header:
-                self._parse_p_header(msg)
+                try:
+                    self._parse_p_header(msg)
+                except Exception as exc:
+                    self.error(f'Invalid Protected header: {exc}', exception=exc)
             msg.key = key
             msg.signature = msg.signers
             try:
@@ -564,7 +567,10 @@ class AttestationTokenVerifier(NonVerifiedClaim):
         if verify_signature:
             key = self._get_signing_key()
             if check_p_header:
-                self._parse_p_header(msg)
+                try:
+                    self._parse_p_header(msg)
+                except Exception as exc:
+                    self.error(f'Invalid Protected header: {exc}', exception=exc)
             msg.key = key
             try:
                 msg.verify_auth_tag(alg=self._get_cose_alg())
@@ -640,38 +646,29 @@ class AttestationTokenVerifier(NonVerifiedClaim):
                     verify_signature=(verify and self._get_signing_key() is not None))
             except Exception as exc:
                 msg = f'Bad COSE: {exc}'
-                raise ValueError(msg) from exc
+                self.error(msg)
 
         try:
             raw_map = cbor2.loads(payload)
         except Exception as exc:
             msg = f'Invalid CBOR: {exc}'
-            raise ValueError(msg) from exc
+            self.error(msg)
 
         wrapping_tag = self._get_wrapping_tag()
 
         if isinstance(raw_map, _cbor2.CBORTag):
             if wrapping_tag is None:
                 msg = f'Invalid token: Unexpected tag (0x{raw_map.tag:x}) in token {self.get_claim_name()}'
-                if self.config.strict:
-                    self.verifier.error(msg)
-                else:
-                    self.verifier.warning(msg)
+                self.error(msg)
             else:
                 if wrapping_tag != raw_map.tag:
                     msg = f'Invalid token: token {self.get_claim_name()} is wrapped in tag 0x{raw_map.tag:x} instead of 0x{wrapping_tag:x}'
-                    if self.config.strict:
-                        self.verifier.error(msg)
-                    else:
-                        self.verifier.warning(msg)
+                    self.error(msg)
             raw_map = raw_map.value
         else:
             if wrapping_tag is not None:
                 msg = f'Invalid token: token {self.get_claim_name()} should be wrapped in tag 0x{wrapping_tag:x}'
-                if self.config.strict:
-                    self.verifier.error(msg)
-                else:
-                    self.verifier.warning(msg)
+                self.error(msg)
 
         if verify:
             self.verify(token)
@@ -682,13 +679,16 @@ class AttestationTokenVerifier(NonVerifiedClaim):
             verify=verify,
             lower_case_key=lower_case_key)
 
-    def error(self, message):
+    def error(self, message, *, exception=None):
         """Act on an error depending on the configuration of this verifier"""
         self.seen_errors = True
         if self.config.keep_going:
             logger.error(message)
         else:
-            raise ValueError(message)
+            if exception is None:
+                raise ValueError(message)
+            else:
+                raise ValueError(message) from Exception
 
     def warning(self, message):
         """Print a warning with the logger of this verifier"""
