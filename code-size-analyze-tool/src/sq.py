@@ -386,10 +386,10 @@ class SQ(object):
             if line.find('Linker script and memory map') == 0:
                 break
             if start:
-                if line.find('FLASH') >= 0:
+                if line.find('FLASH') == 0:
                     flash_start_addr = int(line.split()[1].strip(), 16)
                     flash_end_addr = int(line.split()[1].strip(), 16) + int(line.split()[2].strip(), 16)
-                if line.find('RAM') >= 0:
+                if line.find('RAM') == 0:
                     ram_start_addr = int(line.split()[1].strip(), 16)
                     ram_end_addr = int(line.split()[1].strip(), 16) + int(line.split()[2].strip(), 16)
         return flash_start_addr, flash_end_addr, ram_start_addr, ram_end_addr
@@ -525,7 +525,7 @@ class SQ(object):
                 else:
                     continue
 
-                if cur_sym_name.find("*fill*") >= 0:
+                if cur_sym_name.find("*fill*") >= 0 and cur_sec_name in self.__sec_dict.keys():
                     self.__sec_dict[cur_sec_name]['fill'] += cur_sym_size
                     continue
 
