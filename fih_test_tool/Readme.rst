@@ -31,8 +31,8 @@ The workflow for actually running the test execution is as follows:
       * For each of the fault tests specified:
          * Load the test_start state, so that a clean environment is present.
          * Perform the fault.
-         * Run through, evaluating any `critical memory` at every `critical
-            point breakpoint` and saving this to the test state.
+         * Run through, evaluating any `critical memory` at every
+            `critical point breakpoint` and saving this to the test state.
          * Detect any failure loop states, QEMU crashes, or the end breakpoint,
             and end the test.
          * Compare the execution state of the test with the "known good" state.
@@ -118,4 +118,4 @@ they occurred:
 
 --------------
 
-*Copyright (c) 2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2022, Arm Limited. All rights reserved.*
