@@ -193,3 +193,80 @@ class TestSynthetic(unittest.TestCase):
                 signing_key=signing_key,
                 configuration=self.config,
                 internal_signing_key=signing_key))
+
+    def test_unknown_claims(self):
+
+        method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
+        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
+        signing_key = read_keyfile(KEYFILE, method)
+        config = VerifierConfiguration(keep_going=True, strict=False)
+
+        test_verifier=SyntheticTokenVerifier2(method=method,
+                    cose_alg=cose_alg,
+                    signing_key=signing_key,
+                    configuration=config,
+                    internal_signing_key=signing_key)
+
+        with self.assertLogs() as test_ctx:
+            read_iat(
+                DATA_DIR,
+                'unknown_claims.cbor',
+                test_verifier)
+        self.assertEquals(4, len(test_ctx.output))
+        self.assertIn('Unexpected TOKEN_CLAIM claim: 9901, skipping', test_ctx.output[0])
+        self.assertIn('Unexpected SYN_BOXES claim: 9902, skipping', test_ctx.output[1])
+        self.assertIn('Unexpected TOKEN_CLAIM claim: 9903, skipping', test_ctx.output[2])
+        self.assertIn('Unexpected SYN_BOXES claim: 9904, skipping', test_ctx.output[3])
+
+        config = VerifierConfiguration(keep_going=True, strict=True)
+
+        test_verifier=SyntheticTokenVerifier2(method=method,
+                    cose_alg=cose_alg,
+                    signing_key=signing_key,
+                    configuration=config,
+                    internal_signing_key=signing_key)
+
+        with self.assertLogs() as test_ctx:
+            read_iat(
+                DATA_DIR,
+                'unknown_claims.cbor',
+                test_verifier)
+        self.assertEquals(4, len(test_ctx.output))
+        self.assertIn('ERROR:iat-verifiers:Unexpected TOKEN_CLAIM claim: 9901', test_ctx.output[0])
+        self.assertIn('ERROR:iat-verifiers:Unexpected SYN_BOXES claim: 9902', test_ctx.output[1])
+        self.assertIn('ERROR:iat-verifiers:Unexpected TOKEN_CLAIM claim: 9903', test_ctx.output[2])
+        self.assertIn('ERROR:iat-verifiers:Unexpected SYN_BOXES claim: 9904', test_ctx.output[3])
+
+        config = VerifierConfiguration(keep_going=False, strict=False)
+
+        test_verifier=SyntheticTokenVerifier2(method=method,
+                    cose_alg=cose_alg,
+                    signing_key=signing_key,
+                    configuration=config,
+                    internal_signing_key=signing_key)
+
+        with self.assertLogs() as test_ctx:
+            read_iat(
+                DATA_DIR,
+                'unknown_claims.cbor',
+                test_verifier)
+        self.assertIn('Unexpected TOKEN_CLAIM claim: 9901, skipping', test_ctx.output[0])
+        self.assertIn('Unexpected SYN_BOXES claim: 9902, skipping', test_ctx.output[1])
+        self.assertIn('Unexpected TOKEN_CLAIM claim: 9903, skipping', test_ctx.output[2])
+        self.assertIn('Unexpected SYN_BOXES claim: 9904, skipping', test_ctx.output[3])
+
+        config = VerifierConfiguration(keep_going=False, strict=True)
+
+        test_verifier=SyntheticTokenVerifier2(method=method,
+                    cose_alg=cose_alg,
+                    signing_key=signing_key,
+                    configuration=config,
+                    internal_signing_key=signing_key)
+
+        with self.assertRaises(ValueError) as test_ctx:
+            read_iat(
+                DATA_DIR,
+                'unknown_claims.cbor',
+                test_verifier)
+        self.assertIn(
+                'Unexpected TOKEN_CLAIM claim: 9901', test_ctx.exception.args[0])
