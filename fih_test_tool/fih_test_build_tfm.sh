@@ -13,19 +13,22 @@ set_default BUILD_DIR ${TEST_DIR}/build_${COMPILER}_${BUILD_TYPE}_${FIH_PROFILE}
 set -e
 
 mkdir -p ${BUILD_DIR}
-pushd ${SOURCE_DIR}
-cmake -S . -B ${BUILD_DIR} \
-    -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-    -DTFM_TOOLCHAIN_FILE=toolchain_${COMPILER}.cmake \
-    -DTFM_PLATFORM=mps2/an521 \
-    -DDEBUG_AUTHENTICATION=FULL \
-    -DTFM_ISOLATION_LEVEL=${TFM_LEVEL} \
-    -DTFM_FIH_PROFILE=${FIH_PROFILE}
-popd
 
-pushd ${BUILD_DIR}
-make clean
-make -j install
-popd
+if [ ! -f ${BUILD_DIR}/bin/tfm_s.axf ] || [ $RE_BUILD -eq 1 ];then
+    pushd ${SOURCE_DIR}
+    cmake -S . -B ${BUILD_DIR} \
+        -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -DTFM_TOOLCHAIN_FILE=toolchain_${COMPILER}.cmake \
+        -DTFM_PLATFORM=mps2/an521 \
+        -DDEBUG_AUTHENTICATION=FULL \
+        -DTFM_ISOLATION_LEVEL=${TFM_LEVEL} \
+        -DTFM_FIH_PROFILE=${FIH_PROFILE}
+    popd
+
+    pushd ${BUILD_DIR}
+    make clean
+    make -j install
+    popd
+fi
 
 set +e

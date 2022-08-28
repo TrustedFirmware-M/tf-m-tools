@@ -75,7 +75,13 @@ For example:
 cd <TFM_DIR>
 mkdir build
 cd build
-<Path to>/fih_test -f LOW
+<Path to>/fih_test -p LOW
+
+# Test with certain function
+<Path to>/fih_test -p LOW -l 2 -f "tfm_hal_set_up_static_boundaries"
+
+# Build the AXF file again if the source code has been changed
+<Path to>/fih_test -p LOW -l 2 -r
 ```
 
 Fault types

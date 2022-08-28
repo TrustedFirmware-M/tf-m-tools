@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 usage()
 {
-    echo "$0 [-s source_dir] [-d build_dir] [-b <build_type>] [-c <compiler>] [-f <fih_profile>] [-l <tfm_level>]"
+    echo "$0 [-s source_dir] [-d build_dir] [-b <build_type>] [-c <compiler>] [-p <fih_profile>] [-l <tfm_level>] [-f <function>] [-r]"
 }
 
 # Parse arguments
@@ -31,13 +31,23 @@ while test $# -gt 0; do
         shift
         shift
         ;;
-        -f|--fih_profile)
+        -p|--fih_profile)
         FIH_PROFILE="$2"
         shift
         shift
         ;;
         -l|--tfm_level)
         TFM_LEVEL="$2"
+        shift
+        shift
+        ;;
+        -f|--function)
+        FUNCTION="$2"
+        shift
+        shift
+        ;;
+        -r|--re-build)
+        RE_BUILD=1
         shift
         shift
         ;;
