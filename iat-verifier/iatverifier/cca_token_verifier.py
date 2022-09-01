@@ -5,6 +5,7 @@
 #
 # -----------------------------------------------------------------------------
 
+from cryptography.hazmat.primitives import hashes
 from ecdsa.keys import VerifyingKey
 from ecdsa.curves import NIST384p
 from hashlib import sha1
@@ -73,6 +74,26 @@ class CCATokenVerifier(Verifier):
             method=Verifier.SIGN_METHOD_RAW,
             cose_alg=Verifier.COSE_ALG_ES256,
             signing_key=None)
+
+    def verify(self, token_item):
+        # Extract the realm public key
+        cca_token_root_claims_item = token_item.value
+        cca_realm_delegated_token_root_claims_item = cca_token_root_claims_item.value[CCARealmTokenVerifier.get_claim_name()].value
+        cca_realm_public_key_item = cca_realm_delegated_token_root_claims_item.value[CCARealmPubKeyClaim.get_claim_name()]
+        cca_realm_public_key = cca_realm_public_key_item.value
+
+        # Calculate the digest
+        digest = hashes.Hash(hashes.SHA256())
+        digest.update(cca_realm_public_key)
+        cca_realm_public_key_hash = digest.finalize()
+
+        # Get the challenge value from the platform token
+        cca_platform_token_root_claims_item = cca_token_root_claims_item.value[CCAPlatformTokenVerifier.get_claim_name()].value
+        cca_platform_challenge_item = cca_platform_token_root_claims_item.value[CCAPlatformChallengeClaim.get_claim_name()]
+        cca_platform_challenge = cca_platform_challenge_item.value
+
+        # Do the validation
+        self._validate_bytestrings_equal('CCA_PLATFORM_CHALLENGE', cca_realm_public_key_hash, cca_platform_challenge)
 
 class CCARealmTokenVerifier(Verifier):
     def get_claim_key(self=None):

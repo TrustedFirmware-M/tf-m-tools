@@ -119,6 +119,20 @@ class TestIatVerifier(unittest.TestCase):
         with self.assertRaises(ValueError) as test_ctx:
             create_and_read_iat(
                 DATA_DIR,
+                'cca-invalid-plat-challenge.yaml',
+                CCATokenVerifier(
+                    realm_token_method=method,
+                    realm_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                    realm_token_key=realm_token_key,
+                    platform_token_method=method,
+                    platform_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                    platform_token_key=platform_token_key,
+                    configuration=self.config))
+        self.assertIn("Invalid CCA_PLATFORM_CHALLENGE byte at 16: 0x00 instead of 0xe4", test_ctx.exception.args[0])
+
+        with self.assertRaises(ValueError) as test_ctx:
+            create_and_read_iat(
+                DATA_DIR,
                 'valid-cca-token.yaml',
                 CCATokenVerifier(
                     realm_token_method=method,
