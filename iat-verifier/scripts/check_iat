@@ -45,10 +45,6 @@ def main():
                         help='''Path to the key in PEM format that should be used to
                         verify the CCA platform token. If this is not specified, the
                         token signature will not be checked.''')
-    parser.add_argument('--cca-realm-token-keyfile',
-                        help='''Path to the key in PEM format that should be used to
-                        verify the CCA Realm token. If this is not specified, the
-                        token signature will not be checked.''')
     parser.add_argument('tokenfile',
                         help='''
                         path to a file containing a signed IAT.
@@ -108,13 +104,12 @@ def main():
         if method != AttestationTokenVerifier.SIGN_METHOD_SIGN1:
             logger.error('Only sign1 method is supported by this token type.\n\t'.format(verifier_class))
             sys.exit(1)
-        key_checked = args.cca_platform_token_keyfile and args.cca_realm_token_keyfile
+        key_checked = args.cca_platform_token_keyfile
         platform_token_key = read_keyfile(args.cca_platform_token_keyfile, method)
-        realm_token_key = read_keyfile(args.cca_realm_token_keyfile, method)
         realm_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
         platform_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
         realm_token_cose_alg = get_cose_alg_from_key(
-            realm_token_key,
+            None,
             AttestationTokenVerifier.COSE_ALG_ES384)
         platform_token_cose_alg = get_cose_alg_from_key(
             platform_token_key,
@@ -122,7 +117,6 @@ def main():
         verifier = CCATokenVerifier(
             realm_token_method=realm_token_method,
             realm_token_cose_alg=realm_token_cose_alg,
-            realm_token_key=realm_token_key,
             platform_token_method=platform_token_method,
             platform_token_cose_alg=platform_token_cose_alg,
             platform_token_key=platform_token_key,

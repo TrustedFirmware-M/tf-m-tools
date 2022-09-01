@@ -59,6 +59,9 @@ class TokenItem:
     def get_token_map(self):
         return self.claim_type.get_token_map(self)
 
+    def __repr__(self):
+        return f"TokenItem({self.claim_type.__class__.__name__}, {self.value})"
+
 class AttestationClaim(ABC):
     """
     This class represents a claim.
@@ -582,7 +585,7 @@ class AttestationTokenVerifier(AttestationClaim):
                 msg.verify_signature(alg=self._get_cose_alg())
             except Exception as exc:
                 raise ValueError(f'Bad signature ({exc})') from exc
-        return msg.payload
+        return msg.payload, msg.protected_header
 
 
     def _get_cose_mac0_payload(self, cose, *, check_p_header, verify_signature):
@@ -599,7 +602,7 @@ class AttestationTokenVerifier(AttestationClaim):
                 msg.verify_auth_tag(alg=self._get_cose_alg())
             except Exception as exc:
                 raise ValueError(f'Bad signature ({exc})') from exc
-        return msg.payload
+        return msg.payload, msg.protected_header
 
 
     def _get_cose_payload(self, cose, *, check_p_header, verify_signature):
@@ -660,9 +663,10 @@ class AttestationTokenVerifier(AttestationClaim):
     def parse_token(self, *, token, check_p_header, lower_case_key):
         if self._get_method() == AttestationTokenVerifier.SIGN_METHOD_RAW:
             payload = token
+            protected_header = None
         else:
             try:
-                payload = self._get_cose_payload(
+                payload, protected_header = self._get_cose_payload(
                     token,
                     check_p_header=check_p_header,
                     # signature verification is done in the verify function
@@ -692,6 +696,7 @@ class AttestationTokenVerifier(AttestationClaim):
         ret.wrapping_tag = raw_map_tag
         ret.token = token
         ret.check_p_header = check_p_header
+        ret.protected_header = protected_header
         return ret
 
     def verify(self, token_item):

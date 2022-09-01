@@ -55,7 +55,6 @@ if __name__ == '__main__':
         verifier = CCATokenVerifier(
             realm_token_method=realm_token_method,
             realm_token_cose_alg=realm_token_cose_alg,
-            realm_token_key=None,
             platform_token_method=platform_token_method,
             platform_token_cose_alg=platform_token_cose_alg,
             platform_token_key=None,

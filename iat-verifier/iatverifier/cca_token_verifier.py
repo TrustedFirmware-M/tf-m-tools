@@ -5,6 +5,10 @@
 #
 # -----------------------------------------------------------------------------
 
+from ecdsa.keys import VerifyingKey
+from ecdsa.curves import NIST384p
+from hashlib import sha1
+
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
 from iatverifier.attest_token_verifier import AttestationClaim as Claim
 from iatverifier.cca_claims import CCARealmChallengeClaim, CCARealmPersonalizationValue
@@ -18,6 +22,10 @@ from iatverifier.cca_claims import CCAPlatformSwComponentsClaim, CCAPlatformVeri
 from iatverifier.cca_claims import CCASwCompHashAlgIdClaim, CCASwCompHashAlgIdClaim
 from iatverifier.psa_iot_profile1_token_claims import SWComponentTypeClaim, SwComponentVersionClaim
 from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, SignerIdClaim
+
+_algorithms = {
+    Verifier.COSE_ALG_ES384: NIST384p
+}
 
 class CCATokenVerifier(Verifier):
 
@@ -39,7 +47,7 @@ class CCATokenVerifier(Verifier):
     def __init__(self, *,
             realm_token_method,
             realm_token_cose_alg,
-            realm_token_key,
+            realm_token_key = None, # Signing key is only necessary for token compile operation
             platform_token_method,
             platform_token_cose_alg,
             platform_token_key,
@@ -88,7 +96,7 @@ class CCARealmTokenVerifier(Verifier):
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
 
-    def __init__(self, *, method, cose_alg, signing_key, configuration, necessity):
+    def __init__(self, *, method, cose_alg, signing_key=None, configuration, necessity):
         verifier_claims= [
             (CCARealmChallengeClaim, {'verifier':self, 'expected_challenge_byte': None, 'necessity': Claim.MANDATORY}),
             (CCARealmPersonalizationValue, {'verifier':self, 'necessity': Claim.MANDATORY}),
@@ -107,6 +115,45 @@ class CCARealmTokenVerifier(Verifier):
             method=method,
             cose_alg=cose_alg,
             signing_key=signing_key)
+
+    def verify(self, token_item):
+        # Realm token was not checked against the realm public key as it needs
+        # to be extracted from the realm token itself.
+
+        # Extract the public key
+        cca_realm_delegated_token_root_claims_item = token_item.value
+        cca_realm_public_key_item = cca_realm_delegated_token_root_claims_item.value[CCARealmPubKeyClaim.get_claim_name()]
+        cca_realm_public_key = cca_realm_public_key_item.value
+
+        # The 'parse_token' method of the AttestationTokenVerifier adds a 'token'
+        # field to the TokenItem.
+        assert hasattr(token_item, "token")
+
+        if not token_item.protected_header:
+            # parsing protected header failed, there is no way to deduce the curve used.
+            self.error("No protected header in realm token, failed to parse signature curve.")
+            return
+
+        alg = token_item.protected_header['alg']
+        if alg not in _algorithms:
+            self.error(f"Unknown alg '{alg}' in realm token's protected header.")
+            return
+
+        # Set the signing key in the parsed CCARealmTokenVerifier object
+        token_item.claim_type.signing_key = VerifyingKey.from_string(
+            cca_realm_public_key,
+            curve=_algorithms[alg],
+            hashfunc=sha1)
+
+        # call the '_get_cose_payload' of AttestationTokenVerifier to verify the
+        # signature
+        try:
+            token_item.claim_type._get_cose_payload(
+                        token_item.token,
+                        check_p_header=False, # already done in the parent's verify
+                        verify_signature=True)
+        except ValueError:
+            self.error("Realm signature doesn't match Realm Public Key claim in Realm token.")
 
 class CCAPlatformTokenVerifier(Verifier):
     def get_claim_key(self=None):

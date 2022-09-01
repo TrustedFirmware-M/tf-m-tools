@@ -24,6 +24,7 @@ DATA_DIR = os.path.join(THIS_DIR, 'data')
 KEYFILE = os.path.join(DATA_DIR, 'key.pem')
 KEYFILE_CCA_PLAT = os.path.join(DATA_DIR, 'cca_platform.pem')
 KEYFILE_CCA_REALM = os.path.join(DATA_DIR, 'cca_realm.pem')
+KEYFILE_CCA_REALM2= os.path.join(DATA_DIR, 'cca_realm2.pem')
 KEYFILE_ALT = os.path.join(DATA_DIR, 'key-alt.pem')
 
 class TestIatVerifier(unittest.TestCase):
@@ -81,6 +82,7 @@ class TestIatVerifier(unittest.TestCase):
         cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
         signing_key = read_keyfile(KEYFILE, method)
         realm_token_key = read_keyfile(KEYFILE_CCA_REALM, method)
+        realm_token_key2 = read_keyfile(KEYFILE_CCA_REALM2, method)
         platform_token_key = read_keyfile(KEYFILE_CCA_PLAT, method)
 
         create_and_read_iat(
@@ -91,6 +93,7 @@ class TestIatVerifier(unittest.TestCase):
                 cose_alg=cose_alg,
                 signing_key=signing_key,
                 configuration=self.config))
+
         create_and_read_iat(
             DATA_DIR,
             'valid-cca-token.yaml',
@@ -112,6 +115,20 @@ class TestIatVerifier(unittest.TestCase):
                 signing_key=platform_token_key,
                 configuration=self.config,
                 necessity=AttestationClaim.MANDATORY))
+
+        with self.assertRaises(ValueError) as test_ctx:
+            create_and_read_iat(
+                DATA_DIR,
+                'valid-cca-token.yaml',
+                CCATokenVerifier(
+                    realm_token_method=method,
+                    realm_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                    realm_token_key=realm_token_key2,
+                    platform_token_method=method,
+                    platform_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                    platform_token_key=platform_token_key,
+                    configuration=self.config))
+        self.assertIn("Realm signature doesn't match Realm Public Key claim in Realm token", test_ctx.exception.args[0])
 
         with self.assertRaises(ValueError) as test_ctx:
             create_and_read_iat(

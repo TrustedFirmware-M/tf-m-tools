@@ -45,7 +45,7 @@ def create_token(data_dir, source_name, verifier, add_p_header):
     token_map = read_token_map(source_path)
     return convert_map_to_token_bytes(token_map, verifier, add_p_header)
 
-def create_token_file(data_dir, source_name, verifier, dest_path, *, add_p_header=False):
+def create_token_file(data_dir, source_name, verifier, dest_path, *, add_p_header=True):
     """Create a cbor token from a yaml file and write it to a file
     """
     token = create_token(
