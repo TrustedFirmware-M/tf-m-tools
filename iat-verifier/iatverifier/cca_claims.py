@@ -96,14 +96,15 @@ class CCARealmPubKeyHashAlgorithmIdClaim(AttestationClaim):
         return True
 
 class CCARealmPubKeyClaim(AttestationClaim):
+    # At the point of verifying this claim, it is not possible to get the
+    # signing algorithm. So the realm public key length is checked in the
+    # Realm Token's verify function.
+
     def get_claim_key(self=None):
         return 44237
 
     def get_claim_name(self=None):
         return 'CCA_REALM_PUB_KEY'
-
-    def verify(self, token_item):
-        self._validate_bytestring_length_equals(token_item.value, self.get_claim_name(), 97)
 
 class CCAAttestationProfileClaim(AttestationClaim):
     def get_claim_key(self=None):

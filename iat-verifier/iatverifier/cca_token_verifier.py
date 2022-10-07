@@ -5,9 +5,10 @@
 #
 # -----------------------------------------------------------------------------
 
+from collections import namedtuple
 from cryptography.hazmat.primitives import hashes
 from ecdsa.keys import VerifyingKey
-from ecdsa.curves import NIST384p
+from ecdsa.curves import NIST256p, NIST384p, NIST521p
 from hashlib import sha1
 
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
@@ -24,8 +25,11 @@ from iatverifier.cca_claims import CCASwCompHashAlgIdClaim, CCASwCompHashAlgIdCl
 from iatverifier.psa_iot_profile1_token_claims import SWComponentTypeClaim, SwComponentVersionClaim
 from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, SignerIdClaim
 
+_Algorithm = namedtuple("Algorithm", "ecdsa_curve pub_key_len")
 _algorithms = {
-    Verifier.COSE_ALG_ES384: NIST384p
+    Verifier.COSE_ALG_ES256: _Algorithm(NIST256p, 65),
+    Verifier.COSE_ALG_ES384: _Algorithm(NIST384p, 97),
+    Verifier.COSE_ALG_ES512: _Algorithm(NIST521p, 133),
 }
 
 class CCATokenVerifier(Verifier):
@@ -160,10 +164,16 @@ class CCARealmTokenVerifier(Verifier):
             self.error(f"Unknown alg '{alg}' in realm token's protected header.")
             return
 
+        alg_info = _algorithms[alg]
+        if len(cca_realm_public_key) != alg_info.pub_key_len:
+            self.error(f"Invalid realm public key length (alg: '{alg}'): "
+                f"{len(cca_realm_public_key)} instead of {alg_info.pub_key_len}")
+            return
+
         # Set the signing key in the parsed CCARealmTokenVerifier object
         token_item.claim_type.signing_key = VerifyingKey.from_string(
             cca_realm_public_key,
-            curve=_algorithms[alg],
+            curve=alg_info.ecdsa_curve,
             hashfunc=sha1)
 
         # call the '_get_cose_payload' of AttestationTokenVerifier to verify the
