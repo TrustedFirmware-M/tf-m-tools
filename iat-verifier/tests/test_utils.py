@@ -26,33 +26,31 @@ def bytes_equal_to_file(data, filepath):
                 return False
     return True
 
-def convert_map_to_token_bytes(token_map, verifier, add_p_header):
+def convert_map_to_token_bytes(token_map, verifier):
     """Converts a map to cbor token"""
     with BytesIO() as bytes_io:
         encoder = CBOREncoder(bytes_io)
         verifier.convert_map_to_token(
             encoder,
             token_map,
-            add_p_header=add_p_header,
             name_as_key=True,
             parse_raw_value=True,
             root=True)
         return bytes_io.getvalue()
 
-def create_token(data_dir, source_name, verifier, add_p_header):
+def create_token(data_dir, source_name, verifier):
     """Creats a cbor token from a yaml file."""
     source_path = os.path.join(data_dir, source_name)
     token_map = read_token_map(source_path)
-    return convert_map_to_token_bytes(token_map, verifier, add_p_header)
+    return convert_map_to_token_bytes(token_map, verifier)
 
-def create_token_file(data_dir, source_name, verifier, dest_path, *, add_p_header=True):
+def create_token_file(data_dir, source_name, verifier, dest_path):
     """Create a cbor token from a yaml file and write it to a file
     """
     token = create_token(
         data_dir=data_dir,
         source_name=source_name,
-        verifier=verifier,
-        add_p_header=add_p_header)
+        verifier=verifier)
 
     with open(dest_path, 'wb') as wfh:
         wfh.write(token)
@@ -67,13 +65,12 @@ def create_token_tmp_file(data_dir, source_name, verifier):
     return dest_path
 
 
-def read_iat(data_dir, filename, verifier, *, check_p_header=False):
+def read_iat(data_dir, filename, verifier):
     """Read a cbor file and returns the parsed dictionary"""
     filepath = os.path.join(data_dir, filename)
     with open(filepath, 'rb') as file:
         token_item = verifier.parse_token(
             token=file.read(),
-            check_p_header=check_p_header,
             lower_case_key=False)
     token_item.verify()
     token_item.get_token_map()

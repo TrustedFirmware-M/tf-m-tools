@@ -181,7 +181,6 @@ class CCARealmTokenVerifier(Verifier):
         try:
             token_item.claim_type._get_cose_payload(
                         token_item.token,
-                        check_p_header=False, # already done in the parent's verify
                         verify_signature=True)
         except ValueError:
             self.error("Realm signature doesn't match Realm Public Key claim in Realm token.")

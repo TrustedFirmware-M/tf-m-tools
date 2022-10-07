@@ -128,8 +128,7 @@ class AttestationClaim(ABC):
     def convert_map_to_token(self,
                              token_encoder,
                              token_map,
-                             *, add_p_header,
-                             name_as_key,
+                             *,name_as_key,
                              parse_raw_value):
         """Encode a map in cbor format using the 'token_encoder'"""
         # pylint: disable=unused-argument
@@ -138,7 +137,7 @@ class AttestationClaim(ABC):
             value = self.__class__.parse_raw(value)
         return token_encoder.encode(value)
 
-    def parse_token(self, *, token, check_p_header, lower_case_key):
+    def parse_token(self, *, token, lower_case_key):
         """Parse a token into a map
 
         This function is recursive for composite claims and for token verifiers.
@@ -321,7 +320,7 @@ class CompositeAttestClaim(AttestationClaim):
         else:
             self._verify_dict(token_item.claim_type, None, token_item.value)
 
-    def _parse_token_dict(self, *, entry_number, token, check_p_header, lower_case_key):
+    def _parse_token_dict(self, *, entry_number, token, lower_case_key):
         claim_value = {}
 
         if not isinstance(token, dict):
@@ -336,7 +335,6 @@ class CompositeAttestClaim(AttestationClaim):
                         name = name.lower()
                     claim_value[name] = claim.parse_token(
                         token=val,
-                        check_p_header=check_p_header,
                         lower_case_key=lower_case_key)
                 except KeyError:
                     claim_value[key] = val
@@ -366,7 +364,7 @@ class CompositeAttestClaim(AttestationClaim):
                     msg += f' at index {entry_number}'
                 self.verifier.warning(msg)
 
-    def parse_token(self, *, token, check_p_header, lower_case_key):
+    def parse_token(self, *, token, lower_case_key):
         """This expects a raw token map as 'token'"""
 
         if self.is_list:
@@ -377,19 +375,17 @@ class CompositeAttestClaim(AttestationClaim):
                 for entry_number, entry in enumerate(token):
                     claim_value.append(self._parse_token_dict(
                             entry_number=entry_number,
-                            check_p_header=check_p_header,
                             token=entry,
                             lower_case_key=lower_case_key))
         else:
             claim_value = self._parse_token_dict(
                 entry_number=None,
-                check_p_header=check_p_header,
                 token=token,
                 lower_case_key=lower_case_key)
         return TokenItem(value=claim_value, claim_type=self)
 
 
-    def _encode_dict(self, token_encoder, token_map, *, add_p_header, name_as_key, parse_raw_value):
+    def _encode_dict(self, token_encoder, token_map, *, name_as_key, parse_raw_value):
         token_encoder.encode_length(_CBOR_MAJOR_TYPE_MAP, len(token_map))
         if name_as_key:
             claims = {claim.get_claim_name().lower():
@@ -404,7 +400,6 @@ class CompositeAttestClaim(AttestationClaim):
                 claim.convert_map_to_token(
                     token_encoder,
                     val,
-                    add_p_header=add_p_header,
                     name_as_key=name_as_key,
                     parse_raw_value=parse_raw_value)
             except KeyError:
@@ -419,8 +414,7 @@ class CompositeAttestClaim(AttestationClaim):
             self,
             token_encoder,
             token_map,
-            *, add_p_header,
-            name_as_key,
+            *, name_as_key,
             parse_raw_value):
         if self.is_list:
             token_encoder.encode_length(_CBOR_MAJOR_TYPE_ARRAY, len(token_map))
@@ -428,14 +422,12 @@ class CompositeAttestClaim(AttestationClaim):
                 self._encode_dict(
                     token_encoder,
                     item,
-                    add_p_header=add_p_header,
                     name_as_key=name_as_key,
                     parse_raw_value=parse_raw_value)
         else:
             self._encode_dict(
                 token_encoder,
                 token_map,
-                add_p_header=add_p_header,
                 name_as_key=name_as_key,
                 parse_raw_value=parse_raw_value)
 
@@ -551,22 +543,22 @@ class AttestationTokenVerifier(AttestationClaim):
 
         super().__init__(verifier=self, necessity=necessity)
 
-    def _sign_token(self, token, add_p_header):
+    def _sign_token(self, token):
         """Signs a token"""
         if self._get_method() == AttestationTokenVerifier.SIGN_METHOD_RAW:
             return token
         if self._get_method() == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
-            return self._sign_eat(token, add_p_header)
+            return self._sign_eat(token)
         if self._get_method() == AttestationTokenVerifier.SIGN_METHOD_MAC0:
-            return self._hmac_eat(token, add_p_header)
+            return self._hmac_eat(token)
         err_msg = 'Unexpected method "{}"; must be one of: raw, sign, mac'
         raise ValueError(err_msg.format(self.method))
 
-    def _sign_eat(self, token, add_p_header):
+    def _sign_eat(self, token):
         protected_header = CoseAttrs()
         p_header=self._get_p_header()
         key=self._get_signing_key()
-        if add_p_header and p_header is not None and key:
+        if p_header is not None and key:
             protected_header.update(p_header)
         signed_msg = Sign1Message(p_header=protected_header)
         signed_msg.payload = token
@@ -576,26 +568,25 @@ class AttestationTokenVerifier(AttestationClaim):
         return signed_msg.encode()
 
 
-    def _hmac_eat(self, token, add_p_header):
+    def _hmac_eat(self, token):
         protected_header = CoseAttrs()
         p_header=self._get_p_header()
         key=self._get_signing_key()
-        if add_p_header and p_header is not None and key:
+        if p_header is not None and key:
             protected_header.update(p_header)
         hmac_msg = Mac0Message(payload=token, key=key, p_header=protected_header)
         hmac_msg.compute_auth_tag(alg=self.cose_alg)
         return hmac_msg.encode()
 
 
-    def _get_cose_sign1_payload(self, cose, *, check_p_header, verify_signature):
+    def _get_cose_sign1_payload(self, cose, *, verify_signature):
         msg = Sign1Message.decode(cose)
         if verify_signature:
             key = self._get_signing_key()
-            if check_p_header:
-                try:
-                    self._parse_p_header(msg)
-                except Exception as exc:
-                    self.error(f'Invalid Protected header: {exc}', exception=exc)
+            try:
+                self._parse_p_header(msg)
+            except Exception as exc:
+                self.error(f'Invalid Protected header: {exc}', exception=exc)
             msg.key = key
             msg.signature = msg.signers
             try:
@@ -605,15 +596,14 @@ class AttestationTokenVerifier(AttestationClaim):
         return msg.payload, msg.protected_header
 
 
-    def _get_cose_mac0_payload(self, cose, *, check_p_header, verify_signature):
+    def _get_cose_mac0_payload(self, cose, *, verify_signature):
         msg = Mac0Message.decode(cose)
         if verify_signature:
             key = self._get_signing_key()
-            if check_p_header:
-                try:
-                    self._parse_p_header(msg)
-                except Exception as exc:
-                    self.error(f'Invalid Protected header: {exc}', exception=exc)
+            try:
+                self._parse_p_header(msg)
+            except Exception as exc:
+                self.error(f'Invalid Protected header: {exc}', exception=exc)
             msg.key = key
             try:
                 msg.verify_auth_tag(alg=self._get_cose_alg())
@@ -622,17 +612,15 @@ class AttestationTokenVerifier(AttestationClaim):
         return msg.payload, msg.protected_header
 
 
-    def _get_cose_payload(self, cose, *, check_p_header, verify_signature):
+    def _get_cose_payload(self, cose, *, verify_signature):
         """Return the payload of a COSE envelope"""
         if self._get_method() == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
             return self._get_cose_sign1_payload(
                 cose,
-                check_p_header=check_p_header,
                 verify_signature=verify_signature)
         if self._get_method() == AttestationTokenVerifier.SIGN_METHOD_MAC0:
             return self._get_cose_mac0_payload(
                 cose,
-                check_p_header=check_p_header,
                 verify_signature=verify_signature)
         err_msg = f'Unexpected method "{self._get_method()}"; must be one of: sign, mac'
         raise ValueError(err_msg)
@@ -641,8 +629,7 @@ class AttestationTokenVerifier(AttestationClaim):
             self,
             token_encoder,
             token_map,
-            *, add_p_header,
-            name_as_key,
+            *, name_as_key,
             parse_raw_value,
             root=False):
         with BytesIO() as b_io:
@@ -662,14 +649,13 @@ class AttestationTokenVerifier(AttestationClaim):
             self.claims.convert_map_to_token(
                 encoder,
                 token_map,
-                add_p_header=add_p_header,
                 name_as_key=name_as_key,
                 parse_raw_value=parse_raw_value)
 
             token = b_io.getvalue()
 
             # Sign and pack in a COSE envelope if necessary
-            signed_token = self._sign_token(token, add_p_header=add_p_header)
+            signed_token = self._sign_token(token)
 
             # Pack as a bstr if necessary
             if root:
@@ -677,7 +663,7 @@ class AttestationTokenVerifier(AttestationClaim):
             else:
                 token_encoder.encode_bytestring(signed_token)
 
-    def parse_token(self, *, token, check_p_header, lower_case_key):
+    def parse_token(self, *, token, lower_case_key):
         if self._get_method() == AttestationTokenVerifier.SIGN_METHOD_RAW:
             payload = token
             protected_header = None
@@ -685,7 +671,6 @@ class AttestationTokenVerifier(AttestationClaim):
             try:
                 payload, protected_header = self._get_cose_payload(
                     token,
-                    check_p_header=check_p_header,
                     # signature verification is done in the verify function
                     verify_signature=False)
             except Exception as exc:
@@ -706,13 +691,11 @@ class AttestationTokenVerifier(AttestationClaim):
 
         token_items = self.claims.parse_token(
             token=raw_map,
-            check_p_header=check_p_header,
             lower_case_key=lower_case_key)
 
         ret = TokenItem(value=token_items, claim_type=self)
         ret.wrapping_tag = raw_map_tag
         ret.token = token
-        ret.check_p_header = check_p_header
         ret.protected_header = protected_header
         return ret
 
@@ -721,7 +704,6 @@ class AttestationTokenVerifier(AttestationClaim):
             try:
                 self._get_cose_payload(
                     token_item.token,
-                    check_p_header=token_item.check_p_header,
                     verify_signature=(self._get_signing_key() is not None))
             except Exception as exc:
                 msg = f'Bad COSE: {exc}'

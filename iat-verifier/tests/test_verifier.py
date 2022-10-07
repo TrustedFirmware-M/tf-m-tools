@@ -61,7 +61,6 @@ class TestIatVerifier(unittest.TestCase):
         with open(good_sig, 'rb') as wfh:
             token_item = verifier_good_sig.parse_token(
                          token=wfh.read(),
-                         check_p_header=False,
                          lower_case_key=False)
             token_item.verify()
 
@@ -69,7 +68,6 @@ class TestIatVerifier(unittest.TestCase):
             with open(bad_sig, 'rb') as wfh:
                 token_item = verifier_good_sig.parse_token(
                     token=wfh.read(),
-                    check_p_header=False,
                     lower_case_key=False)
                 token_item.verify()
 

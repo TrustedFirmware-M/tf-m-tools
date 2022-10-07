@@ -16,7 +16,8 @@ import unittest
 from iatverifier.util import read_token_map, read_keyfile
 from iatverifier.attest_token_verifier import VerifierConfiguration, AttestationTokenVerifier
 from tests.synthetic_token_verifier import SyntheticTokenVerifier2, SyntheticTokenVerifier
-from test_utils import read_iat, create_and_read_iat, convert_map_to_token_bytes, bytes_equal_to_file
+from tests.test_utils import read_iat, create_and_read_iat
+from tests.test_utils import convert_map_to_token_bytes, bytes_equal_to_file
 
 
 THIS_DIR = os.path.dirname(__file__)
@@ -99,13 +100,10 @@ class TestSynthetic(unittest.TestCase):
             configuration=self.config,
             internal_signing_key=signing_key)
 
-        token_p_header = convert_map_to_token_bytes(token_map, verifier, add_p_header=True)
-        token_no_p_header = convert_map_to_token_bytes(token_map, verifier, add_p_header=False)
+        token_p_header = convert_map_to_token_bytes(token_map, verifier)
 
         self.assertTrue(
             bytes_equal_to_file(token_p_header, os.path.join(DATA_DIR, 'p_header_on.cbor')))
-        self.assertTrue(
-            bytes_equal_to_file(token_no_p_header, os.path.join(DATA_DIR, 'p_header_off.cbor')))
 
         with self.assertLogs() as test_ctx:
             read_iat(
@@ -115,8 +113,7 @@ class TestSynthetic(unittest.TestCase):
                     cose_alg=cose_alg,
                     signing_key=signing_key,
                     configuration=config,
-                    internal_signing_key=signing_key),
-                check_p_header=True)
+                    internal_signing_key=signing_key))
         self.assertEquals(2, len(test_ctx.output))
         self.assertIn('Unexpected protected header', test_ctx.output[0])
         self.assertIn('Missing alg from protected header (expected ES256)', test_ctx.output[1])
@@ -129,8 +126,7 @@ class TestSynthetic(unittest.TestCase):
                     cose_alg=cose_alg,
                     signing_key=signing_key,
                     configuration=config,
-                    internal_signing_key=signing_key),
-                check_p_header=True)
+                    internal_signing_key=signing_key))
         self.assertEquals(2, len(test_ctx.output))
         self.assertIn('Missing alg from protected header (expected ES256)', test_ctx.output[0])
         self.assertIn('Unexpected protected header', test_ctx.output[1])
@@ -152,9 +148,10 @@ class TestSynthetic(unittest.TestCase):
                     signing_key=signing_key,
                     configuration=config,
                     internal_signing_key=signing_key))
-        self.assertEquals(2, len(test_ctx.output))
+        self.assertEquals(3, len(test_ctx.output))
         self.assertIn('Unexpected tag (0xcdcd) in token SYNTHETIC_TOKEN', test_ctx.output[0])
-        self.assertIn('Unexpected tag (0xabab) in token SYNTHETIC_INTERNAL_TOKEN', test_ctx.output[1])
+        self.assertIn('Invalid Protected header: Missing alg from protected header (expected ES256)', test_ctx.output[1])
+        self.assertIn('Unexpected tag (0xabab) in token SYNTHETIC_INTERNAL_TOKEN', test_ctx.output[2])
 
         # test with missing tag
         with self.assertLogs() as test_ctx:

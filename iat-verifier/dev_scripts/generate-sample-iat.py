@@ -97,5 +97,5 @@ if __name__ == '__main__':
                                            cose_alg=AttestationTokenVerifier.COSE_ALG_ES256,
                                            configuration=None)
     with open(outfile, 'wb') as wfh:
-        convert_map_to_token(token_map, verifier, wfh, add_p_header=False,
+        convert_map_to_token(token_map, verifier, wfh,
             name_as_key=False, parse_raw_value=False)

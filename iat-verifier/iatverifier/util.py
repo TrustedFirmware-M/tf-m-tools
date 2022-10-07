@@ -25,7 +25,7 @@ _known_curves = {
     "NIST521p": AttestationTokenVerifier.COSE_ALG_ES512,
 }
 
-def convert_map_to_token(token_map, verifier, wfh, *, add_p_header, name_as_key, parse_raw_value):
+def convert_map_to_token(token_map, verifier, wfh, *, name_as_key, parse_raw_value):
     """
     Convert a map to token and write the result to a file.
     """
@@ -33,7 +33,6 @@ def convert_map_to_token(token_map, verifier, wfh, *, add_p_header, name_as_key,
     verifier.convert_map_to_token(
         encoder,
         token_map,
-        add_p_header=add_p_header,
         name_as_key=name_as_key,
         parse_raw_value=parse_raw_value,
         root=True)

@@ -79,7 +79,6 @@ if __name__ == '__main__':
     with open(args.source, 'rb') as fh:
         token_map = verifier.parse_token(
             token=fh.read(),
-            check_p_header=False,
             lower_case_key=True).get_token_map()
 
     if args.outfile:
