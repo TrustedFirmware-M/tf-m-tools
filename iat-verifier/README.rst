@@ -66,7 +66,7 @@ used to sign sample/iat.cbor is inside sample/key.pem.
 
 ::
 
-   $ check_iat -t PSA-IoT-Profile1-token --psa-iot-profile1-keyfile sample/key.pem sample/cbor/iat.cbor
+   $ check_iat -t PSA-IoT-Profile1-token -k sample/key.pem sample/cbor/iat.cbor
    Signature OK
    Token format OK
 
@@ -121,7 +121,7 @@ CBOR token:
 
 .. code:: bash
 
-   $ compile_token -t PSA-IoT-Profile1-token --psa-iot-profile1-keyfile sample/key.pem sample/yaml/iat.yaml > sample_token.cbor
+   $ compile_token -t PSA-IoT-Profile1-token -k sample/key.pem sample/yaml/iat.yaml > sample_token.cbor
 
 *No validation* is performed as part of this, so there is no guarantee that a
 valid IAT will be produced.
@@ -194,7 +194,7 @@ the ``-m mac`` flag:
 
 ::
 
-    $ check_iat -t PSA-IoT-Profile1-token -m mac --psa-iot-profile1-keyfile sample/hmac.key sample/iat-hmac.cbor
+    $ check_iat -t PSA-IoT-Profile1-token -m mac -k sample/hmac.key sample/iat-hmac.cbor
     Signature OK
     Token format OK
 

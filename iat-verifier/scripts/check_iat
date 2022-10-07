@@ -37,14 +37,10 @@ def main():
         that the signature is valid, the token contian the required
         fields, and those fields are in a valid format.
         ''')
-    parser.add_argument('--psa-iot-profile1-keyfile',
+    parser.add_argument('-k', '--key',
                         help='''Path to the key in PEM format that should be used to
                         verify the token. If this is not specified, the token signature
                         will not be checked.''')
-    parser.add_argument('--cca-platform-token-keyfile',
-                        help='''Path to the key in PEM format that should be used to
-                        verify the CCA platform token. If this is not specified, the
-                        token signature will not be checked.''')
     parser.add_argument('tokenfile',
                         help='''
                         path to a file containing a signed IAT.
@@ -89,8 +85,8 @@ def main():
 
     verifier_class = token_verifiers[args.token_type]
     if verifier_class == PSAIoTProfile1TokenVerifier:
-        key_checked = args.psa_iot_profile1_keyfile
-        key = read_keyfile(keyfile=args.psa_iot_profile1_keyfile, method=method)
+        key_checked = args.key
+        key = read_keyfile(keyfile=args.key, method=method)
         if method == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
             cose_alg = get_cose_alg_from_key(key, AttestationTokenVerifier.COSE_ALG_ES256)
         else:
@@ -104,8 +100,8 @@ def main():
         if method != AttestationTokenVerifier.SIGN_METHOD_SIGN1:
             logger.error('Only sign1 method is supported by this token type.\n\t'.format(verifier_class))
             sys.exit(1)
-        key_checked = args.cca_platform_token_keyfile
-        platform_token_key = read_keyfile(args.cca_platform_token_keyfile, method)
+        key_checked = args.key
+        platform_token_key = read_keyfile(args.key, method)
         realm_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
         platform_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
         realm_token_cose_alg = get_cose_alg_from_key(
@@ -122,8 +118,8 @@ def main():
             platform_token_key=platform_token_key,
             configuration=config)
     elif verifier_class == CCAPlatformTokenVerifier:
-        key_checked = args.cca_platform_token_keyfile
-        key = read_keyfile(args.cca_platform_token_keyfile, method)
+        key_checked = args.key
+        key = read_keyfile(args.key, method)
         cose_alg = get_cose_alg_from_key(key, AttestationTokenVerifier.COSE_ALG_ES384)
         verifier = CCAPlatformTokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
@@ -132,8 +128,8 @@ def main():
             configuration=config,
             necessity=None)
     elif verifier_class == PSA_2_0_0_TokenVerifier:
-        key_checked = args.psa_iot_profile1_keyfile
-        key = read_keyfile(keyfile=args.psa_iot_profile1_keyfile, method=method)
+        key_checked = args.key
+        key = read_keyfile(keyfile=args.key, method=method)
         if method == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
             cose_alg = get_cose_alg_from_key(key, AttestationTokenVerifier.COSE_ALG_ES256)
         else:
