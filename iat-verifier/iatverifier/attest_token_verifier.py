@@ -214,6 +214,13 @@ class AttestationClaim(ABC):
             msg = 'Invalid {} length: must be at least {} bytes, found {} bytes'
             self.verifier.error(msg.format(name, minimal_length, value_len))
 
+    def _validate_bytestrings_equal(self, value, name, expected):
+        self._validate_bytestring_length_equals(value, name, len(expected))
+        for i, (b1, b2) in enumerate(zip(value, expected)):
+            if b1 != b2:
+                msg = f'Invalid {name} byte at {i}: 0x{b1:02x} instead of 0x{b2:02x}'
+                self.verifier.error(msg)
+
     def get_token_map(self, token_item):
         formatted = self.__class__.get_formatted_value(token_item.value)
 

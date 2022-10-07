@@ -93,7 +93,7 @@ class CCATokenVerifier(Verifier):
         cca_platform_challenge = cca_platform_challenge_item.value
 
         # Do the validation
-        self._validate_bytestrings_equal('CCA_PLATFORM_CHALLENGE', cca_realm_public_key_hash, cca_platform_challenge)
+        self._validate_bytestrings_equal(cca_platform_challenge, 'CCA_PLATFORM_CHALLENGE', cca_realm_public_key_hash)
 
 class CCARealmTokenVerifier(Verifier):
     def get_claim_key(self=None):
