@@ -49,7 +49,7 @@ script expects two parameters:
 
 * the token type
 
-You can find an example in the ``sample`` directory.
+You can find an example in the ``tests/data`` directory.
 
 The script will extract the COSE payload and make sure that it is a
 valid IAT (i.e. all mandatory fields are present, and all known
@@ -57,16 +57,16 @@ fields have correct size/type):
 
 .. code:: bash
 
-   $ check_iat -t PSA-IoT-Profile1-token sample/cbor/iat.cbor
+   $ check_iat -t PSA-IoT-Profile1-token tests/data/iat.cbor
    Token format OK
 
 If you want the script to verify the signature, you need to specify the
 file containing the signing key in PEM format using -k option. The key
-used to sign sample/iat.cbor is inside sample/key.pem.
+used to sign tests/data/iat.cbor is inside tests/data/key.pem.
 
 ::
 
-   $ check_iat -t PSA-IoT-Profile1-token -k sample/key.pem sample/cbor/iat.cbor
+   $ check_iat -t PSA-IoT-Profile1-token -k tests/data/key.pem tests/data/iat.cbor
    Signature OK
    Token format OK
 
@@ -121,7 +121,7 @@ CBOR token:
 
 .. code:: bash
 
-   $ compile_token -t PSA-IoT-Profile1-token -k sample/key.pem sample/yaml/iat.yaml > sample_token.cbor
+   $ compile_token -t PSA-IoT-Profile1-token -k tests/data/key.pem tests/data/iat.yaml > sample_token.cbor
 
 *No validation* is performed as part of this, so there is no guarantee that a
 valid IAT will be produced.
@@ -141,7 +141,7 @@ as part of this) into a YAML description of its claims.
 
 .. code:: bash
 
-    $ decompile_token -t PSA-IoT-Profile1-token sample/cbor/iat.cbor
+    $ decompile_token -t PSA-IoT-Profile1-token tests/data/iat.cbor
     boot_seed: !!binary |
       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
     challenge: !!binary |
@@ -194,7 +194,7 @@ the ``-m mac`` flag:
 
 ::
 
-    $ check_iat -t PSA-IoT-Profile1-token -m mac -k sample/hmac.key sample/iat-hmac.cbor
+    $ check_iat -t PSA-IoT-Profile1-token -m mac -k tests/data/hmac.key tests/data/iat-hmac.cbor
     Signature OK
     Token format OK
 
