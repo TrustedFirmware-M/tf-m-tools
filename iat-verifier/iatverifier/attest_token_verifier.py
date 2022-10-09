@@ -445,13 +445,23 @@ class CompositeAttestClaim(AttestationClaim):
             for token_item_dict in token_item.value:
                 token_dict = {}
                 for key, claim_token_item in token_item_dict.items():
-                    token_dict[key] = claim_token_item.get_token_map()
+                    if isinstance(claim_token_item, TokenItem):
+                        token_dict[key] = claim_token_item.get_token_map()
+                    else:
+                        # The claim was not recognised, so just adding it as it
+                        # was in the map:
+                        token_dict[key] = claim_token_item
                 ret.append(token_dict)
             return ret
         else:
             token_dict = {}
             for key, claim_token_item in token_item.value.items():
-                token_dict[key] = claim_token_item.get_token_map()
+                if isinstance(claim_token_item, TokenItem):
+                    token_dict[key] = claim_token_item.get_token_map()
+                else:
+                    # The claim was not recognised, so just adding it as it
+                    # was in the map:
+                    token_dict[key] = claim_token_item
             return token_dict
 
 @dataclass

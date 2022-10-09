@@ -76,6 +76,7 @@ def read_iat(data_dir, filename, verifier, *, check_p_header=False):
             check_p_header=check_p_header,
             lower_case_key=False)
     token_item.verify()
+    token_item.get_token_map()
     return token_item
 
 def create_and_read_iat(data_dir, source_name, verifier):
