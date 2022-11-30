@@ -47,13 +47,12 @@ if __name__ == '__main__':
                         help='''Path to the key in PEM format that should be used to
                         sign the CCA Realm token. If this is not specified, the
                         token will be unsigned.''')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-r', '--raw', action='store_true',
-                       help='''Generate raw CBOR and do not create a signature
-                       or COSE wrapper.''')
-    group.add_argument('-m', '--hmac', action='store_true',
-                       help='''Generate a token wrapped in a Mac0 rather than
-                       Sign1 COSE structure.''')
+    parser.add_argument('-m', '--method', choices=['sign', 'mac', 'raw'], default='sign',
+                        help='''
+                        Specify how this token is to be wrapped -- whether Sign1Message or
+                        Mac0Message COSE structure is to be used. In case of 'raw' no COSE envelope is
+                        added to the compiled token.
+                        ''')
     parser.add_argument('-t', '--token-type',
                         help='''The type of the Token.''',
                         choices=token_verifiers.keys(),
@@ -61,14 +60,16 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.hmac:
+    if args.method == 'mac':
         METHOD = AttestationTokenVerifier.SIGN_METHOD_MAC0
-    elif args.raw:
+    elif args.method == 'raw':
         if args.key:
             raise ValueError('A keyfile cannot be specified with --raw.')
         METHOD = AttestationTokenVerifier.SIGN_METHOD_RAW
-    else:
+    elif args.method == 'sign':
         METHOD = AttestationTokenVerifier.SIGN_METHOD_SIGN1
+    else:
+        assert False
 
     configuration = VerifierConfiguration(strict=True, keep_going=False)
 

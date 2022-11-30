@@ -57,10 +57,11 @@ def main():
                         help='''
                         Report failure if unknown claim is encountered.
                         ''')
-    parser.add_argument('-m', '--method', choices=['sign', 'mac'], default='sign',
+    parser.add_argument('-m', '--method', choices=['sign', 'mac', 'raw'], default='sign',
                         help='''
                         Specify how this token is wrapped -- whether Sign1Message or
-                        Mac0Message COSE structure is used.
+                        Mac0Message COSE structure is used. In case of 'raw' no COSE envelope is
+                        expected.
                         ''')
     parser.add_argument('-t', '--token-type',
                         help='''The type of the Token.''',
@@ -74,8 +75,14 @@ def main():
     config = VerifierConfiguration(keep_going=args.keep_going, strict=args.strict)
     if args.method == 'mac':
         method = AttestationTokenVerifier.SIGN_METHOD_MAC0
-    else:
+    elif args.method == 'raw':
+        if args.key:
+            raise ValueError('A keyfile cannot be specified with --raw.')
+        method = AttestationTokenVerifier.SIGN_METHOD_RAW
+    elif args.method == 'sign':
         method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
+    else:
+        assert False
 
     key_checked = False
 
