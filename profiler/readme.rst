@@ -129,6 +129,27 @@ calibrated counter is "current_counter" - "previous_counter" -
 "current_cali_value".
 "current_cali_value" = PROF_GET_CALI_VALUE_FROM_TAG(current_tag).
 
+Data analysis
+=============
+
+Data analysis interfaces can be used to do some basic analysis and the data
+returned is calibrated already.
+
+`PROF_DATA_DIFF`: Get the counter value difference for the two tags. Returning
+`0` indicates errors.
+
+If the checkpoints are logged by multi-times, you can get the following counter
+value differences between two tags:
+
+`PROF_DATA_DIFF_MIN`: Get the minimum counter value difference for the two tags.
+Returning `UINT32_MAX` indicates errors.
+
+`PROF_DATA_DIFF_MAX`: Get the maximum counter value difference for the two tags.
+Returning `0` indicates errors.
+
+`PROF_DATA_DIFF_AVG`: Get the average counter value difference for the two tags.
+Returning `0` indicates errors.
+
 --------------
 
-*Copyright (c) 2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2022-2023, Arm Limited. All rights reserved.*

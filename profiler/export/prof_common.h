@@ -88,6 +88,11 @@ bool prof_get_data_start(uint32_t *tag, uint32_t *data, uint32_t tag_pattern,
                          uint32_t tag_mask);
 bool prof_get_data_continue(uint32_t *tag, uint32_t *data, uint32_t tag_pattern,
                             uint32_t tag_mask);
+/* Data analysis */
+uint32_t prof_data_diff(uint32_t tag_pattern_a, uint32_t tag_pattern_b);
+uint32_t prof_data_diff_min(uint32_t tag_pattern_a, uint32_t tag_pattern_b);
+uint32_t prof_data_diff_max(uint32_t tag_pattern_a, uint32_t tag_pattern_b);
+uint32_t prof_data_diff_avg(uint32_t tag_pattern_a, uint32_t tag_pattern_b);
 
 /* Non-secure side veneer */
 uint32_t prof_timing_cp_veneer(uint32_t tag);
@@ -96,6 +101,10 @@ bool prof_get_data_start_veneer(uint32_t *tag, uint32_t *data,
                                 uint32_t tag_pattern, uint32_t tag_mask);
 bool prof_get_data_continue_veneer(uint32_t *tag, uint32_t *data,
                                    uint32_t tag_pattern, uint32_t tag_mask);
+uint32_t prof_data_diff_veneer(uint32_t tag_pattern_a, uint32_t tag_pattern_b);
+uint32_t prof_data_diff_min_veneer(uint32_t tag_pattern_a, uint32_t tag_pattern_b);
+uint32_t prof_data_diff_max_veneer(uint32_t tag_pattern_a, uint32_t tag_pattern_b);
+uint32_t prof_data_diff_avg_veneer(uint32_t tag_pattern_a, uint32_t tag_pattern_b);
 
 #if !defined(__ARMCC_VERSION) && !defined(__ICCARM__)
 /*

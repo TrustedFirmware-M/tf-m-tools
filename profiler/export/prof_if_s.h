@@ -56,7 +56,7 @@ extern "C" {
  * "current_counter" - "previous_counter" - "current_cali_value"
  * "current_cali_value" = PROF_GET_CALI_VALUE_FROM_TAG(current_tag)
  */
-#define PROF_GET_CALI_VALUE_FROM_TAG(tag) prof_get_cali_value_veneer(   \
+#define PROF_GET_CALI_VALUE_FROM_TAG(tag) prof_get_cali_value(          \
                                           PROF_GET_CALI_IDX_FROM_TAG(tag))
 
 /* Get data */
@@ -81,6 +81,39 @@ extern "C" {
 #define PROF_FETCH_DATA_BY_CP_CONTINUE(tag, data, cp, topic)            \
         prof_get_data_continue(tag, data,                               \
         PROF_MAKE_TIMING_TAG(cp, topic, 0, 0), PROF_MASK_TOPIC_CP)
+
+/* Data analysis with calibration */
+#define PROF_DATA_DIFF(cp_a, topic_a, cp_b, topic_b)                    \
+        prof_data_diff(PROF_MAKE_TIMING_TAG((cp_a), (topic_a),          \
+                                            PROF_CALI_IDX_S,            \
+                                            PROF_TYPE_TIMING_LOG),      \
+                       PROF_MAKE_TIMING_TAG((cp_b), (topic_b),          \
+                                            PROF_CALI_IDX_S,            \
+                                            PROF_TYPE_TIMING_LOG))
+
+#define PROF_DATA_DIFF_MIN(cp_a, topic_a, cp_b, topic_b)                \
+        prof_data_diff_min(PROF_MAKE_TIMING_TAG((cp_a), (topic_a),      \
+                                            PROF_CALI_IDX_S,            \
+                                            PROF_TYPE_TIMING_LOG),      \
+                           PROF_MAKE_TIMING_TAG((cp_b), (topic_b),      \
+                                            PROF_CALI_IDX_S,            \
+                                            PROF_TYPE_TIMING_LOG))
+
+#define PROF_DATA_DIFF_MAX(cp_a, topic_a, cp_b, topic_b)                \
+        prof_data_diff_max(PROF_MAKE_TIMING_TAG((cp_a), (topic_a),      \
+                                            PROF_CALI_IDX_S,            \
+                                            PROF_TYPE_TIMING_LOG),      \
+                           PROF_MAKE_TIMING_TAG((cp_b), (topic_b),      \
+                                            PROF_CALI_IDX_S,            \
+                                            PROF_TYPE_TIMING_LOG))
+
+#define PROF_DATA_DIFF_AVG(cp_a, topic_a, cp_b, topic_b)                \
+        prof_data_diff_avg(PROF_MAKE_TIMING_TAG((cp_a), (topic_a),      \
+                                            PROF_CALI_IDX_S,            \
+                                            PROF_TYPE_TIMING_LOG),      \
+                           PROF_MAKE_TIMING_TAG((cp_b), (topic_b),      \
+                                            PROF_CALI_IDX_S,            \
+                                            PROF_TYPE_TIMING_LOG))
 
 #ifdef __cplusplus
 }

@@ -83,6 +83,39 @@ extern "C" {
 
 void prof_calibrate_ns(uint32_t rounds);
 
+/* Data analysis with calibration */
+#define PROF_DATA_DIFF(cp_a, topic_a, cp_b, topic_b)                           \
+        prof_data_diff_veneer(PROF_MAKE_TIMING_TAG((cp_a), (topic_a),          \
+                                                   PROF_CALI_IDX_NS,           \
+                                                   PROF_TYPE_TIMING_LOG),      \
+                              PROF_MAKE_TIMING_TAG((cp_b), (topic_b),          \
+                                                   PROF_CALI_IDX_NS,           \
+                                                   PROF_TYPE_TIMING_LOG))
+
+#define PROF_DATA_DIFF_MIN(cp_a, topic_a, cp_b, topic_b)                       \
+        prof_data_diff_min_veneer(PROF_MAKE_TIMING_TAG((cp_a), (topic_a),      \
+                                                       PROF_CALI_IDX_NS,       \
+                                                       PROF_TYPE_TIMING_LOG),  \
+                                  PROF_MAKE_TIMING_TAG((cp_b), (topic_b),      \
+                                                       PROF_CALI_IDX_NS,       \
+                                                       PROF_TYPE_TIMING_LOG))
+
+#define PROF_DATA_DIFF_MAX(cp_a, topic_a, cp_b, topic_b)                       \
+        prof_data_diff_max_veneer(PROF_MAKE_TIMING_TAG((cp_a), (topic_a),      \
+                                                       PROF_CALI_IDX_NS,       \
+                                                       PROF_TYPE_TIMING_LOG),  \
+                                  PROF_MAKE_TIMING_TAG((cp_b), (topic_b),      \
+                                                       PROF_CALI_IDX_NS,       \
+                                                       PROF_TYPE_TIMING_LOG))
+
+#define PROF_DATA_DIFF_AVG(cp_a, topic_a, cp_b, topic_b)                       \
+        prof_data_diff_avg_veneer(PROF_MAKE_TIMING_TAG((cp_a), (topic_a),      \
+                                                       PROF_CALI_IDX_NS,       \
+                                                       PROF_TYPE_TIMING_LOG),  \
+                                  PROF_MAKE_TIMING_TAG((cp_b), (topic_b),      \
+                                                       PROF_CALI_IDX_NS,       \
+                                                       PROF_TYPE_TIMING_LOG))
+
 #ifdef __cplusplus
 }
 #endif

@@ -12,6 +12,9 @@
 #include "prof_if_s.h"
 #include "prof_hal.h"
 
+#define DIFF(a, b) (((a) > (b)) ? ((a) - (b)) : ((b) - (a)))
+#define DO_CALI(diff, cali) (((diff) > (cali)) ? ((diff) - (cali)) : 0)
+
 /* Database */
 static struct prof_dataset prof_database[PROF_DB_MAX] = {0};
 static uint32_t prof_db_idx = 0;
@@ -125,7 +128,7 @@ static void prof_data_save(uint32_t tag, uint32_t count)
 
 /* Get the datas by matching the tag pattern */
 static bool prof_get_data_by_tag(uint32_t *tag, uint32_t *data,
-                                uint32_t tag_pattern, uint32_t tag_mask)
+                                 uint32_t tag_pattern, uint32_t tag_mask)
 {
     /* Look for the first dataset which matches the tag pattern */
     for (; prof_dump_idx < prof_db_idx; prof_dump_idx++) {
@@ -155,6 +158,109 @@ bool prof_get_data_continue(uint32_t *tag, uint32_t *data, uint32_t tag_pattern,
                             uint32_t tag_mask)
 {
     return prof_get_data_by_tag(tag, data, tag_pattern, tag_mask);
+}
+
+/* Data analysis operations */
+uint32_t prof_data_diff(uint32_t tag_pattern_a, uint32_t tag_pattern_b)
+{
+    uint32_t diff = 0;
+    uint32_t dataA, dataB, tagA, tagB;
+    uint32_t cali = 0;
+
+    /* Reset the search index */
+    prof_dump_idx = 0;
+    if (!prof_get_data_by_tag(&tagA, &dataA, tag_pattern_a, PROF_MASK_FULL_TAG)) {
+        return 0;
+    }
+    if (!prof_get_data_by_tag(&tagB, &dataB, tag_pattern_b, PROF_MASK_FULL_TAG)) {
+        return 0;
+    }
+
+    diff = DIFF(dataA, dataB);
+    /*
+     * When two tags have same cali index, tag_pattern_b cali is same with
+     * tag_pattern_a cali and they are the precise values. When two tags have
+     * different cali indexes, it cannot get the precise cali value but
+     * tag_pattern_b cali is more precise.
+     */
+    cali = PROF_GET_CALI_VALUE_FROM_TAG(tag_pattern_b);
+
+    /* Do the calibration */
+    return DO_CALI(diff, cali);
+}
+
+uint32_t prof_data_diff_min(uint32_t tag_pattern_a, uint32_t tag_pattern_b)
+{
+    uint32_t diff = 0, min = UINT32_MAX;
+    uint32_t dataA, dataB, tagA, tagB;
+    uint32_t cali = 0;
+
+    /* Reset the search index */
+    prof_dump_idx = 0;
+    cali = PROF_GET_CALI_VALUE_FROM_TAG(tag_pattern_b);
+    while (1) {
+        if (!prof_get_data_by_tag(&tagA, &dataA, tag_pattern_a, PROF_MASK_FULL_TAG)) {
+            break;
+        }
+        if (!prof_get_data_by_tag(&tagB, &dataB, tag_pattern_b, PROF_MASK_FULL_TAG)) {
+            break;
+        }
+        diff = DO_CALI(DIFF(dataA, dataB), cali);
+        min = (diff < min) ? diff : min;
+    }
+
+    return min;
+}
+
+uint32_t prof_data_diff_max(uint32_t tag_pattern_a, uint32_t tag_pattern_b)
+{
+    uint32_t diff = 0, max = 0;
+    uint32_t dataA, dataB, tagA, tagB;
+    uint32_t cali = 0;
+
+    /* Reset the search index */
+    prof_dump_idx = 0;
+    cali = PROF_GET_CALI_VALUE_FROM_TAG(tag_pattern_b);
+    while (1) {
+        if (!prof_get_data_by_tag(&tagA, &dataA, tag_pattern_a, PROF_MASK_FULL_TAG)) {
+            break;
+        }
+        if (!prof_get_data_by_tag(&tagB, &dataB, tag_pattern_b, PROF_MASK_FULL_TAG)) {
+            break;
+        }
+        diff = DO_CALI(DIFF(dataA, dataB), cali);
+        max = (diff > max) ? diff : max;
+    }
+
+    return max;
+}
+
+uint32_t prof_data_diff_avg(uint32_t tag_pattern_a, uint32_t tag_pattern_b)
+{
+    uint32_t diff = 0, sum = 0, num = 0;
+    uint32_t dataA, dataB, tagA, tagB;
+    uint32_t cali = 0;
+
+    /* Reset the search index */
+    prof_dump_idx = 0;
+    cali = PROF_GET_CALI_VALUE_FROM_TAG(tag_pattern_b);
+    while (1) {
+        if (!prof_get_data_by_tag(&tagA, &dataA, tag_pattern_a, PROF_MASK_FULL_TAG)) {
+            break;
+        }
+        if (!prof_get_data_by_tag(&tagB, &dataB, tag_pattern_b, PROF_MASK_FULL_TAG)) {
+            break;
+        }
+        diff = DO_CALI(DIFF(dataA, dataB), cali);
+        num++;
+        sum += diff;
+    }
+
+    if (num == 0) {
+        return 0;
+    } else {
+        return sum/num;
+    }
 }
 
 #ifndef PROF_SELF_TEST
@@ -189,6 +295,30 @@ bool prof_get_data_continue_veneer(uint32_t *tag, uint32_t *data,
                             uint32_t tag_pattern, uint32_t tag_mask)
 {
     return prof_get_data_continue(tag, data, tag_pattern, tag_mask);
+}
+
+__profiler_secure_gateway_attributes__
+uint32_t prof_data_diff_veneer(uint32_t tag_pattern_a, uint32_t tag_pattern_b)
+{
+    return prof_data_diff(tag_pattern_a, tag_pattern_b);
+}
+
+__profiler_secure_gateway_attributes__
+uint32_t prof_data_diff_min_veneer(uint32_t tag_pattern_a, uint32_t tag_pattern_b)
+{
+    return prof_data_diff_min(tag_pattern_a, tag_pattern_b);
+}
+
+__profiler_secure_gateway_attributes__
+uint32_t prof_data_diff_max_veneer(uint32_t tag_pattern_a, uint32_t tag_pattern_b)
+{
+    return prof_data_diff_max(tag_pattern_a, tag_pattern_b);
+}
+
+__profiler_secure_gateway_attributes__
+uint32_t prof_data_diff_avg_veneer(uint32_t tag_pattern_a, uint32_t tag_pattern_b)
+{
+    return prof_data_diff_avg(tag_pattern_a, tag_pattern_b);
 }
 
 #endif
