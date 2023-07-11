@@ -127,16 +127,8 @@ static void prof_data_save(uint32_t tag, uint32_t count)
 static bool prof_get_data_by_tag(uint32_t *tag, uint32_t *data,
                                 uint32_t tag_pattern, uint32_t tag_mask)
 {
-    uint32_t limit = (prof_db_idx < PROF_DB_MAX) ?      \
-                      prof_db_idx : PROF_DB_MAX;
-
-    /* Return false if reached to the limit */
-    if (prof_dump_idx >= PROF_DB_MAX) {
-        return false;
-    }
-
     /* Look for the first dataset which matches the tag pattern */
-    for (; prof_dump_idx < limit; prof_dump_idx++) {
+    for (; prof_dump_idx < prof_db_idx; prof_dump_idx++) {
         if((prof_database[prof_dump_idx].tag & tag_mask) == tag_pattern) {
             *tag = prof_database[prof_dump_idx].tag;
             *data = prof_database[prof_dump_idx].count;
