@@ -86,13 +86,18 @@ Data fetching
 =============
 
 For the same consistent reason as counter logging, same macros are defined as
-the interface for both secure and non-secure side.
+the interfaces for both secure and non-secure side.
 
-The data fetching interface works as stream way. `PROF_FETCH_DATA_START` and
-`PROF_FETCH_DATA_BY_XXX_START` search the data that matches the given pattern
+The data fetching interfaces work as stream way. `PROF_FETCH_DATA_START` and
+`PROF_FETCH_DATA_BY_TOPIC_START` search the data that matches the given pattern
 from the beginning of the database. `PROF_FETCH_DATA_CONTINUE` and
-`PROF_FETCH_DATA_BY_XXX_CONTINUE` search from the next data set of the
+`PROF_FETCH_DATA_BY_TOPIC_CONTINUE` search from the next data set of the
 previous result.
+
+  .. Note::
+
+    All the APIs increase the internal search index, be careful on mixing using them
+    for different checkpoints and topics at the same time.
 
 The match condition of a search is controlled by the tag mask. It's `tag value`
 & `tag_mask` == `tag_pattern`. To enumerate the whole database, set
@@ -101,9 +106,6 @@ The match condition of a search is controlled by the tag mask. It's `tag value`
 `PROF_FETCH_DATA_XXX`: The generic interface for getting data.
 
 `PROF_FETCH_DATA_BY_TOPIC_XXX`: Get data for a specific `topic`.
-
-`PROF_FETCH_DATA_BY_CP_XXX`: Get data for a specific checkpoint by specifying
-both `topic` and `cp`.
 
 The APIs return `false` if no matching data found until the end of the database.
 

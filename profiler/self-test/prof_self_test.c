@@ -123,14 +123,14 @@ bool prof_test_timing(void)
     printf("------Verify Data By Checkpoint------\r\n");
     for (uint32_t i = 0; i < TEST_LOOPS; i++) {
         if (i == 0) {
-            if (!PROF_FETCH_DATA_BY_CP_START(&tag, &val, TEST_CP_ID_BASE + i,
-                                             TEST_TOPIC_ID)) {
+            if (!PROF_FETCH_DATA_START(&tag, &val, TEST_CP_ID_BASE + i,
+                                       TEST_TOPIC_ID)) {
                 printf("No dataset matches the search condition!\r\n");
                 return false;
             }
         } else {
-            if (!PROF_FETCH_DATA_BY_CP_CONTINUE(&tag, &val, TEST_CP_ID_BASE + i,
-                                                TEST_TOPIC_ID)) {
+            if (!PROF_FETCH_DATA_CONTINUE(&tag, &val, TEST_CP_ID_BASE + i,
+                                          TEST_TOPIC_ID)) {
                 printf("No dataset matches the search condition!\r\n");
                 return false;
             }
