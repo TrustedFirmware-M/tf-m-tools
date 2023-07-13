@@ -27,18 +27,6 @@ extern "C" {
         PROF_TYPE_TIMING_LOG))
 
 /*
- * Get the timing value for further calibration
- * The difference with checkpoint is that the calibration item doesn't increase
- * the index in database. So, the calibration item can be overwritten by other
- * items. The reason of keeping writing calibration data into database is that
- * we want to make a full cycle of saving an item into the database to more
- * accurately reflect the latency.
- */
-#define PROF_TIMING_CALIBRATE()         prof_timing_cp_veneer(          \
-        PROF_MAKE_TIMING_TAG(0, 0, 0,                                   \
-        PROF_TYPE_TIMING_CALI))
-
-/*
  * Non-secure side can call this macro to do/redo calibration
  * Suggest to do/redo calibration before running the profiling. It's because the
  * latency introduced by the profiler may be changed in the system lifecycle.

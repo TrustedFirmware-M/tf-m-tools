@@ -30,7 +30,7 @@ void prof_calibrate_ns(uint32_t rounds)
     }
 
     /* Save the start point */
-    start = PROF_TIMING_CALIBRATE();
+    start = prof_timing_cp_veneer(PROF_MAKE_TIMING_TAG(0, 0, 0, PROF_TYPE_TIMING_CALI));
     saved_rounds = rounds;
 
     /*
@@ -39,7 +39,7 @@ void prof_calibrate_ns(uint32_t rounds)
      * "total cost" / "rounds" = the average cost of one function call
      */
     while (rounds--) {
-        end = PROF_TIMING_CALIBRATE();
+        end = prof_timing_cp_veneer(PROF_MAKE_TIMING_TAG(0, 0, 0, PROF_TYPE_TIMING_CALI));
     }
 
     /* Support increase/decrease way of the counter */

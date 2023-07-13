@@ -76,7 +76,7 @@ void prof_calibrate(uint32_t index, uint32_t rounds, uint32_t cali_data)
     }
 
     /* Save the start point */
-    start = PROF_TIMING_CALIBRATE();
+    start = prof_timing_cp(PROF_MAKE_TIMING_TAG(0, 0, 0, PROF_TYPE_TIMING_CALI));
     saved_rounds = rounds;
 
     /*
@@ -85,7 +85,7 @@ void prof_calibrate(uint32_t index, uint32_t rounds, uint32_t cali_data)
      * "total cost" / "rounds" = the average cost of one function call
      */
     while (rounds--) {
-        end = PROF_TIMING_CALIBRATE();
+        end = prof_timing_cp(PROF_MAKE_TIMING_TAG(0, 0, 0, PROF_TYPE_TIMING_CALI));;
     }
 
     /* Support increase/decrease way of the counter */
@@ -120,7 +120,14 @@ static void prof_data_save(uint32_t tag, uint32_t count)
     prof_database[prof_db_idx].tag = tag;
     prof_database[prof_db_idx].count = count;
 
-    /* Increase the index if it's not calibration data */
+    /*
+     * Increase the index if it's not calibration data so that the calibration
+     * item can be overwritten by other items. Calibration does not need the data
+     * in the database.
+     * The reason of still writing calibration data into database to make the
+     * calibration more accurate.
+     * Skipping the data saving makes the calibration data smaller than actual.
+     */
     if (PROF_GET_TYPE_FROM_TAG(tag) != PROF_TYPE_TIMING_CALI) {
         prof_db_idx++;
     }
