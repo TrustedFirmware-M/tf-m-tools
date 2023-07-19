@@ -21,7 +21,7 @@ extern "C" {
 /*
  * Topic based timing logging
  */
-#define PROF_TIMING_LOG(topic_id, cp_id)                                \
+#define PROF_TIMING_LOG(cp_id, topic_id)                                \
         prof_timing_cp_veneer(                                          \
         PROF_MAKE_TIMING_TAG((cp_id), (topic_id), PROF_CALI_IDX_NS,     \
         PROF_TYPE_TIMING_LOG))
@@ -73,11 +73,11 @@ extern "C" {
         prof_get_data_continue_veneer(tag, data,                        \
         PROF_MAKE_TIMING_TAG(0, topic, 0, 0), PROF_MASK_TOPIC)
 
-#define PROF_FETCH_DATA_BY_CP_START(tag, data, topic, cp)               \
+#define PROF_FETCH_DATA_BY_CP_START(tag, data, cp, topic)               \
         prof_get_data_start_veneer(tag, data,                           \
         PROF_MAKE_TIMING_TAG(cp, topic, 0, 0), PROF_MASK_TOPIC_CP)
 
-#define PROF_FETCH_DATA_BY_CP_CONTINUE(tag, data, topic, cp)            \
+#define PROF_FETCH_DATA_BY_CP_CONTINUE(tag, data, cp, topic)            \
         prof_get_data_continue_veneer(tag, data,                        \
         PROF_MAKE_TIMING_TAG(cp, topic, 0, 0), PROF_MASK_TOPIC_CP)
 
