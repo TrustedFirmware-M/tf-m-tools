@@ -1,0 +1,21 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2023, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+{
+  "manifest_list": [
+    {
+      "description": "Profiling Server Partition",
+      "manifest": "prof_server_partition/prof_server_partition.yaml",
+      "output_path": "secure_fw/partitions/prof_server_partition",
+      "linker_pattern": {
+        "library_list": [
+           "*tfm_*prof_server_partition.*"
+         ]
+      }
+    },
+  ]
+}
