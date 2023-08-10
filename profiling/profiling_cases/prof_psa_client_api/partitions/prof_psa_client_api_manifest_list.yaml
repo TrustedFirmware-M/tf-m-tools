@@ -17,5 +17,15 @@
          ]
       }
     },
+    {
+      "description": "Profiling Client Partition",
+      "manifest": "prof_client_partition/prof_client_partition.yaml",
+      "output_path": "secure_fw/partitions/prof_client_partition",
+      "linker_pattern": {
+        "library_list": [
+           "*tfm_*prof_client_partition.*"
+         ]
+      }
+    },
   ]
 }

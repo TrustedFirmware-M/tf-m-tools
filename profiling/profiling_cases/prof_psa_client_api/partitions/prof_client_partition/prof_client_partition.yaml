@@ -1,0 +1,30 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2023, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+{
+  "psa_framework_version": 1.1,
+  "name": "PROFILING_CLIENT_PARTITION",
+  "type": "PSA-ROT",
+  "model": "SFN",
+  "priority": "LOW",
+  "entry_init": "prof_client_init",
+  "stack_size": "0x0400",
+  "services": [
+    {
+      "name": "SECURE_CLIENT_DUMMY",
+      "sid": "0x0000F150",
+      "connection_based": true,
+      "non_secure_clients": false,
+      "version": 1,
+      "version_policy": "STRICT"
+    }
+  ],
+  "dependencies": [
+    "PROFILING_SERVICE",
+    "PROFILING_STATELESS_SERVICE",
+  ]
+}
