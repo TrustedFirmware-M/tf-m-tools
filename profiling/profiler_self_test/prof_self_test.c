@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "prof_common.h"
-#include "prof_if_s.h"
+#include "prof_intf_s.h"
 #include "prof_hal.h"
 
 #define TEST_TOPIC_ID           (0x1)

@@ -17,8 +17,8 @@ How to use TF-M profiler
 
 The profiler should be compiled together with TF-M, thus running in SPE.
 
-The source file need to be compiled with TF-M is mainly `profiler.c`. The header
-files are in `export` folder.
+The source file need to be compiled with TF-M is mainly `profiler/profiler.c`.
+The header files are in `export` folder.
 
 `export/prof_hal.h` defines the HAL that should be implemented by the platform.
 
@@ -37,14 +37,14 @@ The developer should identify the places in source code for adding the
 checkpoints. The count value of the timer or CPU cycle will be saved into the
 database for the checkpoints.
 
-The interface APIs are defined in `export/prof_if_s.h` for secure side.
+The interface APIs are defined in `export/prof_intf_s.h` for secure side.
 
 3. Add checkpoints for non-secure side
 
 It's supported to add checkpionts in non-secure side. Add
-`export/ns/prof_if_ns.c` to the source file list of non-secure side.
+`export/ns/prof_intf_ns.c` to the source file list of non-secure side.
 
-The interface APIs for non-secure side are defined in `export/ns/prof_if_ns.h`.
+The interface APIs for non-secure side are defined in `export/ns/prof_intf_ns.h`.
 
 4. Run the program and collect data
 

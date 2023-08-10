@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "prof_common.h"
-#include "prof_if_ns.h"
+#include "prof_intf_ns.h"
 
 /* This file should be compiled with the non-secure side software */
 

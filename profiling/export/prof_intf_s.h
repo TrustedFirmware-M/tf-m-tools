@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef __PROF_IF_S_H__
-#define __PROF_IF_S_H__
+#ifndef __PROF_INTF_S_H__
+#define __PROF_INTF_S_H__
 
 /* This file defines all API that should be called by secure side */
 
@@ -105,4 +105,4 @@ extern "C" {
 }
 #endif
 
-#endif /* __PROF_IF_S_H__ */
+#endif /* __PROF_INTF_S_H__ */

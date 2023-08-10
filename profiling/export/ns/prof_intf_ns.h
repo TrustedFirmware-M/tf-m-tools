@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef __PROF_IF_NS_H__
-#define __PROF_IF_NS_H__
+#ifndef __PROF_INTF_NS_H__
+#define __PROF_INTF_NS_H__
 
 /* This file defines all API that should be called by non-secure side */
 
@@ -106,4 +106,4 @@ void prof_calibrate_ns(uint32_t rounds);
 }
 #endif
 
-#endif /* __PROF_IF_NS_H__ */
+#endif /* __PROF_INTF_NS_H__ */

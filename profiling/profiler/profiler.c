@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include "profiler.h"
 #include "prof_common.h"
-#include "prof_if_s.h"
+#include "prof_intf_s.h"
 #include "prof_hal.h"
 
 #define DIFF(a, b) (((a) > (b)) ? ((a) - (b)) : ((b) - (a)))
