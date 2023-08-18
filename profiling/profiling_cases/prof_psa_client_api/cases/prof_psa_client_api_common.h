@@ -16,6 +16,9 @@
 extern "C" {
 #endif
 
+/* Profiling calibration rounds. More rounds, more accurate. */
+#define PROF_CALIBRATION_ROUND      50
+
 #define TEST_LOOP_CNT               20
 
 #define PSA_API_TOPIC               0

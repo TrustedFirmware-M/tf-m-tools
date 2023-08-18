@@ -8,8 +8,8 @@
 ################################ Profiling configs #############################
 
 # Profiling PSA Client API specific variables
-set(PROF_PSA_CLIENT_API_SP_PATH "${TFM_PROF_PATH}/profiling_cases/prof_psa_client_api/partitions")
-set(PROF_PSA_CLIENT_API_CASE_PATH "${TFM_PROF_PATH}/profiling_cases/prof_psa_client_api/cases")
+set(PROF_PSA_CLIENT_API_SP_PATH "${TFM_PROFILING_PATH}/profiling_cases/prof_psa_client_api/partitions")
+set(PROF_PSA_CLIENT_API_CASE_PATH "${TFM_PROFILING_PATH}/profiling_cases/prof_psa_client_api/cases")
 
 ################################ TF-M configs ##################################
 

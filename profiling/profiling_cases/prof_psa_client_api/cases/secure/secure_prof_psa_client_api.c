@@ -19,6 +19,8 @@ void secure_prof_psa_client_api()
     psa_status_t status;
     uint16_t i = 0;
 
+    PROF_DO_CALIBRATE(PROF_CALIBRATION_ROUND);
+
     for (i = 0; i < TEST_LOOP_CNT; i++) {
         PROF_TIMING_LOG(CONNECT_CP_START, PSA_API_TOPIC);
         handle = psa_connect(PROFILING_SERVICE_SID, PROFILING_SERVICE_VERSION);

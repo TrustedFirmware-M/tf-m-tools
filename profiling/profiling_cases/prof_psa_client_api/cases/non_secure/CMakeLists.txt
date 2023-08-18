@@ -12,16 +12,16 @@ add_library(non_secure_prof_psa_client_api INTERFACE)
 target_sources(non_secure_prof_psa_client_api
     INTERFACE
         non_secure_prof_psa_client_api.c
-        ${TFM_PROF_PATH}/export/ns/prof_intf_ns.c
+        ${TFM_PROFILING_PATH}/export/ns/prof_intf_ns.c
 )
 
 target_include_directories(non_secure_prof_psa_client_api
     INTERFACE
         ${PROF_PSA_CLIENT_API_CASE_PATH}/non_secure
         ${PROF_PSA_CLIENT_API_CASE_PATH}/
-        ${TFM_PROF_PATH}/profiler
-        ${TFM_PROF_PATH}/export/ns
-        ${TFM_PROF_PATH}/export
+        ${TFM_PROFILING_PATH}/profiler
+        ${TFM_PROFILING_PATH}/export/ns
+        ${TFM_PROFILING_PATH}/export
 )
 
 target_link_libraries(non_secure_prof_psa_client_api
@@ -29,7 +29,9 @@ target_link_libraries(non_secure_prof_psa_client_api
         tfm_log
 )
 
-target_compile_definitions(non_secure_prof_psa_client_api
+###################### TF-M Non-secure Profiling ###############################
+
+target_link_libraries(tfm_ns_profiling
     INTERFACE
-        CONFIG_TFM_ENALBE_PROFILING
+        non_secure_prof_psa_client_api
 )

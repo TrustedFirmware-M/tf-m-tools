@@ -39,6 +39,11 @@ extern "C" {
 #define PROF_DO_CALIBRATE(rounds)     prof_calibrate(                   \
         PROF_CALI_IDX_S, rounds, 0)
 
+/*
+ * Init profiling on secure side.
+ */
+#define PROFILING_INIT()              prof_init()
+
 /* Get the calibration value from the tag. */
 #define PROF_GET_CALI_VALUE_FROM_TAG(tag) prof_get_cali_value(          \
                                           PROF_GET_CALI_IDX_FROM_TAG(tag))
