@@ -12,10 +12,10 @@ Instructions
 This tool should be used from the root of the TF-M repository. launching
 run_all_checks.sh will launch the different checkers used :
 
-- Cppcheck
-- Copyright header check
-- clang-format
-- Checkpatch
+- :doc:`Cppcheck <cppcheck>`
+- :doc:`Copyright header check <header_check>`
+- :doc:`clang-format <clang_format>`
+- :doc:`Checkpatch <checkpatch>`
 
 Both checkpatch and clang-format are use to check the coding style, but they
 both cover different cases so together they provide a better coverage.
@@ -34,15 +34,13 @@ Output reports if produced by each corresponding script, will be stored at
 .. toctree::
    :caption: Table of Contents
    :name: mastertoc
-   :maxdepth: 3
-   :hidden:
+   :maxdepth: 1
 
-   Home<self>
-   cppcheck/readme
-   clang_format/README
-   checkpatch/README
-   header_check/README
-   git_hooks/README
+   cppcheck
+   clang_format
+   checkpatch
+   header_check
+   git_hooks
 
 --------------
 

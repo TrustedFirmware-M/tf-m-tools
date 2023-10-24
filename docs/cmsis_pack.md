@@ -50,3 +50,7 @@ This repository contains tools and data to create TF-M [CMSIS-Packs](https://arm
      - generated pack is available in the `output` directory
      - note: this pack should not be published and used only for testing TF-M
 5. Run `./clean.sh` script to delete all intermediate and generated files
+
+--------------
+
+*Copyright (c) 2021, Arm Limited. All rights reserved.*
