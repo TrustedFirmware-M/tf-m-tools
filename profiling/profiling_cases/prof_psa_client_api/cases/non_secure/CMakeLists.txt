@@ -7,6 +7,8 @@
 
 cmake_policy(SET CMP0079 NEW)
 
+add_subdirectory(${TFM_PROFILING_PATH}/profiling_cases/prof_log ${CMAKE_CURRENT_BINARY_DIR}/prof_log)
+
 add_library(non_secure_prof_psa_client_api INTERFACE)
 
 target_sources(non_secure_prof_psa_client_api
@@ -26,7 +28,7 @@ target_include_directories(non_secure_prof_psa_client_api
 
 target_link_libraries(non_secure_prof_psa_client_api
     INTERFACE
-        tfm_log
+        prof_log
 )
 
 ###################### TF-M Non-secure Profiling ###############################

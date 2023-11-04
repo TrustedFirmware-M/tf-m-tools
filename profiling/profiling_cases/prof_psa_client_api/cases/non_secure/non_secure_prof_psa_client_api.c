@@ -6,7 +6,7 @@
  */
 
 #include "non_secure_prof_psa_client_api.h"
-#include "tfm_log.h"
+#include "prof_log.h"
 #include "prof_intf_ns.h"
 
 #define PROFILING_AVERAGE_DIFF(psa_api_name, cp_start, cp_end) \
@@ -27,7 +27,7 @@ void non_secure_prof_psa_client_api()
         PROF_TIMING_LOG(CONNECT_CP_END, PSA_API_TOPIC);
 
         if (!PSA_HANDLE_IS_VALID(handle)) {
-            LOG_MSG("PSA connect fail!");
+            LOG_ERRMSG("PSA connect fail!");
             return;
         }
 
@@ -36,7 +36,7 @@ void non_secure_prof_psa_client_api()
         PROF_TIMING_LOG(CALL_CP_END, PSA_API_TOPIC);
 
         if (status != PSA_SUCCESS) {
-            LOG_MSG("PSA call fail!");
+            LOG_ERRMSG("PSA call fail!");
             return;
         }
 
@@ -50,7 +50,7 @@ void non_secure_prof_psa_client_api()
         PROF_TIMING_LOG(STATELESS_CALL_CP_END, PSA_API_TOPIC);
 
         if (status != PSA_SUCCESS) {
-            LOG_MSG("PSA stateless call fail!");
+            LOG_ERRMSG("PSA stateless call fail!");
             return;
         }
     }
