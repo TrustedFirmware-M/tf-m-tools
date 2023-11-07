@@ -19,7 +19,7 @@ from subprocess import check_output
 
 # -- Project information -----------------------------------------------------
 
-project = 'Trusted Firmware-M Tests'
+project = 'Trusted Firmware-M Tools'
 copyright = '2023, ARM CE-OSS'
 author = 'ARM CE-OSS'
 title = 'User Guide'
@@ -50,7 +50,16 @@ extensions = [
     'sphinxcontrib.plantuml', #Add support for PlantUML drawings
     'sphinxcontrib.rsvgconverter', #Add support for SVG to PDF
     'sphinx_tabs.tabs', #Enable tab extension in Sphinx
+    'sphinx.ext.intersphinx', #Enable Intersphinx
 ]
+
+intersphinx_mapping = {
+    "TF-M-Tests": ("https://trustedfirmware-m.readthedocs.io/projects/tf-m-tests/en/latest/", None),
+    "TF-M": ("https://trustedfirmware-m.readthedocs.io/en/latest/", None),
+    "TF-M-Extras": ("https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/", None),
+}
+
+intersphinx_disabled_reftypes = ["*"]
 
 # Make auto section labels generated be prefixed with file name.
 autosectionlabel_prefix_document=True
