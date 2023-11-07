@@ -9,7 +9,9 @@ cmake_policy(SET CMP0079 NEW)
 
 ############################ Secure profiling case #############################
 
-add_subdirectory(${PROF_PSA_CLIENT_API_CASE_PATH}/secure ${CMAKE_CURRENT_BINARY_DIR}/prof_psa_client_api/cases/secure)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../cases/secure
+                 ${CMAKE_CURRENT_BINARY_DIR}/prof_psa_client_api/cases/secure
+)
 
 ############################ Secure profiling client partition #################
 

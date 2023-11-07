@@ -26,8 +26,25 @@ To enable the built-in profiling cases in TF-M, run:
 
 .. code-block:: console
 
-  cd <path_to_tfm>
-  cmake -S . -B build -DTFM_PLATFORM=arm/mps2/an521 -DCONFIG_TFM_ENABLE_PROFILING=ON -DCMAKE_BUILD_TYPE=Release
+  cd <path to tf-m-tools>/profiling/profiling_cases/tfm_profiling
+  mkdir build
+
+  # Build SPE
+  cmake -S <path to tf-m> -B build/spe -DTFM_PLATFORM=arm/mps2/an521 \
+        -DCONFIG_TFM_ENABLE_PROFILING=ON -DCMAKE_BUILD_TYPE=Release \
+        -DTFM_EXTRA_PARTITION_PATHS=${PWD}/../prof_psa_client_api/partitions/prof_server_partition;${PWD}/../prof_psa_client_api/partitions/prof_client_partition \
+        -DTFM_EXTRA_MANIFEST_LIST_FILES=${PWD}/../prof_psa_client_api/partitions/prof_psa_client_api_manifest_list.yaml \
+        -DTFM_PARTITION_LOG_LEVEL=TFM_PARTITION_LOG_LEVEL_INFO
+
+  # Another simple way to configure SPE:
+  cmake -S <path to tf-m> -B build/spe -DTFM_PLATFORM=arm/mps2/an521 \
+        -DTFM_EXTRA_CONFIG_PATH=${PWD}/../prof_psa_client_api/partitions/config_spe.cmake
+  cmake --build build/spe -- install -j
+
+  # Build NSPE
+  cmake -S . -B build/nspe -DCONFIG_SPE_PATH=build/spe/api_ns \
+        -DTFM_TOOLCHAIN_FILE=build/spe/api_ns/cmake/toolchain_ns_GNUARM.cmake
+  cmake --build build/nspe -- -j
 
 ******************************
 Profiler Integration Reference
@@ -209,7 +226,7 @@ The main structure is:
             └── prof_client_partition
 
 * The `cases` folder is the basic SPE and NSPE profiling log and analysis code.
-* SPE can use partition log APIs to print analysis, while NSPE can use NS's.
+* NSPE can use `prof_log` library to print the analysis result.
 * `prof_server_partition` is a dummy secure partition. It immediately returns
   once it receives a PSA client call from a client.
 * `prof_client_partition` is the SPE profiling entry to trigger the secure profiling.
@@ -232,7 +249,7 @@ integration requires these steps:
 4. Trigger profiling cases in SPE or NSPE.
 
    a. For SPE, a secure client partition can be created to trigger the secure profiling.
-   b. For NSPE, the profiling case entry can be added to the target under the `tfm_ns_profiling` folder.
+   b. For NSPE, the profiling case entry can be added to the 'tfm_ns' target under the `tfm_profiling` folder.
 
 .. Note::
 

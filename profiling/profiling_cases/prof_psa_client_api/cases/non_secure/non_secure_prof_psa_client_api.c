@@ -8,6 +8,7 @@
 #include "non_secure_prof_psa_client_api.h"
 #include "prof_log.h"
 #include "prof_intf_ns.h"
+#include "tfm_ns_interface.h"
 
 #define PROFILING_AVERAGE_DIFF(psa_api_name, cp_start, cp_end) \
         LOG_MSG("non-secure %s average is %d CPU cycles\r\n", psa_api_name, \

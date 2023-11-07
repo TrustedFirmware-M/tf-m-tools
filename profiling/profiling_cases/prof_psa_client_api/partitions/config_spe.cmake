@@ -5,13 +5,8 @@
 #
 #-------------------------------------------------------------------------------
 
-################################ Profiling configs #############################
-
-# Profiling PSA Client API specific variables
-set(PROF_PSA_CLIENT_API_SP_PATH "${TFM_PROFILING_PATH}/profiling_cases/prof_psa_client_api/partitions")
-set(PROF_PSA_CLIENT_API_CASE_PATH "${TFM_PROFILING_PATH}/profiling_cases/prof_psa_client_api/cases")
-
-################################ TF-M configs ##################################
+set(CONFIG_TFM_ENABLE_PROFILING ON CACHE BOOL "Enable profiling for TF-M")
+set(CMAKE_BUILD_TYPE Release)
 
 # Secure profiling case runs in secure profiling client partition. The Profiling
 # Log api is implemented by secure patition log interfaces in library tfm_sprt.
@@ -21,10 +16,10 @@ set(TFM_PARTITION_LOG_LEVEL TFM_PARTITION_LOG_LEVEL_INFO CACHE STRING "Set defau
 
 # Out-of-tree partition configurations
 list(APPEND TFM_EXTRA_PARTITION_PATHS
-    ${PROF_PSA_CLIENT_API_SP_PATH}/prof_server_partition
-    ${PROF_PSA_CLIENT_API_SP_PATH}/prof_client_partition
+    ${CMAKE_CURRENT_LIST_DIR}/prof_server_partition
+    ${CMAKE_CURRENT_LIST_DIR}/prof_client_partition
 )
 
 list(APPEND TFM_EXTRA_MANIFEST_LIST_FILES
-    ${PROF_PSA_CLIENT_API_SP_PATH}/prof_psa_client_api_manifest_list.yaml
+    ${CMAKE_CURRENT_LIST_DIR}/prof_psa_client_api_manifest_list.yaml
 )

@@ -8,7 +8,6 @@
 #ifndef __PROF_PSA_CLIENT_API_COMMON_H__
 #define __PROF_PSA_CLIENT_API_COMMON_H__
 
-#include "tfm_psa_call_pack.h"
 #include "psa/client.h"
 #include "psa_manifest/sid.h"
 
