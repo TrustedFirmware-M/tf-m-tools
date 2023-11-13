@@ -44,7 +44,8 @@ Custom directory paths
 By default the reference code assumes the standard directory structure for
 TF-M and dependencies.
 
-.. code-block:: bash
+.. code-block:: console
+
     └── dev-dir
         ├── tf-m
         ├── tf-m-tools

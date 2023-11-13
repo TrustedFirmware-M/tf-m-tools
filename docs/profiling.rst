@@ -100,6 +100,7 @@ consistent between the secure and non-secure sides.
 Users can call macro ``PROF_TIMING_LOG()`` logs the counter value.
 
 .. code-block:: c
+
   PROF_TIMING_LOG(topic_id, cp_id);
 
 +------------+--------------------------------------------------------------+
@@ -256,9 +257,7 @@ integration requires these steps:
    If the profiling case requires extra out-of-tree secure partition build, the
    paths of extra partitions and manifest list file shall be appended in
    ``TFM_EXTRA_PARTITION_PATHS`` and ``TFM_EXTRA_MANIFEST_LIST_FILES``. Refer to
-   `Adding Secure Partition`_.
-
-.. _Adding Secure Partition: https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git/tree/docs/integration_guide/services/tfm_secure_partition_addition.rst
+   :doc:`Adding Secure Partition<TF-M:integration_guide/services/tfm_secure_partition_addition>`.
 
 --------------
 

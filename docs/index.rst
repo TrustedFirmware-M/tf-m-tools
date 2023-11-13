@@ -2,8 +2,6 @@
 Trusted Firmware-M Tools
 ################################
 
-.. raw:: html
-
 .. toctree::
   :caption: Overview
   :titlesonly:

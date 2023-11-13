@@ -12,6 +12,7 @@ TF-Fuzz root directory.
 
 TF-Fuzz is a TF-M fuzzing tool, at the PSA-call level.  At the time of writing
 this at least, presentations available at:
+
     https://www.trustedfirmware.org/docs/TF-M_Fuzzing_Tool_TFOrg.pdf
     https://zoom.us/rec/share/1dxZcZit111IadadyFqFU7IoP5X5aaa8gXUdr_UInxmMbyLzEqEmXQdx79-IWQ9p
 (These presentation materials may not be viewable by all parties.)
@@ -19,11 +20,12 @@ this at least, presentations available at:
 --------------------------------------------------------------------------------
 
 To build TF-Fuzz, simply type "make" in this directory.  Executable, called
-"tfz," is placed in this directory.
+"tfz", is placed in this directory.
 
 To run tfz, two environment variables must first be assigned.  In bash syntax:
-export TF_FUZZ_LIB_DIR=<path to this TF-M installation>/tf-m-tools/tf_fuzz/lib
-export TF_FUZZ_BPLATE=tfm_boilerplate.txt
+
+    export TF_FUZZ_LIB_DIR=<path to this TF-M installation>/tf-m-tools/tf_fuzz/lib
+    export TF_FUZZ_BPLATE=tfm_boilerplate.txt
 
 Examples of usage can be found in the demo directory.
 
