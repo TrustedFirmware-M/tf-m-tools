@@ -46,6 +46,12 @@ To enable the built-in profiling cases in TF-M, run:
         -DTFM_TOOLCHAIN_FILE=build/spe/api_ns/cmake/toolchain_ns_GNUARM.cmake
   cmake --build build/nspe -- -j
 
+.. Note::
+
+    TF-M profiling implementation relies on the physical CPU cycles provided by hardware
+    timer (refer to `Implement the HAL`_). It may not be supported on virtual platforms
+    or emulators.
+
 ******************************
 Profiler Integration Reference
 ******************************
