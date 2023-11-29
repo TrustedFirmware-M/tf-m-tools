@@ -36,9 +36,9 @@ In power shell, use pip to install packages.
 
     pip install mysqlclient XlsxWriter windows-curses
 
-**********************
-Code size analyze tool
-**********************
+*****
+Usage
+*****
 
 The commands of code size analyze tool usage are:
 

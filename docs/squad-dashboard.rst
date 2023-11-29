@@ -47,9 +47,7 @@ used. The configurations available currently are the following :
    - MinSizeProfileS (DefaultProfileS with MinsizeRel Cmake type)
 
 For all of the configurations, tests are disabled and the release build type is
-used. For more details about the configurations and how the rest of the options
-are set for each of them, see
-:ref:`Migration from legacy buildsystem`.
+used.
 More configurations and metrics could be added to the dashboard in the future.
 
 For each metric sent to the SQUAD dashboard, the metric must be linked with the

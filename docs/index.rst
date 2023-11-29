@@ -2,11 +2,9 @@
 Trusted Firmware-M Tools
 ################################
 
-.. raw:: html
-
 .. toctree::
   :caption: Overview
-  :maxdepth: 1
+  :titlesonly:
 
   CMSIS TF-M Packs <cmsis_pack>
   Code Size Analyze Tool <code-size-analyze-tool>
@@ -26,6 +24,8 @@ Trusted Firmware-M Tools
   :hidden:
 
   Trusted Firmware-M <https://trustedfirmware-m.readthedocs.io/en/latest/>
+  TF-M Tests <https://trustedfirmware-m.readthedocs.io/projects/tf-m-tests/en/latest/>
+  TF-M Extras <https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/>
 
 --------------
 

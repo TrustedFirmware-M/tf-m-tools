@@ -275,9 +275,10 @@ How to run the example
 Before running the example, the breakpoints.json needs to be generated from the
 TF-M source tree:
 
-.. code:: shell
-    $ cd tools/irq_test/
-    $ python3 tools/generate_breakpoints.py ../.. example/breakpoints.json
+.. code-block:: console
+
+  $ cd tools/irq_test/
+  $ python3 tools/generate_breakpoints.py ../.. example/breakpoints.json
 
 The example also require the regression test suite being present in the TF-M
 binary, so either ``ConfigRegressionIPC.cmake`` or ``ConfigRegression.cmake``
