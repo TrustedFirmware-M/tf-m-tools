@@ -42,7 +42,7 @@ To enable the built-in profiling cases in TF-M, run:
   cmake --build build/spe -- install -j
 
   # Build NSPE
-  cmake -S . -B build/nspe -DCONFIG_SPE_PATH=build/spe/api_ns \
+  cmake -S . -B build/nspe -DCONFIG_SPE_PATH=${PWD}/build/spe/api_ns \
         -DTFM_TOOLCHAIN_FILE=build/spe/api_ns/cmake/toolchain_ns_GNUARM.cmake
   cmake --build build/nspe -- -j
 
