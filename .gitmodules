@@ -1,0 +1,3 @@
+[submodule "code_coverage/qa-tools"]
+	path = code_coverage/qa-tools
+	url = https://git.gitlab.arm.com/tooling/qa-tools.git
