@@ -10,7 +10,7 @@
 /* Initialize the timer/cycle counter hardware for profiling */
 void prof_hal_init(void)
 {
-    CoreDebug->DEMCR = CoreDebug_DEMCR_TRCENA_Msk; /* Enable DWT. */
+    DCB->DEMCR       = DCB_DEMCR_TRCENA_Msk; /* Enable DWT. */
     DWT->CTRL        = DWT_CTRL_CYCCNTENA_Msk;     /* Enable CYCCNT. */
     DWT->CYCCNT      = 0x0;                        /* Reset the processor cycle counter. */
 }
