@@ -1,0 +1,187 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2024, Linaro Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+# The EAT profile to which the CCA platform token conforms.
+cca_attestation_profile: http://arm.com/CCA-SSD/1.0.0
+
+# Hash of the public key used to sign the Realm token.  Its length depends on
+# the public key hash algorithm identifier claim in the Realm token.
+cca_platform_challenge: !!binary tZc8touqn8VVWHhrfsZ/aeQN9bpaqSHNDCf0BYegEeo=
+
+# Unique identifier of the implementation of the CCA platform.
+# The semantics of the CCA platform Implementation ID value are defined by the
+# manufacturer or a particular certification scheme. For example, the ID could
+# take the form of a product serial number, database ID, or other appropriate
+# identifier.
+# Equivalent to a class identifier.
+cca_platform_implementation_id: !!binary f0VMRgIBAQAAAAAAAAAAAAMAPgABAAAAUFgAAAAAAAA=
+
+# Unique identifier of the Initial Attestation Key (IAK) for the CCA platform
+# encoded as a EAT Unique Entity IDentifier (UEID), see Section 4.2.1 of
+# https://datatracker.ietf.org/doc/draft-ietf-rats-eat/
+# The UEID MUST be of type RAND (type byte: 0x01), which makes the fingerprint of
+# the IAK a natural choice for this.
+cca_platform_instance_id: !!binary AQcGBQQDAgEADw4NDAsKCQgXFhUUExIREB8eHRwbGhkY
+
+# The CCA platform config claim describes the set of chosen implementation
+# options of the CCA platform.  As an example, these may include a description
+# of the level of physical memory protection which is provided.  The CCA
+# platform config claim is expected to contain the System Properties field
+# which is present in the Root Non-volatile Storage (RNVS) public parameters.
+cca_platform_config: !!binary z8/Pzw==
+
+# The CCA platform lifecycle claim identifies the lifecycle state of the CCA
+# platform.
+# Normally, a CCA platform will be in psa-lifecycle-secured state.
+# Other security states are not compatible with an attestable plaform.
+cca_platform_lifecycle: secured_0x3003
+
+cca_platform_hash_algo_id: sha-256
+
+# The CCA platform verification service claim is a hint which can be used by a
+# relying party to locate a verifier for the token.
+cca_platform_verification_service: https://veraison.example/.well-known/veraison/verification
+
+# The following SW components arrangement assumes the Arm reference design where
+# the Runtime Security Engine (RSE) is an independent core next to the
+# Application Processor (AP) and the System Control Processor (SCP) on the same
+# die. The RSE provides fundamental security guarantees and runtime services for
+# the rest of the system: trusted boot, measured boot, platform attestation, key
+# management and key derivation.
+#
+# It also assumes RSE BL1 is split into two distinct boot stages, BL1_1 which is
+# stored in ROM (and is not measured) and BL1_2 which is stored in other
+# non-volatile storage.  At power up RSE boots first from its private ROM code.
+# It validates and loads its own images and the initial images of SCP and AP.
+#
+# A further assumption, reflected in the signer_id partitioning, is that the
+# Chain of Trust (CoT) is the one recommended by the Arm CCA security model,
+# which requires independent supply chains for the Arm CCA firmware, the secure
+# world firmware and the platform owner firmware. Hence, this CoT has 3
+# signer_id's, one for each supply chain:
+# * Arm CCA firmware (i.e., Monitor, RMM and HES)
+#   -> U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+# * Platform owner firmware (SCP, etc.)
+#   -> 8UtJh5BLy1gU5EWaBX7U0g9YpjMVIoinYSFNzSh4C1Y=
+# * A signer for the secure world firmware is omitted since SW is not part of
+#   the CCA TCB.
+cca_platform_sw_components:
+  #
+  # Platform measurements
+  #
+  # 1. Runtime Security Engine (RSE) components
+  - sw_component_type: RSE_BL1_2
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary micfKpFrC27mzsskJvCzIG7wdFeL5V2byU9vP+Orhqo=
+    cca_sw_component_hash_id: sha-256
+
+  - sw_component_type: RSE_BL2
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary U8I05ehHK2rFHBrhyrP+BvrQU7646/2Jd7AQZVv908M=
+    cca_sw_component_hash_id: sha-256
+
+  # RSE secure runtime
+  - sw_component_type: RSE_S
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary ESHPzNWRPwpj/sQKb/1E6mT53BNcZmNLoAHRC89DAqI=
+    cca_sw_component_hash_id: sha-256
+
+  #
+  # Firmware measurements
+  #
+  # 0. AP Initial Boot
+  #
+  # This is the first code to execute on the AP. In the CCA context, when RSE
+  # is the root of trust, it can be updated. Its primary purpose is to perform
+  # the minimum initialization necessary to load and authenticate an updateable
+  # AP firmware image into an executable RAM location, then hand-off control to
+  # that image.
+  - sw_component_type: AP_BL1
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary FXG17Hi9aFEr94MLtqKkSyBHx99XvOeeuKHA5b6gpQE=
+    cca_sw_component_hash_id: sha-256
+
+  # 1. AP RAM Firmware
+  #
+  # This is the 2nd stage AP firmware. It is currently also known as the
+  # "Trusted Boot Firmware". Its primary purpose is to perform any additional
+  # initialization required to load and authenticate all 3rd level firmware
+  # images into their executable RAM locations, then hand-off control to the
+  # EL3 Runtime Firmware.
+  - sw_component_type: AP_BL2
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary EBWbryYrQ6ktldtZ2uH3LGRRJzAWYeCjzk44spWpfFg=
+    cca_sw_component_hash_id: sha-256
+
+  # 2. SCP Initial Boot
+  #
+  # This is the first code to execute on the SCP. Its primary purpose is to
+  # perform the minimum initialization necessary to load and authenticate an
+  # updateable SCP firmware image into an executable RAM location, then hand-off
+  # control to that image.
+  - sw_component_type: SCP_BL1
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary EBIuhWs/zUnwY2NjF0dhSctzChqhz6rYGFUrcvVtb2g=
+    cca_sw_component_hash_id: sha-256
+
+  # 2. SCP RAM Firmware
+  #
+  # This is the 2nd stage SCP firmware. It is currently also known as the
+  # "SCP runtime firmware" but it could potentially be an intermediate
+  # firmware if the SCP needs to load/authenticate multiple 3rd level images
+  # in future.
+  - sw_component_type: SCP_BL2
+    signer_id: !!binary 8UtJh5BLy1gU5EWaBX7U0g9YpjMVIoinYSFNzSh4C1Y=
+    measurement_value: !!binary qmehabC7oheqCqiKZTRpIMhMQkR8NrpffqZfQiwf5dg=
+    cca_sw_component_hash_id: sha-256
+
+  # 3. EL3 Runtime Firmware
+  #
+  # Also known as "SoC AP firmware" or "EL3 monitor firmware". Its primary
+  # purpose is to handle transitions between worlds (normal, secure and realm)
+  - sw_component_type: AP_BL31
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary Lm0xpZg6kSUb+uWu+hwKGdi6PPYB0OinBrTPqWYaa4o=
+    cca_sw_component_hash_id: sha-256
+
+  #
+  # Realm Monitor Management Firmware measurement
+  #
+  # This is required if Realm Management Extension (RME) feature is enabled.
+  - sw_component_type: RMM
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary oftQ5shvrhZ57zNRKW/WcTQRoIz43ReQpP0F+uhogWQ=
+    cca_sw_component_hash_id: sha-256
+
+  #
+  # Configuration payloads
+  #
+  # BL2 configuration
+  #
+  # Properties related to hardware configuration of the SoC such as topology,
+  # GIC controller, PSCI hooks, CPU ID, etc.
+  - sw_component_type: HW_CONFIG
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary GiUkApcvYFf6U8wXK1K5/8ppjhgxH6zQ87Buyq73nhc=
+    cca_sw_component_hash_id: sha-256
+  # Properties related to base address, maximum size and image id of other
+  # DTBs etc.
+  - sw_component_type: FW_CONFIG
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary mpKtvAzuOO9ljHHOGxv4xlZo8Wa/shNkTIlcyxrQeiU=
+    cca_sw_component_hash_id: sha-256
+  # Properties related to trusted firmware such as IO policies, mbedtls heap
+  # info etc.
+  - sw_component_type: TB_FW_CONFIG
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary I4kDGAzBBOwsXYs/IMW8YbOJ7AqWffjMIIzcfNRUF08=
+    cca_sw_component_hash_id: sha-256
+  # BL31 configuration (SoC firmware)
+  - sw_component_type: SOC_FW_CONFIG
+    signer_id: !!binary U3h5YwdTXfPsjYsVouLcVkFBnD0wYM/jIjjA+pc/eqM=
+    measurement_value: !!binary 5sIejSYP5xiC3r2zOdJAKiynZIUpvCMD9IZJvOA4ABc=
+    cca_sw_component_hash_id: sha-256

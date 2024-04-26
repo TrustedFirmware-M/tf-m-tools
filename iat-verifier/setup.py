@@ -25,5 +25,6 @@ setup(
         'ecdsa',
         'pycose==0.1.2',
         'pyyaml',
+        'pyyaml-include',
     ],
 )

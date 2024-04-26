@@ -1,5 +1,6 @@
 # -----------------------------------------------------------------------------
 # Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2024, Linaro Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,6 +14,7 @@ import logging
 
 import base64
 import yaml
+import yaml_include
 from ecdsa import SigningKey, VerifyingKey
 from iatverifier.attest_token_verifier import AttestationTokenVerifier
 from cbor2 import CBOREncoder
@@ -42,11 +44,13 @@ def read_token_map(file):
     """
     Read a yaml file and return a map
     """
+    yaml.add_constructor("!inc", yaml_include.Constructor(base_dir='.'), Loader=yaml.SafeLoader)
+
     if hasattr(file, 'read'):
-        raw = yaml.safe_load(file)
+        raw = yaml.load(file, Loader=yaml.SafeLoader)
     else:
         with open(file, encoding="utf8") as file_obj:
-            raw = yaml.safe_load(file_obj)
+            raw = yaml.load(file_obj, Loader=yaml.SafeLoader)
 
     return raw
 

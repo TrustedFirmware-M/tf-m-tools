@@ -1,0 +1,48 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2024, Linaro Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+cca_platform_token: !inc cca_example_platform_token.yaml
+
+cca_realm_delegated_token:
+    # The Realm challenge claim is used to carry the challenge provided by the
+    # caller to demonstrate freshness of the generated token. The length of the
+    # Realm challenge is 64 bytes.
+    cca_realm_challenge: !!binary |
+      bobW2XzHE7xt1D285JGmtAMRwCeov4WjnaY+nORMEyqKEZ0pb65qaZnpvz5EcbDOASRdiJQkwx6JeTs7HWsVBA==
+    # The Realm hash algorithm ID claim identifies the algorithm used to
+    # calculate all hash values which are present in the Realm token.
+    # See also https://www.iana.org/assignments/named-information/named-information.xhtml
+    cca_realm_hash_algm_id: sha-256
+    # The Realm public key hash algorithm identifier claim identifies the
+    # algorithm used to calculate the hash of the public portion of the Realm
+    # Attestation Key (RAK).
+    cca_realm_pub_key_hash_algo_id: sha-256
+    # The Realm Personalization Value claim contains a 64 bytes value which was
+    # provided at Realm creation.
+    cca_realm_personalization_value: !!binary |
+      VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIDEzIGxhenkgZG9ncy5UaGUgcXVpY2sgYnJvd24gZm94IA==
+    # The Realm public key claim carries the public portion of the RAK which is
+    # used to sign the Realm token. The RAK value is encoded according to SEC
+    # 1: Elliptic Curve Cryptography, version 2.0.
+    cca_realm_pub_key: !!binary |
+      BHb5iAkb5YXtQYAa7Pq4WFSMYwV+FrDmdhILvQ0vnCngVsXUGgEw65whUXiZ3CMUayjhsGK9PqSzFf0hnxy7Uoy250ykm+Fnc3NPYaHKYQMbK789kY8vlP/EIo5QkZVErg==
+    # The Realm Initial Measurement claim contains the value of the RIM (see
+    # Section A7.1.1 of DEN0137 for the details).
+    cca_realm_initial_measurement: !!binary |
+      MRMUq3NiA1DPdYg0rlxl2ejC3H/r5ufZZUu+hk4wDUk=
+    # The Realm Extensible Measurements claim contains the values of the Realm
+    # Extensible Measurements (see Section A7.1.2 of DEN0137 for the details).
+    cca_realm_extensible_measurements:
+        - !!binary |
+          JNWwopbMBcvYBoxQZ8W9Rzt3Ddpq4IL+O6MKvj+aarE=
+        - !!binary |
+          eI/AkL/GuO2QMVK6hBTnPa9bjHux55rVAqsGmbZZ7RY=
+        - !!binary |
+          2sRqWEFdw6ANenQYUgCOnK5k9S0DufdtdvSzZE/vxBY=
+        - !!binary |
+          MsavxiflVYXAMVU1nzMaDiJfaEDblH3Zbvq4G+JnGTk=
