@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -252,7 +252,7 @@ class TestIatVerifier(unittest.TestCase):
             cose_alg=cose_alg,
             signing_key=signing_key,
             configuration=self.config)).get_token_map()
-        self.assertEqual(iat['SECURITY_LIFECYCLE'], 'SL_SECURED')
+        self.assertEqual(iat['SECURITY_LIFECYCLE'], 'sl_secured_3000')
 
     def test_security_lifecycle_decoding(self):
         """Test security lifecycle decoding"""
@@ -266,4 +266,4 @@ class TestIatVerifier(unittest.TestCase):
             cose_alg=cose_alg,
             signing_key=signing_key,
             configuration=self.config)).get_token_map()
-        self.assertEqual(iat['SECURITY_LIFECYCLE'], 'SL_SECURED')
+        self.assertEqual(iat['SECURITY_LIFECYCLE'], 'sl_secured_3000')

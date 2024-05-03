@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,6 +9,7 @@ import string
 
 from iatverifier.attest_token_verifier import AttestationClaim
 from iatverifier.attest_token_verifier import CompositeAttestClaim
+from iatverifier.lifecycle_claim import GenericLifecycleClaim
 
 # IAT custom claims
 ARM_RANGE = 2393
@@ -121,45 +122,23 @@ class ClientIdClaim(AttestationClaim):
     def verify(self, token_item):
         self._check_type('CLIENT_ID', token_item.value, int)
 
-class SecurityLifecycleClaim(AttestationClaim):
+class SecurityLifecycleClaim(GenericLifecycleClaim):
     """Class representing a PSA Attestation Token Security Lifecycle claim"""
-    SL_SHIFT = 12
-
-    SL_NAMES = [
-        'SL_UNKNOWN',
-        'SL_PSA_ROT_PROVISIONING',
-        'SL_SECURED',
-        'SL_NON_PSA_ROT_DEBUG',
-        'SL_RECOVERABLE_PSA_ROT_DEBUG',
-        'SL_PSA_LIFECYCLE_DECOMMISSIONED',
+    SL_VALUES= [
+        ("SL_UNKNOWN", 0x0000, 0x00ff),
+        ("SL_ASSEMBLY_AND_TEST", 0x1000, 0x10ff),
+        ("SL_PSA_ROT_PROVISIONING", 0x2000, 0x20ff),
+        ("SL_SECURED", 0x3000, 0x30ff),
+        ("SL_NON_PSA_ROT_DEBUG", 0x4000, 0x40ff),
+        ("SL_RECOVERABLE_PSA_ROT_DEBUG", 0x5000, 0x50ff),
+        ("SL_DECOMMISSIONED", 0x6000, 0x60ff),
     ]
-
-    # Security Lifecycle claims
-    SL_UNKNOWN = 0x1000
-    SL_PSA_ROT_PROVISIONING = 0x2000
-    SL_SECURED = 0x3000
-    SL_NON_PSA_ROT_DEBUG = 0x4000
-    SL_RECOVERABLE_PSA_ROT_DEBUG = 0x5000
-    SL_PSA_LIFECYCLE_DECOMMISSIONED = 0x6000
 
     def get_claim_key(self=None):
         return ARM_RANGE + 2
 
     def get_claim_name(self=None):
         return 'SECURITY_LIFECYCLE'
-
-    def verify(self, token_item):
-        self._check_type('SECURITY_LIFECYCLE', token_item.value, int)
-
-    @staticmethod
-    def parse_raw(raw_value):
-        name_idx = SecurityLifecycleClaim.SL_NAMES.index(raw_value.upper())
-        return (name_idx + 1) << SecurityLifecycleClaim.SL_SHIFT
-
-    @staticmethod
-    def get_formatted_value(value):
-        return SecurityLifecycleClaim.SL_NAMES[(value >> SecurityLifecycleClaim.SL_SHIFT) - 1]
-
 
 class ProfileIdClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Profile Definition claim"""

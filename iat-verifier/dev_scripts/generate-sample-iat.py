@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -----------------------------------------------------------------------------
-# Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -45,7 +45,7 @@ token_map = {
   ImplementationIdClaim.get_claim_key(): ORIGIN,
   ChallengeClaim.get_claim_key(): NONCE,
   ClientIdClaim.get_claim_key(): 2,
-  SecurityLifecycleClaim.get_claim_key(): SecurityLifecycleClaim.SL_SECURED,
+  SecurityLifecycleClaim.get_claim_key(): 0x1000,
   ProfileIdClaim.get_claim_key(): 'http://example.com',
   BootSeedClaim.get_claim_key(): BOOT_SEED,
   SWComponentsClaim.get_claim_key(): [
