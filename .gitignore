@@ -17,3 +17,7 @@
 
 # Visual Studio Code
 .vscode/
+
+# build files
+build*/
+

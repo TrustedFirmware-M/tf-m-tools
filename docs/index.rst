@@ -1,6 +1,6 @@
-################################
+########################
 Trusted Firmware-M Tools
-################################
+########################
 
 .. toctree::
   :caption: Overview
@@ -19,6 +19,12 @@ Trusted Firmware-M Tools
   TF-M Manual Build <tf-m-manual-build>
 
 .. toctree::
+  :caption: Development
+  :titlesonly:
+
+  Building the Documentation <doc_build>
+
+.. toctree::
   :caption: Links
   :maxdepth: 1
   :hidden:
@@ -29,4 +35,4 @@ Trusted Firmware-M Tools
 
 --------------
 
-*Copyright (c) 2017-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2017-2024, Arm Limited. All rights reserved.*
