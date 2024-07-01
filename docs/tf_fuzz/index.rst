@@ -14,18 +14,71 @@ this at least, presentations available at:
 
 (These presentation materials may not all be viewable by all parties.)
 
+****************
+Building TF-Fuzz
+****************
+
+.. Note:: 
+
+    These instructions assume the use of Ubuntu Linux.
+
+
+The following dependencies are required to build TF-Fuzz:
+
+
+.. code-block:: bash
+
+   sudo apt-get update
+   sudo apt-get install build-essential bison flex
+
+
 To build TF-Fuzz, simply type ``make`` in this directory.  The executable,
 called ``tfz``, is placed in this directory.
 
-To run ``tfz``, two environment variables must first be assigned.  In bash
-syntax:
+***************
+Running TF-Fuzz
+***************
+
+To run ``tfz``, two environment variables must first be assigned:
 
 .. code-block:: bash
 
     export TF_FUZZ_LIB_DIR=<path to this TF-M installation>/tools/tf_fuzz/lib
     export TF_FUZZ_BPLATE=tfm_boilerplate.txt
 
-Examples of usage can be found in the ``demo`` directory.
+
+Examples of usage can be found in the ``demo`` directory. For more details, see :doc:`source_structure/demo_dir`.
+
+=======================
+Generating a test suite
+=======================
+
+To generate a testsuite for TF-M from a set of template files, use
+`generate_test_suite.sh`.
+
+.. code-block:: bash
+
+    Usage: generate_test_suite.sh <template_dir> <suites_dir>
+
+    Where:
+        template_dir: The directory containing template files for the
+                    fuzzing tool
+        suites_dir: The suites directory in the TF-M working copy.
+                    i.e.: $TF-M_ROOT/test/suites
+    Example:
+        cd tf-m-tools/tf_fuzz
+        ./generate_test_suite.sh <path_to>/tf_fuzz/tests/  <path_to>/tf-m-tests/test_reg/test/secure_fw/suites
+
+
+After the test suite is generated, the new test suite needs to be added to the
+TF-M build by providing the following options to the CMake generate command
+(The path needs to be aligned with the test suite dir provided for the shell
+script above):
+
+.. code-block:: bash
+
+    -DTFM_FUZZER_TOOL_TESTS=1
+    -DTFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH=<path_to>/tf-m-tests/test_reg/test/secure_fw/suites/tf_fuzz
 
 **********************************
 ``.../tf_fuzz`` directory contents
@@ -110,6 +163,9 @@ execution, and of most-to-least importance):
     set_data_info                        ./utility/data_blocks.hpp
     asset_name_id_info                   ./utility/data_blocks.hpp
 
+.. seealso::
+   Folder by folder descriptions of the code base can be found in :doc:`source_structure/index`.
+
 TF-Fuzz now has better-organized management of variables in the generated code.
 In particular, it maintains a list of variables named in the test template, and
 implicit in the code, notably variables assets are ``read`` into.  It also now has
@@ -119,6 +175,12 @@ simulation is only in enough detail to predict expected results.  Since TF-Fuzz
 currectly mostly addresses only SST calls, that simulation is very simple in
 nature -- just tracking data movement.
 
+.. toctree::
+    :caption: Table of Contents
+    :maxdepth: 1
+
+    Source Structure <source_structure/index>
+
 --------------
 
-*Copyright (c) 2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2024, Arm Limited. All rights reserved.*

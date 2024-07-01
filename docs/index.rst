@@ -4,6 +4,7 @@ Trusted Firmware-M Tools
 
 .. toctree::
   :caption: Overview
+  :maxdepth: 2
   :titlesonly:
 
   CMSIS TF-M Packs <cmsis_pack>
@@ -15,7 +16,7 @@ Trusted Firmware-M Tools
   Profiling <profiling>
   SQUAD Metrics Dashboard <squad-dashboard>
   Static Checking Framework <static_checks/index>
-  TF-Fuzz <tf_fuzz>
+  TF-Fuzz <tf_fuzz/index>
   TF-M Manual Build <tf-m-manual-build>
 
 .. toctree::
