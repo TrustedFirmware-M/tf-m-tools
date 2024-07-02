@@ -1,6 +1,6 @@
-#######################
-'tests'-directory guide
-#######################
+###############################
+'tfz-cpp/tests'-directory guide
+###############################
 
 ************
 Introduction
@@ -9,9 +9,9 @@ Introduction
 These are just more examples of test-template-file content.  They're not really
 organized *tests* as such.
 
-**********************************************
-``.../tools/tf_fuzz/tests`` directory contents
-**********************************************
+********************************************
+``tf_fuzz/tfz-cpp/tests`` directory contents
+********************************************
 .. code-block:: bash
 
     example_template  sstReads  sstSets

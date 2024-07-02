@@ -1,6 +1,6 @@
-########################
-'assets'-directory guide
-########################
+################################
+'tfz-cpp/assets'-directory guide
+################################
 
 ************
 Introduction
@@ -11,9 +11,9 @@ track PSA assets, while generating a directed-random test.  Notably this is
 during the Simulate phase, after Parse phase, which parses the test-template
 file, and prior to writing out the generated C code.
 
-***********************************************
-``.../tools/tf_fuzz/assets`` directory contents
-***********************************************
+*********************************************
+``tf_fuzz/tfz-cpp/assets`` directory contents
+*********************************************
 .. code-block:: bash
 
     crypto_asset.cpp  psa_asset.cpp  sst_asset.cpp

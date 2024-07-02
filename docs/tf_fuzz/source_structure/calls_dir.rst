@@ -1,6 +1,6 @@
-#######################
-'calls'-directory guide
-#######################
+###############################
+'tfz-cpp/calls'-directory guide
+###############################
 
 ************
 Introduction
@@ -16,9 +16,9 @@ objects of derived classes, each derived class defining a particular call type.
 Each ``psa_call``-subclass object encapsulates the initial and expected data,
 expected pass/fail results, and other information about the call.
 
-**********************************************
-``.../tools/tf_fuzz/calls`` directory contents
-**********************************************
+********************************************
+``tf_fuzz/tfz-cpp/calls`` directory contents
+********************************************
 .. code-block:: bash
 
     crypto_call.cpp  psa_call.cpp  security_call.cpp  sst_call.cpp

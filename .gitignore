@@ -8,6 +8,8 @@
 **/__pycache__
 *.uvguix.*
 *.uvmpw.uvgui.*
+.venv/
+*.egg-info/
 
 # Eclipse
 *.project
@@ -20,6 +22,7 @@
 
 # build files
 build*/
+bin/
 *.o
 
 # bison and flex generated files
@@ -27,7 +30,7 @@ build*/
 *.tab.*
 *.output
 
-# binarys
+# binaries
 tfz
 
 # clangd

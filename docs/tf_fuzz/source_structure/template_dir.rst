@@ -1,6 +1,6 @@
-##########################
-'template'-directory guide
-##########################
+##################################
+'tfz-cpp/template'-directory guide
+##################################
 
 ************
 Introduction
@@ -9,9 +9,9 @@ Introduction
 These classes describe "tracker" objects for parsing test templates, and for
 generating PSA calls from them.
 
-*************************************************
-``.../tools/tf_fuzz/template`` directory contents
-*************************************************
+***********************************************
+``tf_fuzz/tfz-cpp/template`` directory contents
+***********************************************
 .. code-block:: bash
 
     crypto_template_line.cpp  secure_template_line.hpp  template_line.cpp

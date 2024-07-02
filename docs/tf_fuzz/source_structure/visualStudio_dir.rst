@@ -1,6 +1,6 @@
-##############################
-'visualStudio'-directory guide
-##############################
+######################################
+'tfz-cpp/visualStudio'-directory guide
+######################################
 
 ************
 Introduction
@@ -14,9 +14,9 @@ functions may be added later as needed.  At some time in the future, an
 up-coming "interactive mode" for interactively creating test templates may
 need an actual working ``isatty()``, but that's not ready yet.
 
-*************************************************
-.../tools/tf_fuzz/visualStudio directory contents
-*************************************************
+***********************************************
+tf_fuzz/tfz-cpp/visualStudio directory contents
+***********************************************
 .. code-block:: bash
 
     unistd.c  unistd.h

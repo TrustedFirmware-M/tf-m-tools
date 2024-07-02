@@ -1,6 +1,6 @@
-############################
-'regression'-directory guide
-############################
+####################################
+'tfz-cpp/regression'-directory guide
+####################################
 
 ************
 Introduction
@@ -13,9 +13,9 @@ implementation, but is not yet complete.  Most notably, it does not yet test
 ``*active`` and ``*deleted``, nor ``shuffle`` and ``2 to 5 of {...}``
 constructs.
 
-***************************************************
-``.../tools/tf_fuzz/regression`` directory contents
-***************************************************
+*************************************************
+``tf_fuzz/tfz-cpp/regression`` directory contents
+*************************************************
 .. code-block:: bash
 
     000001_set_sst_uid_data_expect_pass

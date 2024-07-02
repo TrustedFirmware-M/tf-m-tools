@@ -1,19 +1,19 @@
-#############################
-'boilerplate'-directory guide
-#############################
+#####################################
+'tfz-cpp/boilerplate'-directory guide
+#####################################
 
 ************
 Introduction
 ************
 
 This directory contains the C++ header and code files to work with the
-customizable, "boilerplate" code snippets in the ``...tools/tf_fuzz/lib``
+customizable, "boilerplate" code snippets in the ``tf_fuzz/lib``
 directory.  Mostly what this code does is read these code snippets into an
 STL ``vector`` of, essentially, named strings.
 
-****************************************************
-``.../tools/tf_fuzz/boilerplate`` directory contents
-****************************************************
+**************************************************
+``tf_fuzz/tfz-cpp/boilerplate`` directory contents
+**************************************************
 .. code-block:: bash
 
     boilerplate.cpp  boilerplate.hpp
