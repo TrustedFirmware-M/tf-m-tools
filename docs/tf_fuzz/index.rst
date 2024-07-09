@@ -14,17 +14,20 @@ this at least, presentations available at:
 
 (These presentation materials may not all be viewable by all parties.)
 
-****************
-Building TF-Fuzz
-****************
+A suite generator tool is also provided to make tests output by TF-Fuzz
+runnable as a test suite in the regression tester.
 
-.. Note:: 
+
+*******************************
+Building and Installing TF-Fuzz
+*******************************
+
+.. Note::
 
     These instructions assume the use of Ubuntu Linux.
 
 
 The following dependencies are required to build TF-Fuzz:
-
 
 .. code-block:: bash
 
@@ -33,147 +36,57 @@ The following dependencies are required to build TF-Fuzz:
 
 
 To build TF-Fuzz, simply type ``make`` in this directory.  The executable,
-called ``tfz``, is placed in this directory.
+called ``tfz``, is placed in the ``bin/`` directory.
 
-***************
-Running TF-Fuzz
-***************
+======================================
+Installing the TF-Fuzz suite generator
+======================================
 
-To run ``tfz``, two environment variables must first be assigned:
-
-.. code-block:: bash
-
-    export TF_FUZZ_LIB_DIR=<path to this TF-M installation>/tools/tf_fuzz/lib
-    export TF_FUZZ_BPLATE=tfm_boilerplate.txt
+**Requirements:** Python 3.8 or later; a built ``tfz`` binary.
 
 
-Examples of usage can be found in the ``demo`` directory. For more details, see :doc:`source_structure/demo_dir`.
-
-=======================
-Generating a test suite
-=======================
-
-To generate a testsuite for TF-M from a set of template files, use
-`generate_test_suite.sh`.
+The suite generator is installable as a Python package through ``pip``:
 
 .. code-block:: bash
 
-    Usage: generate_test_suite.sh <template_dir> <suites_dir>
+   cd <path/to/tf-tools>/tf_fuzz
+   pip3 install tfz-suitegen
 
-    Where:
-        template_dir: The directory containing template files for the
-                    fuzzing tool
-        suites_dir: The suites directory in the TF-M working copy.
-                    i.e.: $TF-M_ROOT/test/suites
-    Example:
-        cd tf-m-tools/tf_fuzz
-        ./generate_test_suite.sh <path_to>/tf_fuzz/tests/  <path_to>/tf-m-tests/test_reg/test/secure_fw/suites
+Once installed, ``tfz-suitegen`` can be ran by typing ``python3 -m tfz-suitegen``.
 
 
-After the test suite is generated, the new test suite needs to be added to the
-TF-M build by providing the following options to the CMake generate command
-(The path needs to be aligned with the test suite dir provided for the shell
-script above):
+******************************************
+Generating and running tests using TF-Fuzz
+******************************************
 
-.. code-block:: bash
+**Full usage information can be found by running** ``./bin/tfz`` **and** ``python3 -m tfz-suitegen --help`` **.**
 
-    -DTFM_FUZZER_TOOL_TESTS=1
-    -DTFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH=<path_to>/tf-m-tests/test_reg/test/secure_fw/suites/tf_fuzz
+The ``demo`` folder contains some example test specifications. The below steps
+describe how to build and run these with the TF-M regression tester.
 
-**********************************
-``.../tf_fuzz`` directory contents
-**********************************
-.. code-block:: bash
+#. Turn the test specifications into a test suite:
 
-    assets       calls               demo      parser    tests        regression
-    backupStuff  class_forwards.hpp  lib       document    tf_fuzz.cpp  utility
-    boilerplate  commands            Makefile  template  tf_fuzz.hpp  visualStudio
+   .. code-block:: bash
 
-*************
-Code Overview
-*************
-To help understand the code, below is a C++-class hierarchy used in this code
-base.  They are explained further in the documents in their respective
-directories, so the file names where the classes are defined is listed below (this,
-very roughly in order of functional interactions, of chronological usage during
-execution, and of most-to-least importance):
+        python3 -m tfz-suitegen <path/to/tf_fuzz> <path/to/tf_fuzz>/demo build_suite
 
-.. code-block:: bash
+   This creates an :external:ref:`out-of-tree test suite
+   <tfm_test_suites_addition:out-of-tree regression test suites>` containing
+   all the tests in the ``demo`` folder.
 
-    template_line                         ./template/template_line.hpp
-        sst_template_line                 ./template/template_line.hpp
-            read_sst_template_line        ./template/sst_template_line.hpp
-            remove_sst_template_line      ./template/sst_template_line.hpp
-            set_sst_template_line         ./template/sst_template_line.hpp
-        policy_template_line              ./template/template_line.hpp
-            read_policy_template_line     ./template/crypto_template_line.hpp
-            set_policy_template_line      ./template/crypto_template_line.hpp
-        key_template_line                 ./template/template_line.hpp
-            read_key_template_line        ./template/crypto_template_line.hpp
-            remove_key_template_line      ./template/crypto_template_line.hpp
-            set_key_template_line         ./template/crypto_template_line.hpp
-        security_template_line            ./template/template_line.hpp
-            security_hash_template_line   ./template/secure_template_line.hpp
+   .. note::
+      Only files with the ``.test`` extension are included in the test suite.
 
-    psa_call                              ./calls/psa_call.hpp
-        crypto_call                       ./calls/psa_call.hpp
-            policy_call                   ./calls/crypto_call.hpp
-                init_policy_call          ./calls/crypto_call.hpp
-                reset_policy_call         ./calls/crypto_call.hpp
-                add_policy_usage_call     ./calls/crypto_call.hpp
-                set_policy_lifetime_call  ./calls/crypto_call.hpp
-                set_policy_type_call      ./calls/crypto_call.hpp
-                set_policy_algorithm_call ./calls/crypto_call.hpp
-                set_policy_usage_call     ./calls/crypto_call.hpp
-                get_policy_lifetime_call  ./calls/crypto_call.hpp
-                get_policy_type_call      ./calls/crypto_call.hpp
-                get_policy_algorithm_call ./calls/crypto_call.hpp
-                get_policy_usage_call     ./calls/crypto_call.hpp
-                get_policy_size_call      ./calls/crypto_call.hpp
-                get_policy_call           ./calls/crypto_call.hpp
-            key_call                      ./calls/crypto_call.hpp
-                generate_key_call         ./calls/crypto_call.hpp
-                create_key_call           ./calls/crypto_call.hpp
-                copy_key_call             ./calls/crypto_call.hpp
-                read_key_data_call        ./calls/crypto_call.hpp
-                remove_key_call           ./calls/crypto_call.hpp
-        sst_call                         ./calls/psa_call.hpp
-            sst_remove_call              ./calls/sst_call.hpp
-            sst_get_call                 ./calls/sst_call.hpp
-            sst_set_call                 ./calls/sst_call.hpp
-        security_call                    ./calls/psa_call.hpp
-            hash_call                    ./calls/security_call.hpp
+#. Build the regression tests as normal, adding the following CMake flag to the SPE build:
 
-    boilerplate                          ./boilerplate/boilerplate.hpp
+   .. code-block:: bash
 
-    psa_asset                            ./assets/psa_asset.hpp
-        crypto_asset                     ./assets/crypto_asset.hpp
-            policy_asset                 ./assets/crypto_asset.hpp
-            key_asset                    ./assets/crypto_asset.hpp
-        sst_asset                        ./assets/sst_asset.hpp
+       -DEXTRA_NS_TEST_SUITE_PATH=<absolute_path_to>/build_suite
 
-    tf_fuzz_info                         ./tf_fuzz.hpp
-
-    variables                            ./utility/variables.hpp
-    crc32                                ./utility/compute.hpp
-
-    gibberish                            ./utility/gibberish.hpp
-
-    expect_info                          ./utility/data_blocks.hpp
-    set_data_info                        ./utility/data_blocks.hpp
-    asset_name_id_info                   ./utility/data_blocks.hpp
-
-.. seealso::
-   Folder by folder descriptions of the code base can be found in :doc:`source_structure/index`.
-
-TF-Fuzz now has better-organized management of variables in the generated code.
-In particular, it maintains a list of variables named in the test template, and
-implicit in the code, notably variables assets are ``read`` into.  It also now has
-completely separate execution phases to parse the test template, simulate the
-sequence of PSA calls generated, and write out the expected results.  That
-simulation is only in enough detail to predict expected results.  Since TF-Fuzz
-currectly mostly addresses only SST calls, that simulation is very simple in
-nature -- just tracking data movement.
+   For full instructions on how to build and run tests see
+   :external:doc:`building/tests_build_instruction` and
+   :external:ref:`building/run_tfm_examples_on_arm_platforms:run tf-m tests and
+   applications on arm platforms`.
 
 .. toctree::
     :caption: Table of Contents
