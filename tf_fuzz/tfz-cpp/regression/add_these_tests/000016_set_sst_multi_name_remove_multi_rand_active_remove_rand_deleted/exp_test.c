@@ -10,11 +10,10 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "../sst/non_secure/ns_test_helpers.h"
+#include "extra_ns_tests.h"
 #include "psa/protected_storage.h"
-#include "test/framework/test_framework_helpers.h"
-#include "crypto_tests_common.h"
-#include "tfm_memory_utils.h"
+#include "psa/crypto.h"
+
 /* For now, just a single test_result_t struct is sufficient.*/
 static struct test_result_t ret;
 

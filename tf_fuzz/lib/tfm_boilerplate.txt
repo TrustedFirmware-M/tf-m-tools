@@ -43,6 +43,7 @@ Four extremely important things about this file:
 
 #include "extra_ns_tests.h"
 #include "psa/protected_storage.h"
+#include "psa/crypto.h"
 `001
 #include <stdint.h>
 

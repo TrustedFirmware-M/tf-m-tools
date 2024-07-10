@@ -1,4 +1,4 @@
-purpose to create a key, then read the key data ("material") into a variable;
+purpose to create then remove a key;
 set policy name somePolicy attr sign verify copy alg stream_cipher;
 set key name akey data * policy somePolicy;
-read key name akey print;
+remove key name akey;

@@ -70,13 +70,13 @@ public:
                                 add_to_end_bool, dont_set_barrier  );
             }
             if (policy_info.can_sign) {
-                policy_info.usage_string.assign ("PSA_KEY_USAGE_SIGN");
+                policy_info.usage_string.assign ("PSA_KEY_USAGE_SIGN_HASH");
                 define_call<add_policy_usage_call> (set_data, random_data,
                                 fill_in_template, create_call, temLin, rsrc,
                                 add_to_end_bool, dont_set_barrier  );
             }
             if (policy_info.can_verify) {
-                policy_info.usage_string.assign ("PSA_KEY_USAGE_VERIFY");
+                policy_info.usage_string.assign ("PSA_KEY_USAGE_VERIFY_HASH");
                 define_call<add_policy_usage_call> (set_data, random_data,
                                 fill_in_template, create_call, temLin, rsrc,
                                 add_to_end_bool, dont_set_barrier  );
@@ -175,13 +175,13 @@ public:
                                 add_to_end, dont_set_barrier  );
                 policy_info.print_usage_true_string.assign ("key works for signing.");
                 policy_info.print_usage_false_string.assign ("key is not for signing.");
-                policy_info.usage_string.assign ("PSA_KEY_USAGE_SIGN");
+                policy_info.usage_string.assign ("PSA_KEY_USAGE_SIGN_HASH");
                 define_call<print_policy_usage_call> (set_data, random_data,
                                 fill_in_template, create_call, temLin, rsrc,
                                 add_to_end, dont_set_barrier  );
                 policy_info.print_usage_true_string.assign ("key can be used to verify.");
                 policy_info.print_usage_false_string.assign ("key not for verify.");
-                policy_info.usage_string.assign ("PSA_KEY_USAGE_VERIFY");
+                policy_info.usage_string.assign ("PSA_KEY_USAGE_VERIFY_HASH");
                 define_call<print_policy_usage_call> (set_data, random_data,
                                 fill_in_template, create_call, temLin, rsrc,
                                 add_to_end, dont_set_barrier  );

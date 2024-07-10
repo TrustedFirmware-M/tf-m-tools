@@ -33,6 +33,10 @@ bin/
 # binaries
 tfz
 
+# tf fuzz regression tester
+tf_fuzz/tfz-cpp/regression/**/test.c
+tf_fuzz/tfz-cpp/regression/**/stdout_stderr
+
 # clangd
 .cache/
 compile_commands.json
