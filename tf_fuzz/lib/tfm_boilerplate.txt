@@ -169,7 +169,7 @@ void test_thread (struct test_result_t *ret) {
     }
     /* Check that the data is correct */
     if (memcmp($act_data, $exp_data,
-                   $length) != 0) {
+                   $length) != $check_expect) {
         TEST_FAIL("Read data should be equal to result data");
         return;
     }

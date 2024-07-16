@@ -43,7 +43,7 @@ public:
         bool pf_nothing;  // true to not generate results-check(s)
         bool pf_pass;  // if !expect.pf_nothing, then pass is expected
         bool pf_fail;  // if "expect fail" was specified
-        bool pf_specified;
+        bool pf_specified; // if "expect <ERROR_CODE>" was specified
             /* if !pf_nothing && !pf_pass, then
                true == expected result was specified
                false == tf_fuzz must model expected result, and
@@ -185,7 +185,7 @@ public:
         bool can_encrypt;  // OK for encryption (fail other uses).
         bool can_decrypt;  // OK for decryption (fail other uses).
         bool can_sign;     // OK for signing (fail other operations).
-        bool can_verify;   // OK for verifing a message signature (fail other uses).
+        bool can_verify;   // OK for verifying a message signature (fail other uses).
         bool derivable;    // OK for derive other keys (fail other uses).
         bool persistent;   // must be deleted at the end of test.
         string usage_string;

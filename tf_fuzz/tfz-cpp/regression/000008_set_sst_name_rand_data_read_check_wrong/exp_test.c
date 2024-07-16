@@ -49,14 +49,14 @@ void test_thread (struct test_result_t *ret) {
     }
     sst_status = psa_ps_get\(@@@001@@@, 0, @@@003@@@, snortwaggle_act_data
                             &snortwaggle_act_length);
-    if (sst_status == PSA_SUCCESS) {
-        TEST_FAIL("psa_ps_get() expected not PSA_SUCCESS.");
+    if (sst_status != PSA_SUCCESS) {
+        TEST_FAIL("psa_ps_get() expected PSA_SUCCESS.");
         return;
     }
     /* Check that the data is correct */
     if \(memcmp\(snortwaggle_act_data, snortwaggle_exp_data,
-                   snortwaggle_act_length\) != 0\) {
-        TEST_FAIL("Read data should be equal to result data");
+                   snortwaggle_act_length\) == 0\) {
+        TEST_FAIL("Read data should not be equal to result data");
         return;
     }
 

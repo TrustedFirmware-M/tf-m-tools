@@ -61,14 +61,14 @@ void test_thread (struct test_result_t *ret) {
     }
     sst_status = psa_ps_get\(@@@001@@@, 0, 11, indecisive_act_data,
                             &indecisive_act_length);
-    if (sst_status == PSA_SUCCESS) {
-        TEST_FAIL("psa_ps_get() expected not PSA_SUCCESS.");
+    if (sst_status != PSA_SUCCESS) {
+        TEST_FAIL("psa_ps_get() expected PSA_SUCCESS.");
         return;
     }
     /* Check that the data is correct */
     if (memcmp(indecisive_act_data, indecisive_exp_data,
-                   indecisive_act_length\) != 0\) {
-        TEST_FAIL("Read data should be equal to result data");
+                   indecisive_act_length\) == 0\) {
+        TEST_FAIL("Read data should not be equal to result data");
         return;
     }
     /* Resetting SST asset "indecisive," with data "Second val...". */
@@ -80,14 +80,14 @@ void test_thread (struct test_result_t *ret) {
     }
     sst_status = psa_ps_get\(@@@001@@@, 0, 12, indecisive_act_data,
                             &indecisive_act_length);
-    if (sst_status == PSA_SUCCESS) {
-        TEST_FAIL("psa_ps_get() expected not PSA_SUCCESS.");
+    if (sst_status != PSA_SUCCESS) {
+        TEST_FAIL("psa_ps_get() expected PSA_SUCCESS.");
         return;
     }
     /* Check that the data is correct */
     if (memcmp(indecisive_act_data, indecisive_exp_data_1,
-                   indecisive_act_length) != 0) {
-        TEST_FAIL("Read data should be equal to result data");
+                   indecisive_act_length) == 0) {
+        TEST_FAIL("Read data should not be equal to result data");
         return;
     }
     /\* Resetting SST asset "indecisive," with data "@@001@10@@...". \*/
@@ -106,14 +106,14 @@ void test_thread (struct test_result_t *ret) {
     }
     sst_status = psa_ps_get\(@@@001@@@, 0, 12, indecisive_act_data,
                             &indecisive_act_length);
-    if (sst_status == PSA_SUCCESS) {
-        TEST_FAIL("psa_ps_get() expected not PSA_SUCCESS.");
+    if (sst_status != PSA_SUCCESS) {
+        TEST_FAIL("psa_ps_get() expected PSA_SUCCESS.");
         return;
     }
     /* Check that the data is correct */
     if (memcmp(indecisive_act_data, indecisive_exp_data_2,
-                   indecisive_act_length) != 0) {
-        TEST_FAIL("Read data should be equal to result data");
+                   indecisive_act_length) == 0) {
+        TEST_FAIL("Read data should not be equal to result data");
         return;
     }
     /\* Resetting SST asset "indecisive," with data "@@002@10@@...". \*/

@@ -21,7 +21,7 @@
 .vscode/
 
 # build files
-build*/
+build*
 bin/
 *.o
 
