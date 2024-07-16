@@ -88,6 +88,23 @@ describe how to build and run these with the TF-M regression tester.
    :external:ref:`building/run_tfm_examples_on_arm_platforms:run tf-m tests and
    applications on arm platforms`.
 
+************************************
+Running the TF-Fuzz regression tests
+************************************
+
+To run the regression test suite:
+
+.. code-block:: bash
+
+   cd <path/to/tf-tools>/tf_fuzz/tfz-cpp
+   make
+   cd regression
+   bash regress
+
+
+For more details, see :doc:`source_structure/regression_dir`.
+
+
 .. toctree::
     :caption: Table of Contents
     :maxdepth: 1
