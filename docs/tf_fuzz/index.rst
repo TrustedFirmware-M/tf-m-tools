@@ -88,6 +88,11 @@ describe how to build and run these with the TF-M regression tester.
    :external:ref:`building/run_tfm_examples_on_arm_platforms:run tf-m tests and
    applications on arm platforms`.
 
+.. warning::
+
+   Some of the provided demos are expected to fail.
+
+
 ************************************
 Running the TF-Fuzz regression tests
 ************************************
