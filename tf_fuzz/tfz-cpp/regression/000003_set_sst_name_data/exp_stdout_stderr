@@ -8,6 +8,11 @@ ASSET_IDENTIFIER:  "jonathan"
 Asset identifier list:  "data"
 LITERAL string:  "I am the man"
 Create from literal data:  ""I am the man""
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
 Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
 Set command:  ";"

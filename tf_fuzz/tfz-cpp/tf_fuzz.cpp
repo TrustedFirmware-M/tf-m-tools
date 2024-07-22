@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -157,6 +157,16 @@ void tf_fuzz_info::teardown_test (void)
     string call;
     // Traverse through the SST-assets list, writing out remove commands:
     for (auto &asset : active_sst_asset) {
+      //  write once assets cannot be removed
+
+      //  NOTE: As write once assets persist across tests, there is as
+      //  chance of UID collisions between tests. There is no technical solution
+      //  for this - test authors just have to be careful in their use of
+      //  WRITE_ONCE.
+      if (asset->set_data.flags_string.find("PSA_STORAGE_FLAG_WRITE_ONCE") !=
+          std::string::npos) {
+            continue;
+      }
         call = bplate->bplate_string[teardown_sst];
         find_replace_1st ("$uid", to_string(asset->asset_info.id_n), call);
         call.append (bplate->bplate_string[teardown_sst_check]);

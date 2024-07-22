@@ -1,4 +1,4 @@
 purpose to illustrate deleting assets;
-set sst name george data *;
+set sst name george data * flag none;
 remove sst name george;
 rm sst name george;

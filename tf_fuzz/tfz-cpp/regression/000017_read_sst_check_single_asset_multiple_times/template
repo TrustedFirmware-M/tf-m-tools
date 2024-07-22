@@ -1,5 +1,5 @@
 purpose to read the value of a single asset multiple times;
-set sst name just_checking data *;
+set sst name just_checking data * flag none;
 // TF-Fuzz needs enhancements to correctly predict the "expect" values below:
 read sst name just_checking check "Not this" expect fail;
 read sst name just_checking check "Not this either" expect fail;

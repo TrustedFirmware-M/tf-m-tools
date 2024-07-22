@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -105,30 +105,19 @@ void expect_info::copy_expect_to_call (psa_call *the_call)
 
 string set_data_info::rand_creation_flags (void)
 {
-    return ((rand() % 2) == 1)?
-        "PSA_STORAGE_FLAG_WRITE_ONCE" : "PSA_STORAGE_FLAG_NONE";
-
-    /* TODO:  There are also PSA_STORAGE_FLAG_NO_REPLAY_PROTECTION and
-              PSA_STORAGE_FLAG_NO_CONFIDENTIALITY, but they don't seem to appear
-              in any test suites, so it's iffy as to whether they really exist.
-              We'll not routinely initialize to them, for now at least, but if
-              we want to enable them, then uncomment the following:
     string result = "";
-    const int most_flags = 2,
+    const int most_flags = 2;
     int n_flags = (rand() % most_flags);
 
-    for (int i = 0;  i < ;  i < n_flags;  ++i) {
-        switch (rand() % 4) {
+    for (int i = 0; i < n_flags;  ++i) {
+        switch (rand() % 3) {
             case 0:
                 result += "PSA_STORAGE_FLAG_NONE";
                 break;
             case 1:
-                result += "PSA_STORAGE_FLAG_WRITE_ONCE";
-                break;
-            case 2:
                 result += "PSA_STORAGE_FLAG_NO_REPLAY_PROTECTION";
                 break;
-            case 3:
+            case 2:
                 result += "PSA_STORAGE_FLAG_NO_CONFIDENTIALITY";
                 break;
         }
@@ -136,7 +125,8 @@ string set_data_info::rand_creation_flags (void)
             result += " | ";
     }
     if (result == "") result = "PSA_STORAGE_FLAG_NONE";
-*/
+
+    return result;
 }
 
 set_data_info::set_data_info (void)  // (default constructor)

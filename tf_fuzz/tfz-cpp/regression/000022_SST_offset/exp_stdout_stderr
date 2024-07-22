@@ -7,6 +7,11 @@ Purpose line:  to set an offset on psa_ps_get()
 ASSET_IDENTIFIER:  "whoNose"
 Asset identifier list:  "data"
 Create from random data
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
 Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
 Set command:  ";"

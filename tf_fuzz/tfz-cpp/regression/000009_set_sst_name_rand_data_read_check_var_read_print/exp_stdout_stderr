@@ -7,6 +7,11 @@ Purpose line:  to check against a variable or dump into the log
 ASSET_IDENTIFIER:  "greebledorf"
 Asset identifier list:  "data"
 Create from random data
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
 Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
 Set command:  ";"

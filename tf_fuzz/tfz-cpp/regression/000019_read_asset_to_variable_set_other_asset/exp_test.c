@@ -103,17 +103,17 @@ void test_thread (struct test_result_t *ret) {
 
 
     /* Removing assets left over from testing: */
-    psa_ps_remove\(@@@001@@@\);
+    sst_status = psa_ps_remove\(@@@001@@@\);
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;
     }
-    psa_ps_remove\(@@@002@@@\);
+    sst_status = psa_ps_remove\(@@@002@@@\);
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;
     }
-    psa_ps_remove\(@@@003@@@\);
+    sst_status = psa_ps_remove\(@@@003@@@\);
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;

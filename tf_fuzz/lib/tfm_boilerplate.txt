@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -127,14 +127,14 @@ void test_thread (struct test_result_t *ret) {
 `015
     TEST_LOG($message);
 `016
-    psa_ps_remove($uid);
+    sst_status = psa_ps_remove($uid);
 `017
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;
     }
 `018
-    psa_destroy_key($handle);
+    crypto_status = psa_destroy_key($handle);
 `019
     if (crypto_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down a crypto asset upon test completion");

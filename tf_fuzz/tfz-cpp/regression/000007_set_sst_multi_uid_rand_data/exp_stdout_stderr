@@ -12,7 +12,12 @@ ASSET_NUMBER:  "34"
 ASSET_NUMBER:  "41"
 SST-asset UID list:  "data"
 Create from random data
-Set SST command:  "*"
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
+Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
 Appended to end of call sequence:  SST-set call.
 Appended to end of call sequence:  SST-set call.

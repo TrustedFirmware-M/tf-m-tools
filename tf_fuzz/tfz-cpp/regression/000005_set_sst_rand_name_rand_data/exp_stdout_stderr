@@ -6,9 +6,14 @@ Using seed value of \d+ \(0x[a-f\d]+\).
 Purpose line:  to show how to randomize name and data
 Asset random identifier:  "*"
 Create from random data
-Set SST command:  "*"
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
+Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
-Set command:  "*"
+Set command:  ";"
 Command with no expect:  ";"
 Lines:  Line number 3.
 Lines:  Line number 3.

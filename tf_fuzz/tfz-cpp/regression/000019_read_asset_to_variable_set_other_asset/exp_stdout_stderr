@@ -5,8 +5,13 @@ Info:  random seed was not specified.
 Using seed value of \d+ \(0x[a-f\d]+\).
 Purpose line:  to read an asset into a named variable the set another asset from that variable
 ASSET_IDENTIFIER:  "source"
-Asset identifier list:  ";"
+Asset identifier list:  "flag"
 SST-create from random data (no 'data *')
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
 Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
 Set command:  ";"
@@ -24,6 +29,11 @@ ASSET_IDENTIFIER:  "intermediate"
 Asset identifier list:  "var"
 IDENTIFIER:  "transfer"
 SST-set set from variable:  "transfer"
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
 Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
 Set command:  ";"
@@ -41,6 +51,11 @@ ASSET_IDENTIFIER:  "destination"
 Asset identifier list:  "var"
 IDENTIFIER:  "transfer"
 SST-set set from variable:  "transfer"
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
 Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
 Set command:  ";"

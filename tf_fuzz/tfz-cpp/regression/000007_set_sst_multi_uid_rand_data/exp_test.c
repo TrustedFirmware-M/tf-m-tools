@@ -92,32 +92,32 @@ void test_thread (struct test_result_t *ret) {
 
 
     /* Removing assets left over from testing: */
-    psa_ps_remove(17);
+    sst_status = psa_ps_remove(17);
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;
     }
-    psa_ps_remove(19);
+    sst_status = psa_ps_remove(19);
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;
     }
-    psa_ps_remove(24);
+    sst_status = psa_ps_remove(24);
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;
     }
-    psa_ps_remove(31);
+    sst_status = psa_ps_remove(31);
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;
     }
-    psa_ps_remove(34);
+    sst_status = psa_ps_remove(34);
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;
     }
-    psa_ps_remove(41);
+    sst_status = psa_ps_remove(41);
     if (sst_status != PSA_SUCCESS) {
         TEST_FAIL("Failed to tear down an SST asset upon test completion.");
         return;

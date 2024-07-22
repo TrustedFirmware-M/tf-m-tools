@@ -7,9 +7,14 @@ Purpose line:  to show how to randomize data
 ASSET_IDENTIFIER:  "gibberish"
 Asset identifier list:  "data"
 Create from random data
-Set SST command:  "*"
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
+Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
-Set command:  "*"
+Set command:  ";"
 Command with no expect:  ";"
 Lines:  Line number 3.
 Lines:  Line number 3.

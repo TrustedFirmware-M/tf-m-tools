@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,6 +8,7 @@
 #ifndef PSA_ASSET_HPP
 #define PSA_ASSET_HPP
 
+#include "class_forwards.hpp"
 #include <string>
 #include <vector>
 #include <cstdint>

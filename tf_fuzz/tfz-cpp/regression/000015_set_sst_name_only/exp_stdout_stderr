@@ -5,14 +5,24 @@ Info:  random seed was not specified.
 Using seed value of \d+ \(0x[a-f\d]+\).
 Purpose line:  to show that if you don't have say anything about data to randomize it
 ASSET_IDENTIFIER:  "random"
-Asset identifier list:  ";"
+Asset identifier list:  "flag"
 SST-create from random data (no 'data *')
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
 Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
 Set command:  ";"
 Command with no expect:  ";"
 Asset random identifier:  "*"
 SST-create from random data (no 'data *')
+SST no storage flag:  none"
+SST creation flag
+;"
+SST creation flags
+;"
 Set SST command:  ";"
 Appended to end of call sequence:  SST-set call.
 Set command:  ";"

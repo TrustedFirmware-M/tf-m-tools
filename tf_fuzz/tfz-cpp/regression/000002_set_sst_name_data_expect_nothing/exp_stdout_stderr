@@ -8,6 +8,11 @@ ASSET_IDENTIFIER:  "forecast"
 Asset identifier list:  "data"
 LITERAL string:  "sunny with a 30% chance of weather!"
 Create from literal data:  ""sunny with a 30% chance of weather!""
+SST no storage flag:  none"
+SST creation flag
+expect"
+SST creation flags
+expect"
 Set SST command:  "expect"
 Appended to end of call sequence:  SST-set call.
 Set command:  "expect"
