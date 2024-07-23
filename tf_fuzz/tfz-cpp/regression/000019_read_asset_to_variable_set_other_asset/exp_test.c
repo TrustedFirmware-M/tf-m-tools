@@ -39,7 +39,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to read an asset into a named variable the set another asset from that variable");
+    TEST_LOG("Test to read an asset into a named variable the set another asset from that variable\n");
 
 
     /* PSA calls to test: */
@@ -57,8 +57,8 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (memcmp(transfer_data, source_exp_data,
-                   transfer_length) != 0) {
+
+    if \(\d+ > 0 && memcmp\(transfer_data, source_exp_data, transfer_length\) != 0\) {
         TEST_FAIL("Read data should be equal to result data");
         return;
     }
@@ -76,8 +76,8 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (memcmp(transfer_data, intermediate_exp_data,
-                   transfer_length) != 0) {
+
+    if \(\d+ > 0 && memcmp\(transfer_data, intermediate_exp_data, transfer_length\) != 0\) {
         TEST_FAIL("Read data should be equal to result data");
         return;
     }
@@ -95,8 +95,8 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (memcmp(destination_act_data, transfer,
-                   destination_act_length) != 0) {
+
+    if \(\d+ > 0 && memcmp\(destination_act_data, transfer, destination_act_length\) != 0\) {
         TEST_FAIL("Read data should be equal to result data");
         return;
     }

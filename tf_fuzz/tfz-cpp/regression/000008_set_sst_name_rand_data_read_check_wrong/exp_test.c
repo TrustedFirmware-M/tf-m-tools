@@ -36,7 +36,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to create and show an asset");
+    TEST_LOG("Test to create and show an asset\n");
 
 
     /* PSA calls to test: */
@@ -54,8 +54,8 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if \(memcmp\(snortwaggle_act_data, snortwaggle_exp_data,
-                   snortwaggle_act_length\) == 0\) {
+
+    if \(\d+ > 0 && memcmp\(snortwaggle_act_data, snortwaggle_exp_data, snortwaggle_act_length\) == 0\) {
         TEST_FAIL("Read data should not be equal to result data");
         return;
     }

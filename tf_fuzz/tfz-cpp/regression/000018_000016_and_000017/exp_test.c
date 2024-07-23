@@ -48,7 +48,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to both read the value of a single asset multiple times and assign a sequence of values to a single asset");
+    TEST_LOG("Test to both read the value of a single asset multiple times and assign a sequence of values to a single asset\n");
 
 
     /* PSA calls to test: */
@@ -66,8 +66,8 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (memcmp(indecisive_act_data, indecisive_exp_data,
-                   indecisive_act_length\) == 0\) {
+
+    if \(\d+ > 0 && memcmp\(indecisive_act_data, indecisive_exp_data, indecisive_act_length\) == 0\) {
         TEST_FAIL("Read data should not be equal to result data");
         return;
     }
@@ -85,8 +85,8 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (memcmp(indecisive_act_data, indecisive_exp_data_1,
-                   indecisive_act_length) == 0) {
+
+    if \(\d+ > 0 && memcmp\(indecisive_act_data, indecisive_exp_data_1, indecisive_act_length\) == 0\) {
         TEST_FAIL("Read data should not be equal to result data");
         return;
     }
@@ -111,8 +111,8 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (memcmp(indecisive_act_data, indecisive_exp_data_2,
-                   indecisive_act_length) == 0) {
+
+    if \(\d+ > 0 && memcmp\(indecisive_act_data, indecisive_exp_data_2, indecisive_act_length\) == 0\) {
         TEST_FAIL("Read data should not be equal to result data");
         return;
     }

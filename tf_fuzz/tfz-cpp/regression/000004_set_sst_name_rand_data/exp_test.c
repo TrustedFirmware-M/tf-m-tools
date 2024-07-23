@@ -33,7 +33,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to show how to randomize data");
+    TEST_LOG("Test to show how to randomize data\n");
 
 
     /* PSA calls to test: */

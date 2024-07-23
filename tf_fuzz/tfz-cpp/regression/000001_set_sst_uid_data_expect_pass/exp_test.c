@@ -33,7 +33,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to create an SST asset");
+    TEST_LOG("Test to create an SST asset\n");
 
 
     /* PSA calls to test: */

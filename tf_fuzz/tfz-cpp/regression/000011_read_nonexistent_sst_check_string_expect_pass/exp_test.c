@@ -34,7 +34,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to illustrate that you can override TF-Fuzz's expected result");
+    TEST_LOG("Test to illustrate that you can override TF-Fuzz's expected result\n");
 
 
     /* PSA calls to test: */
@@ -45,8 +45,8 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if \(memcmp\(napoleon_act_data, napoleon_exp_data,
-                   napoleon_act_length\) != 0\) \{
+
+    if \(\d+ > 0 && memcmp\(napoleon_act_data, napoleon_exp_data, napoleon_act_length\) != 0\) \{
         TEST_FAIL("Read data should be equal to result data");
         return;
     }

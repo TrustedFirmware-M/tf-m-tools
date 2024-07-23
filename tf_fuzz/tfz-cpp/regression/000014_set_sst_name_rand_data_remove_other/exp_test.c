@@ -33,7 +33,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to remove something that doesn't exist");
+    TEST_LOG("Test to remove something that doesn't exist\n");
 
 
     /* PSA calls to test: */

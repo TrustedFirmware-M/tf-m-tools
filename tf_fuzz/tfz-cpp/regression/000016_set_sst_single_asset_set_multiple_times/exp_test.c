@@ -41,7 +41,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to assign a sequence of values to a single asset");
+    TEST_LOG("Test to assign a sequence of values to a single asset\n");
 
 
     /* PSA calls to test: */

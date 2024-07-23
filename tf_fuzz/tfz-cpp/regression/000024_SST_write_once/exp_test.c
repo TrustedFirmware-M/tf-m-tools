@@ -37,7 +37,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to verify we can't write multiple times to a write-once SST asset");
+    TEST_LOG("Test to verify we can't write multiple times to a write-once SST asset\n");
 
 
     /* PSA calls to test: */

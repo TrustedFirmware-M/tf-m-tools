@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -332,7 +332,7 @@ void sst_get_call::fill_in_prep_code (void)
 
 void sst_get_call::fill_in_command (void)
 {
-    string exp_var_name, act_var_name, act_data_length, hash_var_name,
+    string exp_var_name, act_var_name, length_var_name,act_data_length, hash_var_name,
     id_string, var_name_suffix;
 
 /* TODO:  Flesh-out/fix this (it was a good try/start, but not quite right):
@@ -399,11 +399,12 @@ void sst_get_call::fill_in_command (void)
     find_replace_all ("$act_data", act_var_name, call_code);
     find_replace_all ("$act_length", act_data_length, call_code);
     // Perform most of the same substitutions in the check_code:
-// TODO:  Make data checks contingent upon the PSA call itself passing?
+    // TODO:  Make data checks contingent upon the PSA call itself passing?
     find_replace_1st ("$offset", "0", check_code);
     find_replace_1st ("$exp_data", exp_var_name, check_code);
     find_replace_all ("$act_data", act_var_name, check_code);
-    find_replace_all ("$length", act_data_length, check_code);
+    find_replace_all ("$length", to_string(set_data.get().length()), check_code);
+    find_replace_all ("$act_length", act_data_length, check_code);
     if (print_data) {
         check_code.append (test_state->bplate->bplate_string[test_log]);
         find_replace_1st ("$message", act_var_name, check_code);
@@ -492,4 +493,3 @@ void sst_remove_call::fill_in_command (void)
 /**********************************************************************************
    End of methods of class sst_remove_call.
 **********************************************************************************/
-

@@ -33,7 +33,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to show that TF-Fuzz can \"infer\" \"results\"");
+    TEST_LOG("Test to show that TF-Fuzz can \"infer\" \"results\"\n");
 
 
     /* PSA calls to test: */

@@ -43,7 +43,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test same with UIDs");
+    TEST_LOG("Test same with UIDs\n");
 
 
     /* PSA calls to test: */

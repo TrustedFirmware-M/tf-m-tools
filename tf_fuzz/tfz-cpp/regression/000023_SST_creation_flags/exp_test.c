@@ -41,7 +41,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to set SST creation flags");
+    TEST_LOG("Test to set SST creation flags\n");
 
 
     /* PSA calls to test: */

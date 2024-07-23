@@ -33,7 +33,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to give assets a human name");
+    TEST_LOG("Test to give assets a human name\n");
 
 
     /* PSA calls to test: */

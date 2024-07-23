@@ -35,7 +35,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to show that if you don't have say anything about data to randomize it");
+    TEST_LOG("Test to show that if you don't have say anything about data to randomize it\n");
 
 
     /* PSA calls to test: */

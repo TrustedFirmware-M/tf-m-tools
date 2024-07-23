@@ -41,7 +41,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to show a nice party trick");
+    TEST_LOG("Test to show a nice party trick\n");
 
 
     /* PSA calls to test: */

@@ -33,7 +33,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to illustrate deleting assets");
+    TEST_LOG("Test to illustrate deleting assets\n");
 
 
     /* PSA calls to test: */

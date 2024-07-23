@@ -37,7 +37,7 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
 
-    TEST_LOG("Test to check against a variable or dump into the log");
+    TEST_LOG("Test to check against a variable or dump into the log\n");
 
 
     /* PSA calls to test: */
@@ -55,8 +55,8 @@ void test_thread (struct test_result_t *ret) {
         return;
     }
     /* Check that the data is correct */
-    if (memcmp(greebledorf_act_data, a_variable,
-                   greebledorf_act_length) != 0) {
+
+    if \(\d+ > 0 && memcmp\(greebledorf_act_data, a_variable, greebledorf_act_length\) != 0\) {
         TEST_FAIL("Read data should be equal to result data");
         return;
     }
