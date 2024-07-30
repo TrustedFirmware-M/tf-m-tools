@@ -15,6 +15,8 @@
 
 #include "randomization.hpp"
 
+#include <stdlib.h>
+
 /**
  * \brief Selects and returns a random key_usage_t value.
  *

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,18 +13,12 @@
 #ifndef SECURE_TEMPLATE_LINE_HPP
 #define SECURE_TEMPLATE_LINE_HPP
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <iterator>
-#include <algorithm>
-#include <new>
+#include "data_blocks.hpp"
+#include "security_call.hpp"
+#include "template_line.hpp"
+#include "tf_fuzz.hpp"
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.
-*/
-
+class psa_call;
 
 using namespace std;
 
@@ -57,4 +51,3 @@ private:
 };
 
 #endif // #ifndef SECURE_TEMPLATE_LINE_HPP
-

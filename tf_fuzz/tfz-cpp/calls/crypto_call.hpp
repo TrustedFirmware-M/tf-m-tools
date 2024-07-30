@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,13 +10,14 @@
 
 #include <string>
 #include <vector>
+#include <iosfwd>
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.
+#include "data_blocks.hpp"
+#include "find_or_create_asset.hpp"
+#include "psa_asset.hpp"
 #include "psa_call.hpp"
-#include "crypto_asset.hpp"
-*/
+
+class tf_fuzz_info;
 
 template<class T> bool copy_call_to_asset_t (psa_call *call, bool create_asset_bool)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,15 +9,12 @@
 #define SST_TEMPLATE_LINE_HPP
 
 #include <cstdlib>  // for rand()
+#include <string>
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.
-#include "psa_asset.hpp"
+#include "data_blocks.hpp"
+#include "sst_call.hpp"
 #include "template_line.hpp"
-#include "psa_call.hpp"
-*/
-
+#include "tf_fuzz.hpp"
 
 using namespace std;
 

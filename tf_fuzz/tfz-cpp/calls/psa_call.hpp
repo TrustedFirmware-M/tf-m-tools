@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,13 +9,14 @@
 #define PSA_CALL_HPP
 
 #include <string>
+#include <iosfwd>
+#include <vector>
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.
-#include "tf_fuzz.hpp"
-*/
+#include "data_blocks.hpp"
 
+class psa_asset;
+enum class psa_asset_usage;
+class tf_fuzz_info;
 
 using namespace std;
 

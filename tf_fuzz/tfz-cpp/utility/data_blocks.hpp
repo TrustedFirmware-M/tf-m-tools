@@ -5,7 +5,17 @@
  *
  */
 
+#include <stdint.h>
 #include <string>
+#include <vector>
+#include <iosfwd>
+
+class psa_asset;
+
+enum class psa_asset_type;
+class psa_call;
+
+enum class asset_search;
 
 /* These classes "cut down the clutter" by grouping together related data and
    associated methods (most importantly their constructors) used in template_
@@ -13,12 +23,6 @@
 
 #ifndef DATA_BLOCKS_HPP
 #define DATA_BLOCKS_HPP
-
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.  However these in particular are mostly axiomatic:  Not
-   dependent upon other classes. */
-
 
 using namespace std;
 

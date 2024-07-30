@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -14,18 +14,14 @@
 #ifndef TEMPLATE_LINE_HPP
 #define TEMPLATE_LINE_HPP
 
-#include <iostream>
+#include <stdint.h>
 #include <string>
-#include <vector>
-#include <iterator>
-#include <algorithm>
-#include <new>
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.
-*/
+#include "data_blocks.hpp"
+#include "find_or_create_asset.hpp"
 
+class psa_call;
+class tf_fuzz_info;
 
 using namespace std;
 

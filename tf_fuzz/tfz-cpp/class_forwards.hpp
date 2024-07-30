@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -23,42 +23,34 @@ enum class psa_asset_type;
 class expect_info;
 class set_data_info;
 class asset_name_id_info;
-
 // variables.hpp:
 class variable_info;
-
 // template_line.hpp:
 class template_line;
 class sst_template_line;
 class key_template_line;
 class policy_template_line;
-
 // sst_template_line.hpp:
 class set_sst_template_line;
 class remove_sst_template_line;
 class read_sst_template_line;
-
 // crypto_template_line.hpp:
 class set_key_template_line;
 class remove_key_template_line;
 class read_key_template_line;
 class set_policy_template_line;
 class read_policy_template_line;
-
 // security.hpp:
 class security;
 class security_hash;
-
 // psa_call.hpp:
 class psa_call;
 class sst_call;
 class crypto_call;
-
 // sst_call.hpp:
 class sst_set_call;
 class sst_get_call;
 class sst_remove_call;
-
 // crypto_call.hpp:
 class policy_call;
 class key_call;
@@ -88,26 +80,20 @@ class remove_key_call;
 
 
 class destroy_key_call;
-
 // psa_asset.hpp:
 class psa_asset;
-
 // sst_asset.hpp:
 class sst_asset;
-
 // crypto_asset.hpp:
 class crypto_asset;
 class key_asset;
 class policy_asset;
 class key_asset;
-
 // boilerplate.hpp"
 //enum class boilerplate_texts;  not really a "class," and no need to forward-reference it anyway
 class boilerplate;
-
 // gibberish.hpp:
 class gibberish;
-
 // tf_fuzz.hpp:
 class tf_fuzz_info;
 

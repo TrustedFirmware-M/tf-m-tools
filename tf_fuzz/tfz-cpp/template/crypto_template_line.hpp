@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,17 +9,16 @@
 #define CRYPTO_TEMPLATE_LINE_HPP
 
 #include <cstdint>
+#include <string>
+#include <iosfwd>
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.
-#include "psa_asset.hpp"
-//class psa_asset;  // just need a forward reference
+#include "crypto_call.hpp"
+#include "data_blocks.hpp"
+#include "find_or_create_asset.hpp"
 #include "template_line.hpp"
-#include "psa_call.hpp"
-*/
-using namespace std;
+#include "tf_fuzz.hpp"
 
+using namespace std;
 
 class set_policy_template_line : public policy_template_line
 {

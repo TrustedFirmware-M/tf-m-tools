@@ -1,29 +1,25 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 
+#include <stdint.h>
 #include <cstdlib>
-
-#include "class_forwards.hpp"
+#include <iostream>
 
 #include "boilerplate.hpp"
 #include "variables.hpp"
 #include "gibberish.hpp"
-#include "compute.hpp"
-#include "randomization.hpp"
 #include "string_ops.hpp"
 #include "data_blocks.hpp"
 #include "psa_asset.hpp"
 #include "find_or_create_asset.hpp"
-#include "template_line.hpp"
 #include "tf_fuzz.hpp"
 #include "crypto_asset.hpp"
 #include "psa_call.hpp"
 #include "crypto_call.hpp"
-#include "sst_asset.hpp"
 
 
 /**********************************************************************************
@@ -1349,4 +1345,3 @@ void remove_key_call::fill_in_command (void)
 /**********************************************************************************
    End of methods of class remove_key_call.
 **********************************************************************************/
-

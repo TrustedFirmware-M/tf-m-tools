@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,6 +8,7 @@
 #ifndef COMPUTE_HPP
 #define COMPUTE_HPP
 
+#include <stdint.h>
 #include <cstdlib>
 
 using namespace std;

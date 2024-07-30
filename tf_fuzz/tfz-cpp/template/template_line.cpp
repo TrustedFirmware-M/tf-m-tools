@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -12,24 +12,13 @@
    commands are therefore tracked in separate objects, but referenced here. */
 
 #include <vector>
-#include <algorithm>  // for STL find()
-
-#include "class_forwards.hpp"
 
 #include "data_blocks.hpp"
-#include "boilerplate.hpp"
-#include "randomization.hpp"
-#include "gibberish.hpp"
-#include "compute.hpp"
-#include "psa_asset.hpp"
 #include "find_or_create_asset.hpp"
 #include "template_line.hpp"
-#include "tf_fuzz.hpp"
-#include "crypto_asset.hpp"
 #include "psa_call.hpp"
-#include "crypto_call.hpp"
-#include "sst_asset.hpp"
-#include "crypto_asset.hpp"
+
+class tf_fuzz_info;
 
 
 
@@ -275,4 +264,3 @@ security_template_line::~security_template_line (void)
 /**********************************************************************************
    End of methods of class security_template_line.
 **********************************************************************************/
-

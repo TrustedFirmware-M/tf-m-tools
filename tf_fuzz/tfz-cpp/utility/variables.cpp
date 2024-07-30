@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,27 +8,12 @@
 /* This file defines information to track regarding variables in the generated test
    code. */
 
+#include <stdlib.h>
 #include <string>
-#include <vector>
-#include <list>
-#include <iostream>
-#include <fstream>
 
-#include "class_forwards.hpp"
-
-#include "data_blocks.hpp"
-#include "psa_asset.hpp"
-#include "crypto_asset.hpp"
-#include "psa_call.hpp"
 #include "find_or_create_asset.hpp"
 #include "variables.hpp"
 #include "gibberish.hpp"
-
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.  However these in particular are mostly axiomatic:  Not
-   dependent upon other classes. */
-
 
 using namespace std;
 

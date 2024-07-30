@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -7,6 +7,16 @@
 
 #ifndef FIND_OR_CREATE_ASSET_HPP
 #define FIND_OR_CREATE_ASSET_HPP
+
+#include <stdint.h>
+#include <iostream>
+#include <iterator>
+#include <new>
+#include <string>
+#include <vector>
+
+#include "psa_asset.hpp"
+#include "data_blocks.hpp"
 
 using namespace std;
 

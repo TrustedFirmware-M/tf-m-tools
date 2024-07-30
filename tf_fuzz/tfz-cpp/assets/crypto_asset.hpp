@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,13 +13,10 @@
 #include <cstddef>
 #include <cstdint>
 
-
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.
+#include "data_blocks.hpp"
 #include "psa_asset.hpp"
-*/
 
+class key_asset;
 
 using namespace std;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,14 +8,11 @@
 #ifndef SST_ASSET_HPP
 #define SST_ASSET_HPP
 
+#include <stdint.h>
 #include <string>
+#include <iosfwd>
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.
 #include "psa_asset.hpp"
-*/
-
 
 using namespace std;
 

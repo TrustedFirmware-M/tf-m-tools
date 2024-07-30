@@ -8,14 +8,14 @@
 #ifndef PSA_ASSET_HPP
 #define PSA_ASSET_HPP
 
-#include "class_forwards.hpp"
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <iosfwd>
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs. */
+#include "class_forwards.hpp"
+#include "data_blocks.hpp"
+#include "psa_call.hpp"
 
 using namespace std;
 

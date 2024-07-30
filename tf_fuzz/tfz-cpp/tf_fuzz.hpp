@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,20 +8,28 @@
 #ifndef TF_FUZZ_HPP
 #define TF_FUZZ_HPP
 
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <vector>
 #include <iostream>
 #include <fstream>
 
+#include "class_forwards.hpp"
+#include "compute.hpp"
+#include "data_blocks.hpp"
+#include "find_or_create_asset.hpp"
+#include "gibberish.hpp"
+#include "template_line.hpp"
+#include "variables.hpp"
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs.
-#include "psa_call.hpp"
-#include "sst_asset.hpp"
-#include "crypto_asset.hpp"
-#include "boilerplate.hpp"
-*/
+class boilerplate;
+class psa_asset;
+class psa_call;
+class variable_info;
+class tf_fuzz_info;
+
 
 /* Shortcuts, to reduce code clutter, and reduce risk of coding errors. */
 #define IVM(content) if(rsrc->verbose_mode){content}  // IVM = "If Verbose Mode"

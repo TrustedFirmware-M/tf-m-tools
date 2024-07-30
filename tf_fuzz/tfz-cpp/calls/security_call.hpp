@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,11 +10,12 @@
 
 #include <string>
 #include <vector>
+#include <iosfwd>
 
-/* This project's header files #including other project headers quickly becomes
-   unrealistically complicated.  The only solution is for each .cpp to include
-   the headers it needs. */
+#include "find_or_create_asset.hpp"
+#include "psa_call.hpp"
 
+class tf_fuzz_info;
 
 using namespace std;
 

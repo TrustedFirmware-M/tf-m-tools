@@ -1,14 +1,19 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 
 #include "string_ops.hpp"
+
+#include <ctype.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <iostream>
-#include <sstream>
 #include <iomanip>
+#include <stdexcept>
+#include <sstream>
 
 using namespace std;
 
