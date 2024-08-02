@@ -1,0 +1,12 @@
+purpose to have a more even chance of creating a valid or invalid key;
+
+/*
+ most completely random keys will be invalid so something like this helps get
+ more valid keys into the mix
+ */
+
+1 of {
+set policy name randomPolicy valid;
+set policy name randomPolicy;
+}
+set key name akey policy randomPolicy;

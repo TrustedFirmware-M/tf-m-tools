@@ -20,7 +20,9 @@
 #include "crypto_asset.hpp"
 #include "psa_call.hpp"
 #include "crypto_call.hpp"
+#include "crypto_model.hpp"
 
+using namespace crypto_model;
 
 /**********************************************************************************
    Methods of class policy_call follow:
@@ -958,7 +960,50 @@ generate_key_call::~generate_key_call (void)
 
 bool generate_key_call::copy_call_to_asset (void)
 {
-    return copy_call_to_asset_t<key_asset*> (this, yes_create_asset);
+    // we create the asset conditionally in simulate
+    return copy_call_to_asset_t<key_asset*> (this, dont_create_asset);
+}
+
+bool generate_key_call::simulate() {
+    bool is_policy_valid;
+
+    // NOTE: although algorithm and key-type depend on eachother for validity,
+    // this is checked during key operations not generation
+
+
+    if (policy.key_type == "PSA_KEY_TYPE_RSA_PUBLIC_KEY") {
+        is_policy_valid = false;
+    }
+    else if (policy.key_type == "PSA_KEY_TYPE_PEPPER") {
+        is_policy_valid = false;
+    } else {
+        key_type& kt = get_key_type(policy.key_type);
+        algorithm& alg = get_algorithm(policy.key_algorithm);
+        is_policy_valid = kt.is_valid_key_size(policy.n_bits);
+    }
+
+    psa_asset_usage asset_usage;
+
+    if (!is_policy_valid) {
+        // do not create a key when policy is invalid
+        exp_data.expect_failure();
+        return true;
+    }
+
+    // create an asset, and copy the information we want in it to it.
+    copy_call_to_asset_t<key_asset*> (this, yes_create_asset);
+    switch (asset_info.how_asset_found) {
+    case asset_search::created_new:
+        exp_data.expect_pass();
+
+        break;
+
+    default: // asset already exists!
+        exp_data.expect_failure();
+        break;
+    }
+
+    return true;
 }
 
 void generate_key_call::fill_in_prep_code (void)
@@ -1011,9 +1056,10 @@ create_key_call::~create_key_call (void)
     return;  // just to have something to pin a breakpoint onto
 }
 
+
 bool create_key_call::copy_call_to_asset (void)
 {
-    return copy_call_to_asset_t<key_asset*> (this, yes_create_asset);
+    return copy_call_to_asset_t<key_asset*> (this, dont_create_asset);
 }
 
 void create_key_call::fill_in_prep_code (void)
@@ -1324,6 +1370,30 @@ remove_key_call::~remove_key_call (void)
     return;  // just to have something to pin a breakpoint onto
 }
 
+bool remove_key_call::simulate () {
+    if (!exp_data.simulation_needed()) {
+        return false;
+    }
+    switch (asset_info.how_asset_found) {
+        case asset_search::found_active:
+        case asset_search::created_new:
+            exp_data.expect_pass();
+            return true;
+
+        // if the asset never existed, its handle will be null.
+        // deleting the null handle succeeds
+        case asset_search::not_found:
+            exp_data.expect_pass();
+            return true;
+
+        case asset_search::found_deleted:
+            exp_data.expect_failure();
+            return true;
+        default:
+            exp_data.expect_failure();
+            return true;
+    }
+}
 bool remove_key_call::copy_call_to_asset (void)
 {
     return copy_call_to_asset_t<key_asset*> (this, dont_create_asset);

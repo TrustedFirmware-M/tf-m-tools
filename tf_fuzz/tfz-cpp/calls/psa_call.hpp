@@ -83,6 +83,15 @@ public:
     /// never be overwritten.
     virtual bool simulate (void);
 
+    // Update policy information in the call based on the policy
+    // asset specified in policy.get_policy_from_policy. If this is unset,
+    // the existing values are used as-is.
+    //
+    // This enables the simulation time setting of the policy.
+    //
+    // See `key_policy_info.get_policy_from_policy`.
+    void copy_policy_to_call(void);
+
     // TODO: move simulation and error modelling code code into simulate().
     // once this is done, remove default impl so that simulate is mandatory for
     // calls.
@@ -159,7 +168,8 @@ class crypto_call : public psa_call
 public:
     // Data members:  // (low value in hiding these behind setters and getters)
     // Methods:
-        bool copy_asset_to_call (void);
+        bool copy_asset_to_call (void) override;
+        virtual bool simulate() override;
         crypto_call (tf_fuzz_info *test_state, long &asset_ser_no,
                     asset_search how_asset_found);  // (constructor)
         ~crypto_call (void);
@@ -167,12 +177,12 @@ public:
 protected:
     // Data members:
     // Methods:
-        void fill_in_result_code (void);
+        void fill_in_result_code (void) override;
            // for now, the method-overide buck stops here, but that'll probably change
+        bool simulate_ret_code(void);
+
 
 private:
-    // Data members:
-    // Methods:
 };
 
 class security_call : public psa_call

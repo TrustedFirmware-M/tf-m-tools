@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -151,6 +151,7 @@ volatile                  return VOLATILE;
 vol                       return VOLATILE;
 from                      return FROM;
 with                      return WITH;
+valid                     return VALID;
   /* Structure operands: */
 [a-zA-z][a-zA-Z_0-9]*     {yylval.str = yytext; return IDENTIFIER_TOK;}
 [+-]?[0-9]*               {yylval.valueN = atol(yytext); return NUMBER_TOK;}
@@ -162,4 +163,3 @@ with                      return WITH;
 .                         yyerror ((tf_fuzz_info *) NULL, "Unexpected character");
 
 %%
-

@@ -5,10 +5,12 @@
  *
  */
 
+#include <stdexcept>
 #include <stdlib.h>
 #include <iostream>
 
 #include "boilerplate.hpp"
+#include "crypto_asset.hpp"
 #include "string_ops.hpp"
 #include "data_blocks.hpp"
 #include "psa_asset.hpp"
@@ -69,6 +71,43 @@ void psa_call::write_out_check_code (ofstream &test_file)
 
 bool psa_call::simulate(void) {
     return false;
+}
+
+void psa_call::copy_policy_to_call(void) {
+
+    string name = policy.get_policy_from_policy;
+
+    // name represents the policy asset we want to use for this call.
+
+    // We don't want to use a policy asset, so we have nothing to do here.
+    if (name == ""){
+        return;
+    }
+
+    vector<psa_asset*>::iterator found_asset;
+    long x; // doesnt matter
+    asset_search status = test_state->find_or_create_policy_asset(psa_asset_search::name,psa_asset_usage::all,name,0,x,dont_create_asset,found_asset);
+
+    switch (status) {
+
+    case asset_search::found_active:
+    case asset_search::found_deleted:
+    case asset_search::found_invalid:
+        break;
+
+    default:
+        cerr << "Fatal: could not find policy asset " << name << endl;
+        exit(1);
+    }
+
+    string handle = policy.handle_str;
+    string asset_2_name = policy.asset_2_name;
+    string asset_3_name = policy.asset_3_name;
+
+    policy = found_asset[0]->policy;
+    policy.handle_str = handle;
+    policy.asset_2_name = asset_2_name;
+    policy.asset_3_name = asset_3_name;
 }
 
 /**********************************************************************************
@@ -273,6 +312,34 @@ sst_call::~sst_call (void)
    Methods of class crypto_call follow:
 **********************************************************************************/
 
+bool crypto_call::simulate(void) {
+    bool has_changed = false;
+    has_changed |= simulate_ret_code();
+
+    return has_changed;
+}
+
+
+
+bool crypto_call::simulate_ret_code(void) {
+    if (!exp_data.simulation_needed()) {
+        return false;
+    }
+    switch (asset_info.how_asset_found) {
+        case asset_search::found_active:
+        case asset_search::created_new:
+            exp_data.expect_pass();
+            return true;
+        case asset_search::not_found:
+        case asset_search::found_deleted:
+            exp_data.expect_failure();
+            return true;
+        default:
+            exp_data.expect_failure();
+            return true;
+    }
+}
+
 /* calc_result_code() fills in the check_code string member with the correct
    result code (e.g., "PSA_SUCCESS" or whatever).  This "modeling" needs to be
    improved and expanded upon *massively* more or less mirroring what is seen in
@@ -309,32 +376,8 @@ void crypto_call::fill_in_result_code (void)
         find_replace_all ("$expect", formalized, check_code);
         break;
 
-    // TODO: move error code simulation to simulate()
-    case expected_return_code_t::DontKnow: // Simulate
-        // Figure out what the message should read:
-        switch (asset_info.how_asset_found) {
-            case asset_search::found_active:
-            case asset_search::created_new:
-                find_replace_all ("$expect",
-                                  test_state->bplate->
-                                      bplate_string[sst_pass_string],
-                                  check_code);
-                break;
-            case asset_search::not_found:
-            case asset_search::found_deleted:
-                find_replace_all ("$expect", "PSA_ERROR_INVALID_HANDLE",
-                                  check_code);  // TODO:  take from boilerplate
-                break;
-            default:
-                find_replace_1st ("!=", "==",
-                                  check_code);  // like "fail", just make sure...
-                find_replace_all ("$expect",
-                                  test_state->bplate->
-                                      bplate_string[sst_pass_string],
-                                  check_code);  // ... it's *not* PSA_SUCCESS
-                break;
-        }
-        break;
+    case expected_return_code_t::DontKnow: // Simulate -- SHOULD NEVER HAPPEN
+        throw std::logic_error("Crypto call fill_in_result_code: return code is don't know");
     }
 }
 
@@ -358,7 +401,7 @@ crypto_call::crypto_call (tf_fuzz_info *test_state, long &call_ser_no,  // (cons
                           asset_search how_asset_found)
                              : psa_call(test_state, call_ser_no, how_asset_found)
 {
-    // Nothing further to initialize.
+    policy = key_policy_info::create_random();
     return;  // just to have something to pin a breakpoint onto
 }
 crypto_call::~crypto_call (void)

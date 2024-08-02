@@ -24,6 +24,7 @@
 #include "psa_call.hpp"
 #include "tf_fuzz_grammar.tab.hpp"
 #include "variables.hpp"
+#include "crypto_model.hpp"
 
 
 extern FILE* yyin;  // telling lex&yacc which file to parse
@@ -253,6 +254,7 @@ void tf_fuzz_info::simulate_calls (void){
         IV(cout << "    " << this_call->call_description << " for asset "
                 << this_call->asset_info.get_name() << endl;)
 
+        this_call->copy_policy_to_call();
         this_call->simulate();
         this_call->copy_call_to_asset();
            /* Note:  this_call->the_asset will now point to the asset
@@ -492,6 +494,8 @@ int main(int argc, char* argv[])
 
     // Allocate "the world":
     tf_fuzz_info *rsrc = new tf_fuzz_info;
+
+    crypto_model::init_crypto_model();
 
     // Parse parameters and open files:
     rsrc->parse_cmd_line_params (argc, argv);

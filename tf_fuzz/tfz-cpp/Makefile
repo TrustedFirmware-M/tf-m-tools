@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 CXX = g++
-INCLUDES = -I /usr/include -I . -I ./parser -I ./template -I ./assets -I ./calls -I ./boilerplate -I ./utility
-override CXXFLAGS += -std=gnu++11 -O0 -g $(INCLUDES)
+INCLUDES = -I /usr/include -I . -I ./parser -I ./template -I ./assets -I ./calls -I ./boilerplate -I ./utility -I ./crypto_model
+override CXXFLAGS += -std=gnu++17 -Werror=return-type -O0 -g $(INCLUDES)
 
 sources = $(wildcard assets/*.cpp) \
+          $(wildcard crypto_model/*.cpp) \
 		  $(wildcard boilerplate/*.cpp) \
 		  $(wildcard calls/*.cpp) \
 		  $(wildcard template/*.cpp) \
@@ -74,8 +75,8 @@ parser/tf_fuzz_grammar.tab.cpp parser/tf_fuzz_grammar.tab.hpp Makefile
 
 .PHONY: clean
 clean:
-	rm -f tfz *.d **/*.d *.d* **/*.d* $(objs) $(generated_objs) $(generated_includes) $(generated_sources)\
-	parser/tf_fuzz_grammar.output
+	rm -f tfz *.d **/*.d *.d* **/*.d* $(objs) $(generated_objs) $(generated_includes) $(generated_sources)
+	rm -rf parser/tf_fuzz_grammar.lex.c parser/tf_fuzz_grammar.output
 	rm -f `find regression -name "stdout_stderr"`
 	rm -f `find regression -name "test.c"`
 	rm -f demo/tossThis*

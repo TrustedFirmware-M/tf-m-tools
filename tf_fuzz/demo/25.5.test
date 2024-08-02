@@ -1,0 +1,3 @@
+purpose to create a random valid policy and create a key using it (no key material specified);
+set policy name randomPolicy valid;
+set key name akey policy randomPolicy;

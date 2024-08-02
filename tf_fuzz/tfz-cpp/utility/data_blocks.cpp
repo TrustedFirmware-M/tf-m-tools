@@ -15,7 +15,7 @@
 #include <vector>
 #include <iostream>
 
-#include "randomization.hpp"
+#include "fill_in_policy.hpp"
 #include "gibberish.hpp"
 #include "data_blocks.hpp"
 #include "find_or_create_asset.hpp"
@@ -359,25 +359,24 @@ key_policy_info::key_policy_info (void)  // (default constructor)
 {
     get_policy_from_key = false;  // specify policy asset by a key that uses it.
     copy_key = false;  // not copying one key to another
-    /* The following settings are not necessarily being randomized in mutually-
-       consistent ways, for two reasons:  First, the template should set all that
-       matter, and second, testing TF response to nonsensical settings is also
-       valuable. */
-    exportable  = (rand()%2==1? true : false);
-    copyable    = (rand()%2==1? true : false);
-    can_encrypt = (rand()%2==1? true : false);
-    can_decrypt = (rand()%2==1? true : false);
-    can_sign    = (rand()%2==1? true : false);
-    can_verify  = (rand()%2==1? true : false);
-    derivable   = (rand()%2==1? true : false);
-    persistent  = (rand()%2==1? true : false);
-    // There's a really huge number of possible key types; won't randomize all:
-    key_type = rand_key_type();
+    exportable = false;
+    copyable = false;
+    can_encrypt = false;
+    can_decrypt = false;
+    can_sign = false;
+    can_verify = false;
+    derivable= false;
+    persistent= false;
+
+    get_policy_from_policy = "";
+    key_type = "";
+    key_algorithm = "";
+    n_bits = 0;
+
     usage_string.assign ("");
     print_usage_true_string.assign ("");
     print_usage_false_string.assign ("");
-    key_algorithm = rand_key_algorithm();
-    n_bits = 55 + (rand() % 1000);
+
     gibberish *gib = new gibberish;
     char buffer[256];
     char *end;
@@ -389,7 +388,15 @@ key_policy_info::key_policy_info (void)  // (default constructor)
     gib->sentence (buffer, buffer + (40ULL + (uint64_t) (rand() % 200)));
     key_data = buffer;
     delete gib;
+
 }
+
+key_policy_info key_policy_info::create_random() {
+    key_policy_info policy;
+    fill_in_policy(policy,false);
+    return policy;
+}
+
 key_policy_info::~key_policy_info (void)  // (destructor)
 {
     return;  // (even if only to have something to pin a breakpoint on)

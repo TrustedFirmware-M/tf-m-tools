@@ -29,6 +29,7 @@
 #include "secure_template_line.hpp"
 #include "sst_template_line.hpp"
 #include "crypto_template_line.hpp"
+#include "fill_in_policy.hpp"
 
 /* These items are defined in tf_fuzz_grammar.l.  Note, however that, because
    of "name mangling," defining them as extern "C" may or may not be ideal,
@@ -132,6 +133,8 @@ bool print_data = false;  /* true to just print asset data to the test log */
 bool hash_data = false;  /* true to just print asset data to the test log */
 bool literal_is_string = true;
     /* if true, literal value is character-string;  if false, is list of hex values */
+
+bool policy_must_be_valid = false;
 
 /* The following are more tied to the template syntax than to the resulting PSA calls */
 string literal;  /* temporary holder for all string literals */
@@ -269,11 +272,19 @@ void interpret_template_line (
     bool create_call_bool,  /* true to create the PSA call at this time */
     bool create_asset_bool,  /* true to create the PSA asset at this time */
     bool fill_in_template,  /* true to back-fill info into template */
-    int instance
+    int instance,
         /* if further differentiation to the names or IDs is needed, make instance >0 */
+    bool do_fill_in_policy=false,
+    bool policy_must_be_valid=false
 ) {
     const bool yes_fill_in_template = true;  /* just to improve readability */
     vector<psa_asset*>::iterator t_psa_asset;
+
+    // take the partial policy info specified by the user, and flesh it out
+    // into either a random policy, or a random valid policy.
+    if (do_fill_in_policy) {
+        fill_in_policy(policy_info,policy_must_be_valid);
+    }
 
     if (fill_in_template) {
         /* Set basic parameters from the template line: */
@@ -361,6 +372,7 @@ void interpret_template_line (
 %token <valueN> NUMBER_TOK  /* variables and content */
 %token <tokenN> SEMICOLON SHUFFLE TO OF OPEN_BRACE CLOSE_BRACE  /* block structure */
 %token <tokenN> ATTR TYPE ALG  /* "set policy" line portions */
+%token <tokenN> VALID
 %token <tokenN> EXPORT COPY ENCRYPT DECRYPT SIGN VERIFY DERIVE  /* key-usage keywords */
 %token <tokenN> NOEXPORT NOCOPY NOENCRYPT NODECRYPT NOSIGN NOVERIFY NODERIVE
 %token <tokenN> PERSISTENT VOLATILE  /* key lifetime keywords */
@@ -382,6 +394,8 @@ lines:
             expect = expect_info();
             set_data = set_data_info();
             parsed_asset = asset_name_id_info();
+
+            // blank new policy -- this is filled in later by interpret template
             policy_info = key_policy_info();
         }
       ;
@@ -403,10 +417,16 @@ line:
             expect = expect_info();
             set_data = set_data_info();
             parsed_asset = asset_name_id_info();
+
+            // blank new policy -- this is filled in later by interpret template
             policy_info = key_policy_info();
+            policy_must_be_valid = false;
+
             target_barrier = "";
         }
       | block {
+            policy_info = key_policy_info();
+            policy_must_be_valid = false;
             /* TODO:  This code may not won't work with "secure hash neq ..." */
             IVM(cout << "Block of lines." << endl;)
             /* "Statisticalize" :-) the vector of template lines, then crank
@@ -430,6 +450,7 @@ line:
                     yes_create_asset,
                     dont_fill_in_template,  /* but did fill it all in before */
                     0
+
                 );
                 k++;
                 for (add_expect = 0;  add_expect < rsrc->calls.size();  ++add_expect) {
@@ -438,7 +459,7 @@ line:
                         templateLin->expect.expected_results_saved = true;
                     }
                 }
-            }
+    }
             templateLin->asset_info.asset_id_n_vector.clear();
             templateLin->asset_info.asset_name_vector.clear();
             /* Done.  Empty out the "statisticalization" vector: */
@@ -449,6 +470,8 @@ line:
             IVM(cout << "Finished coding block of lines." << endl;)
         }
       | command SEMICOLON {
+            policy_info = key_policy_info();
+            policy_must_be_valid = false;
             IVM(cout << "Command with no expect:  \"" << flush;)
             if (!purpose_defined) {
                 cerr << endl << endl
@@ -473,6 +496,8 @@ line:
             IVM(cout << yytext << "\"" << endl;)
         }
       | command expect SEMICOLON {
+            policy_info = key_policy_info();
+            policy_must_be_valid = false;
             /* (This is the same as for command SEMICOLON, other than the IVM.) */
             IVM(cout << "Command with expect:  \"" << flush;)
             if (!purpose_defined) {
@@ -562,10 +587,12 @@ set_command:
                 print_data, hash_data, asset_name, assign_data_var, parsed_asset,
                 nesting_level == 0 /* create call unless inside {} */,
                 nesting_level == 0 /* similarly, create asset unless inside {} */,
-                yes_fill_in_template, 0
+                yes_fill_in_template, 0,
+                true,
+                policy_must_be_valid
             );
         }
-      | SET POLICY policy_set_args {
+      | SET POLICY policy_set_args policy_valid{
             IVM(cout << "Set policy command:  \"" << yytext << "\"" << endl;;)
             templateLin = new set_policy_template_line (rsrc);
             interpret_template_line (
@@ -574,7 +601,9 @@ set_command:
                 print_data, hash_data, asset_name, assign_data_var, parsed_asset,
                 nesting_level == 0 /* create call unless inside {} */,
                 nesting_level == 0 /* similarly, create asset unless inside {} */,
-                yes_fill_in_template, 0
+                yes_fill_in_template, 0,
+                true,
+                policy_must_be_valid
             );
         }
       ;
@@ -988,7 +1017,7 @@ export : EXPORT {
       ;
 
 noexport : NOEXPORT {
-            policy_info.exportable = false;
+            policy_info.no_exportable = true;
             IVM(cout << "Non-exportable key:  " << yytext << "\"" << endl;)
         }
       ;
@@ -1000,7 +1029,7 @@ copy : COPY {
       ;
 
 nocopy : NOCOPY {
-            policy_info.copyable = false;
+            policy_info.no_copyable = true;
             IVM(cout << "Non-copyable key:  " << yytext << "\"" << endl;)
         }
       ;
@@ -1012,7 +1041,7 @@ encrypt : ENCRYPT {
       ;
 
 noencrypt : NOENCRYPT {
-            policy_info.can_encrypt = false;
+            policy_info.no_can_encrypt = true;
             IVM(cout << "Non-encryption key:  " << yytext << "\"" << endl;)
         }
       ;
@@ -1024,7 +1053,7 @@ decrypt : DECRYPT {
       ;
 
 nodecrypt : NODECRYPT {
-            policy_info.can_decrypt = false;
+            policy_info.no_can_decrypt = true;
             IVM(cout << "Non-decryption key:  " << yytext << "\"" << endl;)
         }
       ;
@@ -1036,7 +1065,7 @@ sign : SIGN {
       ;
 
 nosign : NOSIGN {
-            policy_info.can_sign = false;
+            policy_info.no_can_sign = true;
             IVM(cout << "Non-signing key:  " << yytext << "\"" << endl;)
         }
       ;
@@ -1048,7 +1077,7 @@ verify : VERIFY {
       ;
 
 noverify : NOVERIFY {
-            policy_info.can_verify = false;
+            policy_info.no_can_verify = true;
             IVM(cout << "Non-verify key:  " << yytext << "\"" << endl;)
         }
       ;
@@ -1060,7 +1089,7 @@ derive : DERIVE {
       ;
 
 noderive : NODERIVE {
-            policy_info.derivable = false;
+            policy_info.no_derivable = true;
             IVM(cout << "Non-derivable key:  " << yytext << "\"" << endl;)
         }
       ;
@@ -1072,7 +1101,7 @@ persistent : PERSISTENT {
       ;
 
 volatle : VOLATILE {
-            policy_info.persistent = false;
+            policy_info.no_persistent = true;
             IVM(cout << "Volatile key:  " << yytext << "\"" << endl;)
         }
       ;
@@ -1118,7 +1147,7 @@ policy_asset_spec:
       | NAME ASSET_IDENTIFIER_LIST {
             IVM(cout << "policy-asset identifier list:  \"" << flush;)
             random_name = false;
-            asset_name.assign (identifier);  /* TODO:  Not sure this ultimately has any effect... */
+            asset_name = identifier;  /* TODO:  Not sure this ultimately has any effect... */
             random_asset = psa_asset_usage::all;  /* don't randomly choose existing asset */
             parsed_asset.id_n_not_name = false;
             IVM(cout << yytext << "\"" << endl;)
@@ -1141,7 +1170,7 @@ policy_asset_name:
             IVM(cout << "policy-asset identifier list:  \"" << flush;)
             random_name = false;
             policy_info.get_policy_from_key = false;
-            asset_name.assign (identifier);  /* TODO:  Not sure this ultimately has any effect... */
+            asset_name = identifier;  /* TODO:  Not sure this ultimately has any effect... */
             parsed_asset.asset_name_vector.push_back (identifier);
             random_asset = psa_asset_usage::all;  /* don't randomly choose existing asset */
             parsed_asset.id_n_not_name = false;
@@ -1178,6 +1207,15 @@ policy_set_args:
         }
       ;
 
+policy_valid:
+        %empty /* nothing */ {
+            policy_must_be_valid = false;
+        }
+        | VALID /* policy must be valid */ {
+            IVM(cout << "Policy-create must be valid" << endl;)
+            policy_must_be_valid = true;
+
+        }
 policy_read_args:
         policy_asset_name read_args {
             IVM(cout << "Policy-read arguments:  " << yytext << "\"" << endl;)
@@ -1200,6 +1238,7 @@ key_set_source:
       | POLICY IDENTIFIER {
             IVM(cout << "Key-set sources, explicitly-specified policy name:  "
                      << flush;)
+            policy_info.get_policy_from_policy = identifier;
             policy_info.asset_2_name = identifier;  /* policy */
             /* Make note that key data (key material) was not specified: */
             IVM(cout << yytext << "\"" << endl;)

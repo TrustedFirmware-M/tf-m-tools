@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #include "gibberish.hpp"
+#include "data_blocks.hpp"
 #include "crypto_asset.hpp"
 
 
@@ -18,6 +19,7 @@
 
 crypto_asset::crypto_asset (void)  // (default constructor)
 {
+    policy = key_policy_info::create_random();
     return;  // just to have something to pin a breakpoint onto
 }
 
@@ -65,9 +67,7 @@ bool key_asset::set_key_id (int id_n)
 
 key_asset::key_asset (void)
 {
-    // Note:  Similar random initialization for asset and template
     // Randomize handle:
-    // TODO:  Key handles appear to be a lot more complex a question than the below
     gibberish *gib = new gibberish;
     char buffer[256];
     char *end;

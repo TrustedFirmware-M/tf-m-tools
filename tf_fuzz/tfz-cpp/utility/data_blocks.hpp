@@ -213,21 +213,46 @@ class key_policy_info
 public:
     // Data members:
     // Digested info:
-    bool get_policy_from_key;
     /* if true, then we must get policy info from a stated key;  the asset
-               here is a key that uses the policy, and not the policy itself. */
-    bool implicit_policy;
+      here is a key that uses the policy, and not the policy itself. */
+    bool get_policy_from_key;
+
+    // If set, the policy asset specified should be used to fill in the policy
+    // at simulation time. This overwrites the other values in the object.
+    //
+    // If blank, the values in the object are used as-is.
+    //
+    // See `psa_call::copy_policy_to_call`
+    string get_policy_from_policy;
+
     /* if true, then the key was defined with policy specifications, but not
-               a named policy, meaning that we have to create an implicit policy. */
-    bool copy_key;  // true to indicate copying one key to another
-    bool exportable;   // key data can be exported (viewed - fail exports if not).
-    bool copyable;     // can be copied (fail key-copies if not).
-    bool can_encrypt;  // OK for encryption (fail other uses).
-    bool can_decrypt;  // OK for decryption (fail other uses).
-    bool can_sign;     // OK for signing (fail other operations).
-    bool can_verify;   // OK for verifying a message signature (fail other uses).
-    bool derivable;    // OK for derive other keys (fail other uses).
-    bool persistent;   // must be deleted at the end of test.
+     a named policy, meaning that we have to create an implicit policy. */
+    bool implicit_policy;
+    bool copy_key = false;  // true to indicate copying one key to another
+    bool exportable=false;   // key data can be exported (viewed - fail exports if not).
+    bool copyable=false;     // can be copied (fail key-copies if not).
+    bool can_encrypt=false;  // OK for encryption (fail other uses).
+    bool can_decrypt=false;  // OK for decryption (fail other uses).
+    bool can_sign=false;     // OK for signing (fail other operations).
+    bool can_verify=false;   // OK for verifying a message signature (fail other uses).
+    bool derivable=false;    // OK for derive other keys (fail other uses).
+    bool persistent=false;   // must be deleted at the end of test.
+
+
+    // no_<flag> denotes that <flag> must not be set in the key.
+    //
+    // For the above flags, truth means "must be set" and false means "don't care".
+    // Setting no_<flag> means "must not be set". no_<flag> takes presedence over <flag>.
+
+    bool no_exportable=false; // true to indicate that exportable must not be set during randomisation
+    bool no_copyable=false; // true to indicate that copyable must not be set during randomisation
+    bool no_can_encrypt=false; // true to indicate that can_encrypt must not be set during randomisation
+    bool no_can_decrypt=false; // true to indicate that can_decrypt must not be set during randomisation
+    bool no_can_sign=false; // true to indicate that can_sign must not be set during randomisation
+    bool no_can_verify=false; // true to indicate that can_verify must not be set during randomisation
+    bool no_derivable=false; // true to indicate that derivable must not be set during randomisation
+    bool no_persistent=false; // true to indicate that persistent must not be set during randomisation
+
     string usage_string;
     /* This string is set to a PSA_KEY_USAGE_* value in the template
                immediately prior to making define_call<add_policy_usage_call>.
@@ -258,7 +283,16 @@ public:
     ~key_policy_info (void);  // (destructor)
 
 
+    /** Creates a random, but not necessarily valid, policy */
+    static key_policy_info create_random();
+
+
 protected:
+
+    /* The following settings are not necessarily being randomized in mutually-
+       consistent ways, for two reasons:  First, the template should set all that
+       matter, and second, testing TF response to nonsensical settings is also
+       valuable. */
     // Data members:
     bool data_matches_asset;
     /* true if template specifies expected data, and that expected data
