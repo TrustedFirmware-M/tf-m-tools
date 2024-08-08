@@ -8,9 +8,7 @@
 #ifndef CRYPTO_ASSET_HPP
 #define CRYPTO_ASSET_HPP
 
-#include <string>
 #include <vector>
-#include <cstddef>
 #include <cstdint>
 
 #include "data_blocks.hpp"
@@ -42,9 +40,6 @@ class policy_asset : public crypto_asset
 {
 public:
     // Data members:
-        string policy_usage;  // for now just strings;  maybe future tap TF-M(?) value list
-        string key_type;  // DES, AES, RAW, vendor, none, etc.
-        string policy_algorithm;
         vector<key_asset*> keys;  // keys that use this policy
     // Methods:
         policy_asset (void);  // (constructor)
@@ -62,17 +57,6 @@ private:
 class key_asset : public crypto_asset
 {
 public:
-    // Data members:
-        vector<policy_asset*>::iterator the_policy_asset;
-            /* The policy for this key.  Note that psa_make_key() lets us create
-             a key without associating a policy with it.  In that case, this will
-             be null, and the attributes below apply.  Later, psa_set_key_policy
-             lets us associate a policy with a key, at which point this becomes
-             non-null and the following attributes no longer apply. */
-        string key_type;  // DES, AES, RAW, vendor, none, etc.
-        string usage;  // for now just strings;  maybe future tap TF-M(?) value list
-        string alg;  // these only apply if the string was created without a policy
-        string lifetime_str;  // similarly, the text representation of the key's lifetime
     // Methods:
         bool set_key_id (int id_n);  // checks key-ID value, returns true==success
         key_asset (void);  // (constructor)

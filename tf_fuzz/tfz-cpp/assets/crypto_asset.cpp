@@ -7,7 +7,6 @@
 
 #include <stdlib.h>
 
-#include "randomization.hpp"
 #include "gibberish.hpp"
 #include "crypto_asset.hpp"
 
@@ -39,10 +38,7 @@ crypto_asset::~crypto_asset (void)  // (destructor)
 
 policy_asset::policy_asset (void)  // (default constructor)
 {
-    // Randomize key-policy usage and algorithm:
-    policy_usage = rand_key_usage();
-    policy_algorithm = rand_key_algorithm();
-    // keys:  Should automatically come up as empby.
+    return;  // just to have something to pin a breakpoint onto
 }
 
 
@@ -80,11 +76,6 @@ key_asset::key_asset (void)
     *end = '\0';
     buffer[buf_len] = '\0';
     handle_str = buffer;
-    // Randomize key type:
-    key_type = rand_key_type();
-    // Randomize lifetime:
-    lifetime_str = ((rand() % 2) == 1)?
-                       "PSA_KEY_LIFETIME_VOLATILE" : "PSA_KEY_LIFETIME_PERSISTENT";
 }
 
 
