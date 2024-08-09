@@ -113,12 +113,21 @@ def main():
         c_file_name: str = f"{test_input_path.stem}.c"
         generated_test_path: Path = TARGET_DIR / f"{c_file_name}"
 
-        sp.run(
+        process = sp.run(
             f"{TFZ_EXECUTABLE.absolute()} {test_input_path.absolute()} {generated_test_path.absolute()}",
             shell=True,
-            stdout=sp.DEVNULL,
-            stderr=sp.DEVNULL,
+            text=True,
+            stderr=sp.STDOUT,
+            stdout=sp.PIPE,
         )
+
+        if process.returncode != 0:
+            print("  tfz invocation failed, skipping test")
+            print("  Command output: ")
+            for line in process.stdout.splitlines():
+                print(f"    {line}")
+
+            continue
 
         name: str = f"TFM_FUZZ_TEST_{test_input_path.stem.upper().replace(' ','_')}"
 
