@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -518,22 +518,22 @@ command:
 expect:
         EXPECT PASS  {
             IVM(cout << "Expect pass clause:  \"" << flush;)
-            templateLin->expect.set_pf_pass();
+            templateLin->expect.expect_pass();
             IVM(cout << yytext << "\"" << endl;)
         }
       | EXPECT FAIL {
             IVM(cout << "Expect fail clause:  \"" << flush;)
-            templateLin->expect.set_pf_fail();
+            templateLin->expect.expect_failure();
             IVM(cout << yytext << "\"" << endl;)
         }
       | EXPECT NOTHING {
             IVM(cout << "Expect nothing clause:  \"" << flush;)
-            templateLin->expect.set_pf_nothing();
+            templateLin->expect.disable_result_code_checking();
             IVM(cout << yytext << "\"" << endl;)
         }
       | EXPECT IDENTIFIER {
             IVM(cout << "Expect error clause:  \"" << flush;)
-            templateLin->expect.set_pf_error (identifier);
+            templateLin->expect.expect_error_code (identifier);
             IVM(cout << yytext << "\"" << endl;)
         }
       ;
@@ -1420,4 +1420,3 @@ LITERAL:
 
 
 %%
-

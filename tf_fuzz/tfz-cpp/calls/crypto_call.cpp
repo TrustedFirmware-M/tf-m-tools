@@ -237,7 +237,7 @@ void init_policy_call::fill_in_command (void)
     // (call_code already loaded by constructor)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -280,7 +280,7 @@ void reset_policy_call::fill_in_command (void)
     // (call_code already loaded by constructor)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -326,7 +326,7 @@ void add_policy_usage_call::fill_in_command (void)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$flag", policy.usage_string, call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -373,7 +373,7 @@ void set_policy_lifetime_call::fill_in_command (void)
                                          : "PSA_KEY_LIFETIME_VOLATILE",
                       call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -417,7 +417,7 @@ void set_policy_size_call::fill_in_command (void)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$size", to_string (policy.n_bits), call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -461,7 +461,7 @@ void set_policy_type_call::fill_in_command (void)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$type", policy.key_type, call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -505,7 +505,7 @@ void set_policy_algorithm_call::fill_in_command (void)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$algorithm", policy.key_algorithm, call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -548,7 +548,7 @@ void set_policy_usage_call::fill_in_command (void)
     find_replace_1st ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$usage", "0", call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -602,7 +602,7 @@ void get_policy_lifetime_call::fill_in_command (void)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$life", asset_info.get_name() + "_life", call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -657,7 +657,7 @@ void get_policy_size_call::fill_in_command (void)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$size", asset_info.get_name() + "_size", call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -711,7 +711,7 @@ void get_policy_type_call::fill_in_command (void)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$type", asset_info.get_name() + "_type", call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -765,7 +765,7 @@ void get_policy_algorithm_call::fill_in_command (void)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$algorithm", asset_info.get_name() + "_algo", call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -819,7 +819,7 @@ void get_policy_usage_call::fill_in_command (void)
     find_replace_all ("$policy", asset_info.get_name(), call_code);
     find_replace_1st ("$usage", asset_info.get_name() + "_usage", call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -881,7 +881,7 @@ void print_policy_usage_call::fill_in_command (void)
     find_replace_1st ("$print_usage_false_string", policy.print_usage_false_string,
                       call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -927,7 +927,7 @@ void get_key_policy_call::fill_in_command (void)
     find_replace_all ("key", asset_info.get_name(), call_code);
     find_replace_all ("$policy", policy.asset_2_name, call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -982,7 +982,7 @@ void generate_key_call::fill_in_command (void)
     find_replace_all ("$policy", policy.asset_2_name, call_code);
     find_replace_all ("$key", asset_info.get_name(), call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -1055,7 +1055,7 @@ void create_key_call::fill_in_command (void)
     find_replace_all ("$length", to_string (policy.n_bits), call_code);
     find_replace_all ("$key", asset_info.get_name(), call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -1111,6 +1111,8 @@ void copy_key_call::fill_in_command (void)
     find_replace_all ("$policy", policy.asset_2_name, call_code);
     find_replace_all ("$copy", asset_info.get_name(), call_code);
 
+    // TODO:: move error code modelling code to simulate().
+
     // Calculate the expected results:
     asset_search find_result;
     vector<psa_asset*>::iterator asset;
@@ -1120,10 +1122,10 @@ void copy_key_call::fill_in_command (void)
         find_or_create_key_asset (psa_asset_search::name, psa_asset_usage::active,
                                   policy.asset_3_name, (uint64_t) 0, dummy,
                                   dont_create_asset, asset);
+
+
     if (find_result != asset_search::found_active) {
-        exp_data.pf_specified = true;
-        exp_data.pf_result_string = "PSA_ERROR_INVALID_ARGUMENT";
-            // TODO:  Pull this in from boilerplate file
+        exp_data.expect_error_code("PSA_ERROR_INVALID_ARGUMENT");
     } else {
         // See if the new policy does not exist:
         find_result = test_state->
@@ -1131,17 +1133,15 @@ void copy_key_call::fill_in_command (void)
                                          policy.asset_2_name, (uint64_t) 0, dummy,
                                          dont_create_asset, asset);
         if (find_result != asset_search::found_active) {
-            exp_data.pf_specified = true;
-            exp_data.pf_result_string = "PSA_ERROR_INVALID_ARGUMENT";
-                // TODO:  Pull this in from boilerplate file
+            exp_data.expect_error_code("PSA_ERROR_INVALID_ARGUMENT");
+
         } else if (!(*asset)->policy.copyable) {
             // See if the source key does not support export:
             // TODO:  Or wait, it's the original policy for the key, right?
-            exp_data.pf_specified = true;
-            exp_data.pf_result_string = "PSA_ERROR_NOT_PERMITTED";
+            exp_data.expect_error_code("PSA_ERROR_NOT_PERMITTED");
         }
     }
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -1286,15 +1286,16 @@ void read_key_data_call::fill_in_command (void)
     find_replace_1st ("$act_size", actual_length_var_name, call_code);
     find_replace_1st ("$length", length_var_name, call_code);
 
+    // TODO: move error checking code to simulate().
+
     // TODO:  check data?
 
     // See if the source key did not exist:
     if (!policy.exportable) {
         // See if the source key does not support export:
-        exp_data.pf_specified = true;
-        exp_data.pf_result_string = "PSA_ERROR_NOT_PERMITTED";
+        exp_data.expect_error_code("PSA_ERROR_NOT_PERMITTED");
     }
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -1339,7 +1340,7 @@ void remove_key_call::fill_in_command (void)
     // (call_code already loaded by constructor)
     find_replace_all ("$key", asset_info.get_name(), call_code);
     // Calculate the expected results:
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************

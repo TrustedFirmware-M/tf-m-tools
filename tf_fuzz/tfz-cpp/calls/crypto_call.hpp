@@ -534,9 +534,9 @@ class read_key_data_call : public key_call
 public:
     // Data members:
     // Methods:
-        bool copy_call_to_asset (void);
-        void fill_in_prep_code (void);
-        void fill_in_command (void);
+        bool copy_call_to_asset (void) override;
+        void fill_in_prep_code (void) override;
+        void fill_in_command (void) override;
         read_key_data_call (tf_fuzz_info *test_state, long &asset_ser_no,
                             asset_search how_asset_found);  // (constructor)
         ~read_key_data_call (void);
@@ -557,9 +557,9 @@ class remove_key_call : public key_call
 public:
     // Data members:
     // Methods:
-        bool copy_call_to_asset (void);
-        void fill_in_prep_code (void);
-        void fill_in_command (void);
+        bool copy_call_to_asset (void) override;
+        void fill_in_prep_code (void) override;
+        void fill_in_command (void) override;
         remove_key_call (tf_fuzz_info *test_state, long &asset_ser_no,
                          asset_search how_asset_found);  // (constructor)
         ~remove_key_call (void);

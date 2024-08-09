@@ -86,7 +86,6 @@ bool sst_template_line::copy_template_to_call (psa_call *call)
     }
     call->set_data.flags_string.assign (set_data.flags_string);
     call->exp_data = expect;
-    call->exp_data.pf_info_incomplete = true;
     call->id_string = asset_name;  // data = expected
     call->print_data = print_data;
     call->hash_data = hash_data;
@@ -147,7 +146,6 @@ bool key_template_line::copy_template_to_call (psa_call *call)
     }
     call->set_data.flags_string.assign (set_data.flags_string);
     call->exp_data = expect;
-    call->exp_data.pf_info_incomplete = true;
     call->id_string = asset_name;  // data = expected
     call->print_data = print_data;
     call->hash_data = hash_data;
@@ -210,7 +208,6 @@ bool policy_template_line::copy_template_to_call (psa_call *call)
     }
     call->set_data.flags_string.assign (set_data.flags_string);
     call->exp_data = expect;
-    call->exp_data.pf_info_incomplete = true;
     call->id_string = asset_name;  // data = expected
     call->print_data = print_data;
     call->hash_data = hash_data;

@@ -40,7 +40,6 @@ bool security_hash_template_line::copy_template_to_call (psa_call *call)
     call->set_data.file_path.assign("");
     call->set_data.set("");
     call->set_data.flags_string.assign ("");
-    call->exp_data.pf_info_incomplete = true;
     return true;
 }
 

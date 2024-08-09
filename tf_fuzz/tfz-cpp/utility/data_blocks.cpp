@@ -9,6 +9,7 @@
    associated methods (most importantly their constructors) used in template_
    line, psa_call, psa_asset (etc.). */
 
+#include <stdexcept>
 #include <stdlib.h>
 #include <string>
 #include <vector>
@@ -28,62 +29,97 @@
 
 expect_info::expect_info (void)  // (default constructor)
 {
-    pf_nothing = false;  // by default, TF-Fuzz provides expected results
-    pf_pass = pf_fail = pf_specified = false;
-    pf_result_string.assign ("");  data.assign ("");
-    data_var_specified = false;
+    result_code_checking_enabled_f = true;
+    return_code_result_string.assign ("");
+
+    expected_return_code = expected_return_code_t::DontKnow;
+
+    data.assign ("");
     data_var.assign ("");  // name of expected-data variable
+
+    data_var_specified = false;
     data_specified = false;
     data_matches_asset = false;
-    data.assign ("");
-    pf_info_incomplete = true;
     n_exp_vars = -1;  // so the first reference is 0 (no suffix), then _1, _2, ...
-    expected_results_saved = false;
 }
+
 expect_info::~expect_info (void)  // (destructor)
 {}
 
-void expect_info::set_pf_pass (void)
-{
-    pf_pass = true;
-    pf_fail = pf_nothing = pf_specified = false;
-    pf_result_string = "";
+bool expect_info::simulation_needed(void) {
+  if (result_code_checking_enabled_f &&
+      expected_return_code == expected_return_code_t::DontKnow) {
+    return true;
+  }
+
+    return false;
 }
 
-void expect_info::set_pf_fail (void)
+void expect_info::expect_pass (void)
 {
-    pf_fail = true;
-    pf_pass = pf_nothing = pf_specified = false;
-    pf_result_string = "";
+    expected_return_code  = expected_return_code_t::Pass;
+    return_code_result_string = "";
 }
 
-void expect_info::set_pf_nothing (void)
+void expect_info::expect_failure(void)
 {
-    pf_nothing = true;
-    pf_fail = pf_pass = pf_specified = false;
-    pf_result_string = "";
+    expected_return_code  = expected_return_code_t::Fail;
+    return_code_result_string = "";
 }
 
-void expect_info::set_pf_error (string error)
+void expect_info::expect_error_code (string error)
 {
-    pf_specified = true;
-    pf_result_string.assign (error);  // just default "guess," to be filled in
-    pf_pass = pf_fail = pf_nothing = false;
+    expected_return_code = expected_return_code_t::SpecificFail;
+    return_code_result_string = error;
 }
 
-/* The expected pass/fail results are not available from the parser until the call has
-   already been created.  The flag, pf_info_incomplete, that indicates whether or not
-   the "expects" information has been filled in.  If not, fill it in from the template,
-   once that info has been parsed. */
+
+void expect_info::clear_expected_code (void)
+{
+    expected_return_code = expected_return_code_t::DontKnow;
+}
+
+expected_return_code_t expect_info::get_expected_return_code(void) {
+
+    // NOTE: we do not store DontCare in expected_return_code, as this would erase
+    // the value stored prior to checks being disabled. This way, when
+    // enable_result_code_checking is called, it can use the value given by the
+    // user previously.
+    // ..
+    // Despite this, having DontCare as a value is still useful: it allows user
+    // code that uses expected return codes to just be a switch statement.
+
+    if (result_code_checking_enabled_f) {
+        return expected_return_code;
+    }
+
+    return expected_return_code_t::DontCare;
+}
+
+string expect_info::get_expected_return_code_string(void) {
+    if (result_code_checking_enabled_f && expected_return_code == expected_return_code_t::SpecificFail) {
+        return return_code_result_string;
+    }
+    throw std::logic_error("get_expected_return_code_string called when return code is not SpecificFail");
+}
+
+void expect_info::disable_result_code_checking (void)
+{
+    result_code_checking_enabled_f = false;
+}
+
+void expect_info::enable_result_code_checking (void)
+{
+    result_code_checking_enabled_f = true;
+}
+
+bool expect_info::result_code_checking_enabled (void) {
+    return result_code_checking_enabled_f;
+}
+
 void expect_info::copy_expect_to_call (psa_call *the_call)
 {
-    the_call->exp_data.pf_nothing = pf_nothing;
-    the_call->exp_data.pf_pass = pf_pass;
-    the_call->exp_data.pf_fail = pf_fail;
-    the_call->exp_data.pf_specified = pf_specified;
-    the_call->exp_data.pf_result_string = pf_result_string;
-    the_call->exp_data.expected_results_saved = true;
-    the_call->exp_data.pf_info_incomplete = false;
+    the_call->exp_data = *this;
 }
 
 /**********************************************************************************
@@ -181,7 +217,7 @@ void set_data_info::randomize (void)
     random_data = true;
     literal_data_not_file = true;
     rand_data_length = 40 + (rand() % 256);
-        /* Note:  Multiple assets do get different random data */
+    /* Note:  Multiple assets do get different random data */
     gib.sentence (gib_buff, gib_buff + rand_data_length - 1);
     data = gib_buff;
 }
@@ -303,7 +339,7 @@ string asset_name_id_info::make_id_n_based_name (uint64_t id_n)
             break;
         default:
             cerr << "\nError:  Tool-internal:  Please report error "
-                 << "#1223 to the TF-Fuzz developers." << endl;
+                << "#1223 to the TF-Fuzz developers." << endl;
             exit(1223);
     }
     result.append(to_string(id_n));

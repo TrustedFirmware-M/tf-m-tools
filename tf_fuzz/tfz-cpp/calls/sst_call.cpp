@@ -171,13 +171,15 @@ void sst_set_call::fill_in_command (void)
     string id_string = to_string((long) asset_info.id_n);
     find_replace_1st ("$uid", id_string, call_code);
     find_replace_1st ("$length", length_var_name, call_code);
+
+    // TODO: move error code modelling to simulate().
+
     // Figure out what expected results:
-    if (   set_data.flags_string == "PSA_STORAGE_FLAG_WRITE_ONCE"
+    if (set_data.flags_string == "PSA_STORAGE_FLAG_WRITE_ONCE"
         && set_data.n_set_vars > 0) {
-        exp_data.pf_specified = true;
-        exp_data.pf_result_string = "PSA_ERROR_NOT_PERMITTED";
+        exp_data.expect_error_code("PSA_ERROR_NOT_PERMITTED");
     }
-    calc_result_code();
+    fill_in_result_code();
 }
 
 /**********************************************************************************
@@ -412,7 +414,7 @@ void sst_get_call::fill_in_command (void)
         find_replace_all ("$hash_var", hash_var_name, check_code);
     }
     // Figure out what expected results:
-    calc_result_code();  // this only fills $expect check_code
+    fill_in_result_code();  // this only fills $expect check_code
     // Fill in expected data, actual data, and length:
 }
 
@@ -482,7 +484,7 @@ void sst_remove_call::fill_in_command (void)
     string id_string = to_string((long) asset_info.id_n);
     find_replace_1st ("$uid", id_string, call_code);
     // Fill in expected results:
-    calc_result_code();  // this only fills $expect check_code
+    fill_in_result_code();  // this only fills $expect check_code
 }
 
 /**********************************************************************************

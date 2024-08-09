@@ -60,11 +60,15 @@ void psa_call::write_out_command (ofstream &test_file)
 
 void psa_call::write_out_check_code (ofstream &test_file)
 {
-    if (!exp_data.pf_nothing) {
+    if (exp_data.result_code_checking_enabled()) {
         test_file << check_code;
     } else {
         test_file << "    /* (No checks for this PSA call.) */" << endl;
     }
+}
+
+bool psa_call::simulate(void) {
+    return false;
 }
 
 /**********************************************************************************
@@ -81,15 +85,15 @@ void psa_call::write_out_check_code (ofstream &test_file)
 
    This is a big part of where the target modeling -- error modeling -- occurs,
    so lots of room for further refinement here. */
-void sst_call::calc_result_code (void)
+void sst_call::fill_in_result_code (void)
 {
-    string formalized;  // "proper" result string
 
-    if (exp_data.pf_nothing) { // do not generate result checks
+    string formalized;  // "proper" result string
+    switch (exp_data.get_expected_return_code()) {
+    case expected_return_code_t::DontCare: // Do not generate checks
         return;
 
-    }
-    if (exp_data.pf_pass) { // expect pass
+    case expected_return_code_t::Pass:
         find_replace_all ("$expect",
                           test_state->bplate->bplate_string[sst_pass_string],
                           check_code);
@@ -99,37 +103,38 @@ void sst_call::calc_result_code (void)
                           "0",
                           check_code);
 
-    } else if (exp_data.pf_fail) { // expect fail
+        break;
 
-      // If the command is `... check "foo" expect fail;`, the fail
-      // binds to the check, not the command itself.
-      if (exp_data.data_specified) {
-        // expect a pass for the sst call itself.
-        find_replace_all ("$expect",
-                          test_state->bplate->bplate_string[sst_pass_string],
-                          check_code);
+    case expected_return_code_t::Fail:
+        // If the command is `... check "foo" expect fail;`, the fail
+        // binds to the check, not the command itself.
+        if (exp_data.data_specified) {
+          // expect a pass for the sst call itself.
+          find_replace_all ("$expect",
+                            test_state->bplate->bplate_string[sst_pass_string],
+                            check_code);
 
-        // expect a failure for the check.
-        find_replace_all ("!= $check_expect",
-                          "== 0",
-                          check_code);
+          // expect a failure for the check.
+          find_replace_all ("!= $check_expect",
+                            "== 0",
+                            check_code);
 
-        find_replace_1st ("should be equal", "should not be equal",
-                          check_code);
-        } else {
-        // Check for not-success:
-        find_replace_1st ("!=", "==",
-                          check_code);
-        find_replace_all ("$expect",
-                          test_state->bplate->bplate_string[sst_pass_string],
-                          check_code);
-        find_replace_1st ("expected ", "expected not ",
-                          check_code);
+          find_replace_1st ("should be equal", "should not be equal",
+                            check_code);
+          } else {
+          // Check for not-success:
+          find_replace_1st ("!=", "==",
+                            check_code);
+          find_replace_all ("$expect",
+                            test_state->bplate->bplate_string[sst_pass_string],
+                            check_code);
+          find_replace_1st ("expected ", "expected not ",
+                            check_code);
         }
-    }
+        break;
 
-    else if (exp_data.pf_specified) { // expect <PSA_ERROR_CODE>
-        formalized = formalize (exp_data.pf_result_string, "PSA_ERROR_");
+    case expected_return_code_t::SpecificFail:
+        formalized = formalize (exp_data.get_expected_return_code_string(), "PSA_ERROR_");
         find_replace_all ("$expect", formalized, check_code);
 
         // NOTE: Assumes that the variable used to store the actual
@@ -138,10 +143,10 @@ void sst_call::calc_result_code (void)
         find_replace_all ("!= $check_expect","== 0",check_code);
         find_replace_1st ("should be equal", "should not be equal",
                           check_code);
-    }
+        break;
 
-    else { // no explicit expect -- simulate
-
+    // TODO: move error code simulation into simulate().
+    case expected_return_code_t::DontKnow: // Simulate
         // Figure out what the message should read:
         switch (asset_info.how_asset_found) {
             case asset_search::found_active:
@@ -183,8 +188,9 @@ void sst_call::calc_result_code (void)
                 find_replace_1st ("should be equal", "should not be equal",
                                   check_code);
                 break;
+            }
+            break;
         }
-    }
 }
 
 vector<psa_asset*>::iterator sst_call::resolve_asset (bool create_asset_bool,
@@ -272,54 +278,63 @@ sst_call::~sst_call (void)
    improved and expanded upon *massively* more or less mirroring what is seen in
    .../test/suites/crypto/crypto_tests_common.c in the psa_key_interface_test()
    method, (starting around line 20ish). */
-void crypto_call::calc_result_code (void)
+void crypto_call::fill_in_result_code (void)
 {
     string formalized;  // "proper" result string
 
-    if (!exp_data.pf_nothing) {
-        if (exp_data.pf_pass) {
-            find_replace_all ("$expect",
-                              test_state->bplate->bplate_string[sst_pass_string],
-                              check_code);
-        } else if (exp_data.pf_fail) {
-            // Check for not-success:
-            find_replace_1st ("!=", "==",
-                              check_code);
-            find_replace_all ("$expect",
-                              test_state->bplate->bplate_string[sst_pass_string],
-                              check_code);
-            find_replace_1st ("expected ", "expected not ",
-                              check_code);
-        } else {
-            if (exp_data.pf_specified) {
-                formalized = formalize (exp_data.pf_result_string, "PSA_ERROR_");
-                find_replace_all ("$expect", formalized, check_code);
-            } else {
-                // Figure out what the message should read:
-                switch (asset_info.how_asset_found) {
-                    case asset_search::found_active:
-                    case asset_search::created_new:
-                        find_replace_all ("$expect",
-                                          test_state->bplate->
-                                              bplate_string[sst_pass_string],
-                                          check_code);
-                        break;
-                    case asset_search::not_found:
-                    case asset_search::found_deleted:
-                        find_replace_all ("$expect", "PSA_ERROR_INVALID_HANDLE",
-                                          check_code);  // TODO:  take from boilerplate
-                        break;
-                    default:
-                        find_replace_1st ("!=", "==",
-                                          check_code);  // like "fail", just make sure...
-                        find_replace_all ("$expect",
-                                          test_state->bplate->
-                                              bplate_string[sst_pass_string],
-                                          check_code);  // ... it's *not* PSA_SUCCESS
-                        break;
-                }
-            }
+    switch (exp_data.get_expected_return_code()) {
+
+    case expected_return_code_t::DontCare:
+        return;
+
+    case expected_return_code_t::Pass:
+        find_replace_all ("$expect",
+                          test_state->bplate->bplate_string[sst_pass_string],
+                          check_code);
+        break;
+
+    case expected_return_code_t::Fail:
+        // Check for not-success:
+        find_replace_1st ("!=", "==",
+                          check_code);
+        find_replace_all ("$expect",
+                          test_state->bplate->bplate_string[sst_pass_string],
+                          check_code);
+        find_replace_1st ("expected ", "expected not ",
+                          check_code);
+        break;
+
+    case expected_return_code_t::SpecificFail:
+        formalized = formalize (exp_data.get_expected_return_code_string(), "PSA_ERROR_");
+        find_replace_all ("$expect", formalized, check_code);
+        break;
+
+    // TODO: move error code simulation to simulate()
+    case expected_return_code_t::DontKnow: // Simulate
+        // Figure out what the message should read:
+        switch (asset_info.how_asset_found) {
+            case asset_search::found_active:
+            case asset_search::created_new:
+                find_replace_all ("$expect",
+                                  test_state->bplate->
+                                      bplate_string[sst_pass_string],
+                                  check_code);
+                break;
+            case asset_search::not_found:
+            case asset_search::found_deleted:
+                find_replace_all ("$expect", "PSA_ERROR_INVALID_HANDLE",
+                                  check_code);  // TODO:  take from boilerplate
+                break;
+            default:
+                find_replace_1st ("!=", "==",
+                                  check_code);  // like "fail", just make sure...
+                find_replace_all ("$expect",
+                                  test_state->bplate->
+                                      bplate_string[sst_pass_string],
+                                  check_code);  // ... it's *not* PSA_SUCCESS
+                break;
         }
+        break;
     }
 }
 
@@ -386,7 +401,7 @@ vector<psa_asset*>::iterator security_call::resolve_asset (bool create_asset_boo
 
    Since there are no actual PSA calls associated with security calls (so far at least),
    this should never be invoked. */
-void security_call::calc_result_code (void)
+void security_call::fill_in_result_code (void)
 {
     // Currently should not be invoked.
     cerr << "\nError:  Internal:  Please report error #205 to TF-Fuzz developers." << endl;

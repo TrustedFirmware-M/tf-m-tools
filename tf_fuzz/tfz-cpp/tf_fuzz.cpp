@@ -236,38 +236,42 @@ void tf_fuzz_info::write_test (void)
 
 /* simulate_calls() goes through the vector of generated calls calculating expected
    results for each. */
-void tf_fuzz_info::simulate_calls (void)
-{
+void tf_fuzz_info::simulate_calls (void){
     bool asset_state_changed = false;
 
-    IV(cout << "Call sequence:" << endl;)
-    /* For now, much of the simulation "thinking" infrastructure is here for future
-       elaboration.  The algorithm is to through each call one by one, copying
-       information to the asset in question.  Then each currently-active asset is
-       allowed to react to that information until they all agree that they're
-       "quiescent."  Finally, result information is copied from the asset back to
-       the call. */
+    IV(cout << "Call sequence:" << endl;);
+
+    /* The thinking logic will probably need elaborating in the future.
+     *
+     * The current algorithm goes through the calls, simuating their expected
+     * return codes. After call simulation, assets are updated, which are then
+     * allowed to react to the new information. Asset simulation loops until they
+     * all agree that they're "quiescent". Finally, result information is copied
+     * from the asset back to the call.
+     */
     for (auto this_call : calls) {
         IV(cout << "    " << this_call->call_description << " for asset "
                 << this_call->asset_info.get_name() << endl;)
+
+        this_call->simulate();
         this_call->copy_call_to_asset();
            /* Note:  this_call->the_asset will now point to the asset
                      associated with this_call, if any such asset exists. */
-        if (this_call->asset_info.the_asset != nullptr) {
-            /* If the asset exists, allow changes to it to affect other active
-               assets. */
-            asset_state_changed = false;
-            do {
-               for (auto this_asset : active_sst_asset) {
-                   asset_state_changed |= this_asset->simulate();
-               }
-               for (auto this_asset : active_policy_asset) {
-                   asset_state_changed |= this_asset->simulate();
-               }
-               for (auto this_asset : active_key_asset) {
-                   asset_state_changed |= this_asset->simulate();
-               }
-            } while (asset_state_changed);
+    if (this_call->asset_info.the_asset != nullptr) {
+      /* If the asset exists, allow changes to it to affect other active
+         assets. */
+      asset_state_changed = false;
+      do {
+        for (auto this_asset : active_sst_asset) {
+          asset_state_changed |= this_asset->simulate();
+        }
+        for (auto this_asset : active_policy_asset) {
+          asset_state_changed |= this_asset->simulate();
+        }
+        for (auto this_asset : active_key_asset) {
+          asset_state_changed |= this_asset->simulate();
+        }
+      } while (asset_state_changed);
         }
         this_call->copy_asset_to_call();
     }
