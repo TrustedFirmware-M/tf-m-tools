@@ -11,7 +11,7 @@ from tempfile import NamedTemporaryFile
 from dataclasses import dataclass, field, asdict
 import subprocess as sp
 import re
-from IPython import embed
+import random
 
 
 @dataclass
@@ -59,7 +59,15 @@ def main():
         type=Path,
     )
 
+    parser.add_argument(
+        "--seed", help="Random seed used during test generation", type=int
+    )
+
     args = parser.parse_args()
+
+    SEED: int = args.seed
+    if not SEED:
+        SEED = random.randint(0, 0xFFFFFFFF)
 
     TFZ_DIR: Path = args.tfz_dir
     LIB_DIR: Path = TFZ_DIR / "lib"
@@ -106,7 +114,13 @@ def main():
 
     test_suite: TestSuite = TestSuite()
 
+    print(f"Using random seed: {SEED}")
+    random.seed(SEED)
+
     for i, test_input_path in enumerate(sorted(INPUT_DIR.glob("*.test"))):
+        # use different random seeds based on a known seed so the tests have
+        # different random values, but still can be ran deterministically
+        seed = random.randint(0, 0xFFFFFFFF)
 
         print(f"* Found test file {test_input_path}")
 
@@ -114,7 +128,7 @@ def main():
         generated_test_path: Path = TARGET_DIR / f"{c_file_name}"
 
         process = sp.run(
-            f"{TFZ_EXECUTABLE.absolute()} {test_input_path.absolute()} {generated_test_path.absolute()}",
+            f"{TFZ_EXECUTABLE.absolute()} {test_input_path.absolute()} {generated_test_path.absolute()} {seed}",
             shell=True,
             text=True,
             stderr=sp.STDOUT,
