@@ -120,6 +120,7 @@ attr                      return ATTR;
 type                      return TYPE;
 algorithm                 return ALG;
 alg                       return ALG;
+size                      return SIZE;
   /* Policy-usage and -lifetime keywords: */
 export                    return EXPORT;
 exp                       return EXPORT;

@@ -371,7 +371,7 @@ void interpret_template_line (
 %token <str> IDENTIFIER_TOK LITERAL_TOK HEX_LIST FILE_PATH_TOK  /* variables and content */
 %token <valueN> NUMBER_TOK  /* variables and content */
 %token <tokenN> SEMICOLON SHUFFLE TO OF OPEN_BRACE CLOSE_BRACE  /* block structure */
-%token <tokenN> ATTR TYPE ALG  /* "set policy" line portions */
+%token <tokenN> ATTR TYPE ALG SIZE /* "set policy" line portions */
 %token <tokenN> VALID
 %token <tokenN> EXPORT COPY ENCRYPT DECRYPT SIGN VERIFY DERIVE  /* key-usage keywords */
 %token <tokenN> NOEXPORT NOCOPY NOENCRYPT NODECRYPT NOSIGN NOVERIFY NODERIVE
@@ -1132,6 +1132,13 @@ policy_algorithm:
                      << policy_info.key_algorithm << "\"" << endl;)
       }
 
+policy_size:
+    SIZE NUMBER_TOK {
+            IVM(cout << "Policy-Size:  \"" << flush;)
+            int num = atol(yytext);
+            policy_info.n_bits = num;
+            IVM(cout << yytext << "\"" << endl;)
+    }
 policy_specs:
         %empty  /* nothing */
       | policy_spec policy_specs {
@@ -1140,7 +1147,7 @@ policy_specs:
         }
       ;
 
-policy_spec:  policy_usage_list | policy_type | policy_algorithm;
+policy_spec:  policy_usage_list | policy_type | policy_algorithm | policy_size;
 
 policy_asset_spec:
         %empty  /* nothing */
@@ -1361,9 +1368,9 @@ ASSET_NUMBERS:
 
 ASSET_NUMBER:
         NUMBER_TOK {
-            IVM(cout << "ASSET_NUMBER:  \"" << flush;)
-            nid = atol(yytext);
-            parsed_asset.asset_id_n_vector.push_back (nid);
+            IVM(cout << "Policy Size:  \"" << flush;)
+            int size = atol(yytext);
+            policy_info.n_bits = size;
             IVM(cout << yytext << "\"" << endl;)
         }
       ;
