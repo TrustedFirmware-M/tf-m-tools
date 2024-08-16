@@ -15,17 +15,34 @@ import logging
 import base64
 import yaml
 import yaml_include
-from ecdsa import SigningKey, VerifyingKey
+from pycose.keys import CoseKey
+from pycose.keys.curves import P256, P384, P521
+from pycose.keys.keytype import KtyEC2
+from pycose.algorithms import Es256, Es384, Es512, HMAC256
 from iatverifier.attest_token_verifier import AttestationTokenVerifier
 from cbor2 import CBOREncoder
+from pycose.keys import CoseKey
+from ecdsa.util import number_to_string
 
 _logger = logging.getLogger("util")
 
 _known_curves = {
-    "NIST256p": AttestationTokenVerifier.COSE_ALG_ES256,
-    "NIST384p": AttestationTokenVerifier.COSE_ALG_ES384,
-    "NIST521p": AttestationTokenVerifier.COSE_ALG_ES512,
+    P256: Es256,
+    P384: Es384,
+    P521: Es512,
 }
+
+
+def es384_cose_key_from_raw_ecdsa(raw_key):
+    d = {
+        'KTY': 'EC2',
+        'CURVE': 'P_384',
+        'ALG': 'ES384',
+        'X': number_to_string(raw_key.pubkey.point.x(), raw_key.curve.generator.order()),
+        'Y': number_to_string(raw_key.pubkey.point.y(), raw_key.curve.generator.order()),
+    }
+
+    return CoseKey.from_dict(d)
 
 def convert_map_to_token(token_map, verifier, wfh, *, name_as_key, parse_raw_value):
     """
@@ -101,20 +118,24 @@ def get_cose_alg_from_key(key, default):
     """
     if key is None:
         return default
-    if not hasattr(key, "curve"):
-        raise ValueError("Key has no curve specified in it.")
-    return _known_curves[key.curve.name]
+    if key.kty is not KtyEC2:
+        err_msg = 'Unexpected key type "{}"; must be KtyEC2'
+        raise ValueError(err_msg.format(key.kty))
+    if key.alg is not None:
+        return key.alg
+    return _known_curves[key.crv]
 
 def _read_sign1_key(keyfile):
     with open(keyfile, 'rb') as file_obj:
-        raw_key = file_obj.read()
+        s = file_obj.read()
+        raw_key = s.decode("utf-8") # assume PEM-encoded key
     try:
-        key = SigningKey.from_pem(raw_key)
+        key = CoseKey.from_pem_private_key(raw_key)
     except Exception as exc:
         signing_key_error = str(exc)
 
         try:
-            key = VerifyingKey.from_pem(raw_key)
+            key = CoseKey.from_pem_public_key(raw_key)
         except Exception as vexc:
             verifying_key_error = str(vexc)
 
@@ -124,4 +145,10 @@ def _read_sign1_key(keyfile):
 
 
 def _read_hmac_key(keyfile):
-    return open(keyfile, 'rb').read()
+    k = open(keyfile, 'rb').read()
+    d = {
+        'KTY': 'SYMMETRIC',
+        'ALG': HMAC256,
+        'K': k,
+    }
+    return CoseKey.from_dict(d)

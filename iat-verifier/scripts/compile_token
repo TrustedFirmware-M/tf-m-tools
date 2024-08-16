@@ -13,6 +13,8 @@ import logging
 import os
 import sys
 
+from pycose.algorithms import Es256, Es384, HMAC256
+
 from iatverifier.util import read_token_map, convert_map_to_token, read_keyfile
 from iatverifier.util import get_cose_alg_from_key
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
@@ -77,11 +79,9 @@ if __name__ == '__main__':
     if verifier_class == PSAIoTProfile1TokenVerifier:
         key = read_keyfile(args.key, METHOD)
         if METHOD == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
-            cose_alg = get_cose_alg_from_key(
-                key,
-                AttestationTokenVerifier.COSE_ALG_ES256)
+            cose_alg = get_cose_alg_from_key(key, Es256)
         else:
-            cose_alg = AttestationTokenVerifier.COSE_ALG_HS256
+            cose_alg = HMAC256
         verifier = PSAIoTProfile1TokenVerifier(
             method=METHOD,
             cose_alg=cose_alg,
@@ -95,12 +95,8 @@ if __name__ == '__main__':
         realm_token_key = read_keyfile(args.realm_key, METHOD)
         realm_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
         platform_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        realm_token_cose_alg = get_cose_alg_from_key(
-            realm_token_key,
-            AttestationTokenVerifier.COSE_ALG_ES384)
-        platform_token_cose_alg = get_cose_alg_from_key(
-            platform_token_key,
-            AttestationTokenVerifier.COSE_ALG_ES384)
+        realm_token_cose_alg = get_cose_alg_from_key(realm_token_key, Es384)
+        platform_token_cose_alg = get_cose_alg_from_key(platform_token_key, Es384)
         verifier = CCATokenVerifier(
             realm_token_method=realm_token_method,
             realm_token_cose_alg=realm_token_cose_alg,
@@ -112,7 +108,7 @@ if __name__ == '__main__':
     elif verifier_class == CCAPlatformTokenVerifier:
         key_checked = args.platform_key
         key = read_keyfile(args.platform_key, METHOD)
-        cose_alg = get_cose_alg_from_key(key, AttestationTokenVerifier.COSE_ALG_ES384)
+        cose_alg = get_cose_alg_from_key(key, Es384)
         verifier = CCAPlatformTokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=cose_alg,
@@ -123,9 +119,9 @@ if __name__ == '__main__':
         key_checked = args.key
         key = read_keyfile(keyfile=args.key, method=METHOD)
         if METHOD == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
-            cose_alg = get_cose_alg_from_key(key, AttestationTokenVerifier.COSE_ALG_ES256)
+            cose_alg = get_cose_alg_from_key(key, Es256)
         else:
-            cose_alg = AttestationTokenVerifier.COSE_ALG_HS256
+            cose_alg = HMAC256
         verifier = PSA_2_0_0_TokenVerifier(
             method=METHOD,
             cose_alg=cose_alg,

@@ -10,7 +10,7 @@ implementation_id: !!binary |
 instance_id: !!binary |
   AfpYdV9lhifOVGDym3UpZxMkjK562eKYS5AoDvy8tQJI
 profile_id: http://arm.com/psa/2.0.0
-security_lifecycle: SL_SECURED
+security_lifecycle: sl_secured
 sw_components:
 - measurement_description: sha-256
   measurement_value: !!binary |

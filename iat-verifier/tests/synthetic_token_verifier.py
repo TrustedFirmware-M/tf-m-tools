@@ -10,6 +10,9 @@ This module contains a set of tokens that are used for testing features not used
 token types.
 """
 
+from pycose.headers import Algorithm
+from pycose.algorithms import Es256
+
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
 from iatverifier.attest_token_verifier import AttestationClaim as Claim
 from tests.synthetic_token_claims import SynClaimInt, SynBoxesClaim, BoxWidthClaim
@@ -24,14 +27,19 @@ class SyntheticTokenVerifier(Verifier):
         return 'SYNTHETIC_TOKEN'
 
     def _get_p_header(self):
-        return None
+        return {Algorithm: self._get_cose_alg()}
 
     def _get_wrapping_tag(self):
         return None
 
     def _parse_p_header(self, msg):
-        if (len(msg.protected_header) > 0):
-            raise ValueError('Unexpected protected header')
+        alg = self._get_cose_alg()
+        try:
+            msg_alg = msg.get_attr(Algorithm)
+        except AttributeError:
+            raise ValueError('Missing alg from protected header (expected {})'.format(alg))
+        if alg != msg_alg:
+            raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
 
     def __init__(self, *, method, cose_alg, signing_key, configuration, internal_signing_key):
         # First prepare the claim hierarchy for this token
@@ -61,7 +69,7 @@ class SyntheticTokenVerifier(Verifier):
             (BoxColorClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
             (SyntheticInternalTokenVerifier, {'necessity': Claim.OPTIONAL,
                                               'method': Verifier.SIGN_METHOD_SIGN1,
-                                              'cose_alg': Verifier.COSE_ALG_ES256,
+                                              'cose_alg': Es256,
                                               'claims': internal_verifier_claims,
                                               'configuration': configuration,
                                               'signing_key': internal_signing_key}),
@@ -94,13 +102,13 @@ class SyntheticTokenVerifier2(Verifier):
         return 'SYNTHETIC_TOKEN_2'
 
     def _get_p_header(self):
-        return {'alg': self.cose_alg}
+        return {Algorithm: self._get_cose_alg()}
 
     def _parse_p_header(self, msg):
         alg = self._get_cose_alg()
         try:
-            msg_alg = msg.protected_header['alg']
-        except KeyError as exc:
+            msg_alg = msg.get_attr(Algorithm)
+        except AttributeError as exc:
             raise ValueError(f'Missing alg from protected header (expected {alg})') from exc
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header ' +
@@ -137,7 +145,7 @@ class SyntheticTokenVerifier2(Verifier):
             (BoxColorClaim, {'verifier': self, 'necessity': Claim.MANDATORY}),
             (SyntheticInternalTokenVerifier2, {'necessity': Claim.OPTIONAL,
                                                'method': Verifier.SIGN_METHOD_SIGN1,
-                                               'cose_alg': Verifier.COSE_ALG_ES256,
+                                               'cose_alg': Es256,
                                                'claims': internal_verifier_claims,
                                                'configuration': configuration,
                                                'signing_key': internal_signing_key}),
@@ -171,13 +179,13 @@ class SyntheticInternalTokenVerifier(Verifier):
         return 'SYNTHETIC_INTERNAL_TOKEN'
 
     def _get_p_header(self):
-        return {'alg': self.cose_alg}
+        return {Algorithm: self._get_cose_alg()}
 
     def _parse_p_header(self, msg):
         alg = self._get_cose_alg()
         try:
-            msg_alg = msg.protected_header['alg']
-        except KeyError as exc:
+            msg_alg = msg.get_attr(Algorithm)
+        except AttributeError as exc:
             raise ValueError(f'Missing alg from protected header (expected {alg})') from exc
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header ' +
@@ -213,11 +221,16 @@ class SyntheticInternalTokenVerifier2(Verifier):
         return 'SYNTHETIC_INTERNAL_TOKEN_2'
 
     def _get_p_header(self):
-        return None
+        return {Algorithm: self._get_cose_alg()}
 
     def _parse_p_header(self, msg):
-        if (len(msg.protected_header) > 0):
-            raise ValueError('Unexpected protected header')
+        alg = self._get_cose_alg()
+        try:
+            msg_alg = msg.get_attr(Algorithm)
+        except AttributeError:
+            raise ValueError('Missing alg from protected header (expected {})'.format(alg))
+        if alg != msg_alg:
+            raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
 
     def _get_wrapping_tag(self):
         return 0xbbaa

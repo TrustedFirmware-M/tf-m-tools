@@ -39,7 +39,7 @@ def convert_map_to_token_bytes(token_map, verifier):
         return bytes_io.getvalue()
 
 def create_token(data_dir, source_name, verifier):
-    """Creats a cbor token from a yaml file."""
+    """Create a cbor token from a yaml file."""
     source_path = os.path.join(data_dir, source_name)
     token_map = read_token_map(source_path)
     return convert_map_to_token_bytes(token_map, verifier)

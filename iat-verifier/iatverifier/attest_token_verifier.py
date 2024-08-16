@@ -15,9 +15,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from io import BytesIO
 
-from pycose.attributes import CoseAttrs
-from pycose.sign1message import Sign1Message
-from pycose.mac0message import Mac0Message
+from pycose.messages.sign1message import Sign1Message
+from pycose.messages.mac0message import Mac0Message
 
 import cbor2
 from cbor2 import CBOREncoder
@@ -484,21 +483,9 @@ class AttestationTokenVerifier(AttestationClaim):
     SIGN_METHOD_MAC0 = "mac"
     SIGN_METHOD_RAW = "raw"
 
-    COSE_ALG_ES256="ES256"
-    COSE_ALG_ES384="ES384"
-    COSE_ALG_ES512="ES512"
-    COSE_ALG_HS256_64="HS256/64"
-    COSE_ALG_HS256="HS256"
-    COSE_ALG_HS384="HS384"
-    COSE_ALG_HS512="HS512"
-
     @abstractmethod
     def _get_p_header(self):
-        """Return the protected header for this Token
-
-        Return a dictionary if p_header should be present, and None if the token
-        doesn't defines a protected header.
-        """
+        """Return the protected header for this Token"""
         raise NotImplementedError
 
     @abstractmethod
@@ -555,27 +542,16 @@ class AttestationTokenVerifier(AttestationClaim):
         raise ValueError(err_msg.format(self.method))
 
     def _sign_eat(self, token):
-        protected_header = CoseAttrs()
         p_header=self._get_p_header()
         key=self._get_signing_key()
-        if p_header is not None and key:
-            protected_header.update(p_header)
-        signed_msg = Sign1Message(p_header=protected_header)
-        signed_msg.payload = token
-        if key:
-            signed_msg.key = key
-            signed_msg.signature = signed_msg.compute_signature(alg=self._get_cose_alg())
+        signed_msg = Sign1Message(payload=token, key=key, phdr=p_header)
         return signed_msg.encode()
 
 
     def _hmac_eat(self, token):
-        protected_header = CoseAttrs()
         p_header=self._get_p_header()
         key=self._get_signing_key()
-        if p_header is not None and key:
-            protected_header.update(p_header)
-        hmac_msg = Mac0Message(payload=token, key=key, p_header=protected_header)
-        hmac_msg.compute_auth_tag(alg=self.cose_alg)
+        hmac_msg = Mac0Message(payload=token, key=key, phdr=p_header)
         return hmac_msg.encode()
 
 
@@ -588,12 +564,9 @@ class AttestationTokenVerifier(AttestationClaim):
             except Exception as exc:
                 self.error(f'Invalid Protected header: {exc}', exception=exc)
             msg.key = key
-            msg.signature = msg.signers
-            try:
-                msg.verify_signature(alg=self._get_cose_alg())
-            except Exception as exc:
-                raise ValueError(f'Bad signature ({exc})') from exc
-        return msg.payload, msg.protected_header
+            if not msg.verify_signature():
+                raise ValueError('Bad signature')
+        return msg.payload, msg.phdr
 
 
     def _get_cose_mac0_payload(self, cose, *, verify_signature):
@@ -605,11 +578,9 @@ class AttestationTokenVerifier(AttestationClaim):
             except Exception as exc:
                 self.error(f'Invalid Protected header: {exc}', exception=exc)
             msg.key = key
-            try:
-                msg.verify_auth_tag(alg=self._get_cose_alg())
-            except Exception as exc:
-                raise ValueError(f'Bad signature ({exc})') from exc
-        return msg.payload, msg.protected_header
+            if not msg.verify_tag(alg=self._get_cose_alg()):
+                raise ValueError('Bad signature')
+        return msg.payload, msg.phdr
 
 
     def _get_cose_payload(self, cose, *, verify_signature):
@@ -668,13 +639,14 @@ class AttestationTokenVerifier(AttestationClaim):
             payload = token
             protected_header = None
         else:
+            verify_signature = False
             try:
                 payload, protected_header = self._get_cose_payload(
                     token,
                     # signature verification is done in the verify function
-                    verify_signature=False)
+                    verify_signature=verify_signature)
             except Exception as exc:
-                msg = f'Bad COSE: {exc}'
+                msg = f'Parse (verify_signature={verify_signature}): Bad COSE: {exc}'
                 self.error(msg)
 
         try:
@@ -701,12 +673,13 @@ class AttestationTokenVerifier(AttestationClaim):
 
     def verify(self, token_item):
         if self._get_method() != AttestationTokenVerifier.SIGN_METHOD_RAW:
+            verify_signature = self._get_signing_key() is not None
             try:
                 self._get_cose_payload(
                     token_item.token,
-                    verify_signature=(self._get_signing_key() is not None))
+                    verify_signature=verify_signature)
             except Exception as exc:
-                msg = f'Bad COSE: {exc}'
+                msg = f'Verify (verify_signature={verify_signature}): Bad COSE: {exc}'
                 raise ValueError(msg) from exc
 
         wrapping_tag = self._get_wrapping_tag()

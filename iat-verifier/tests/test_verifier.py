@@ -10,6 +10,8 @@
 import os
 import unittest
 
+from pycose.algorithms import Es256, Es384
+
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
 from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
 from iatverifier.util import read_keyfile
@@ -38,7 +40,7 @@ class TestIatVerifier(unittest.TestCase):
     def test_validate_signature(self):
         """Testing Signature validation"""
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
+        cose_alg=Es256
 
         signing_key = read_keyfile(KEYFILE, method)
         verifier_good_sig = PSAIoTProfile1TokenVerifier(
@@ -77,7 +79,7 @@ class TestIatVerifier(unittest.TestCase):
         """Testing IAT structure validation"""
         keep_going_conf = VerifierConfiguration(keep_going=True)
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
+        cose_alg=Es256
         signing_key = read_keyfile(KEYFILE, method)
         realm_token_key = read_keyfile(KEYFILE_CCA_REALM, method)
         realm_token_key2 = read_keyfile(KEYFILE_CCA_REALM2, method)
@@ -97,10 +99,10 @@ class TestIatVerifier(unittest.TestCase):
             'valid-cca-token.yaml',
             CCATokenVerifier(
                 realm_token_method=method,
-                realm_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                realm_token_cose_alg=Es384,
                 realm_token_key=realm_token_key,
                 platform_token_method=method,
-                platform_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                platform_token_cose_alg=Es384,
                 platform_token_key=platform_token_key,
                 configuration=self.config))
 
@@ -109,7 +111,7 @@ class TestIatVerifier(unittest.TestCase):
             'cca_platform_token.yaml',
             CCAPlatformTokenVerifier(
                 method=method,
-                cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                cose_alg=Es384,
                 signing_key=platform_token_key,
                 configuration=self.config,
                 necessity=AttestationClaim.MANDATORY))
@@ -120,10 +122,10 @@ class TestIatVerifier(unittest.TestCase):
                 'cca-invalid-plat-challenge.yaml',
                 CCATokenVerifier(
                     realm_token_method=method,
-                    realm_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                    realm_token_cose_alg=Es384,
                     realm_token_key=realm_token_key,
                     platform_token_method=method,
-                    platform_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                    platform_token_cose_alg=Es384,
                     platform_token_key=platform_token_key,
                     configuration=self.config))
         self.assertIn("Invalid CCA_PLATFORM_CHALLENGE byte at 16: 0x00 instead of 0xe4", test_ctx.exception.args[0])
@@ -134,10 +136,10 @@ class TestIatVerifier(unittest.TestCase):
                 'valid-cca-token.yaml',
                 CCATokenVerifier(
                     realm_token_method=method,
-                    realm_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                    realm_token_cose_alg=Es384,
                     realm_token_key=realm_token_key2,
                     platform_token_method=method,
-                    platform_token_cose_alg=AttestationTokenVerifier.COSE_ALG_ES384,
+                    platform_token_cose_alg=Es384,
                     platform_token_key=platform_token_key,
                     configuration=self.config))
         self.assertIn("Realm signature doesn't match Realm Public Key claim in Realm token", test_ctx.exception.args[0])
@@ -243,7 +245,7 @@ class TestIatVerifier(unittest.TestCase):
     def test_binary_string_decoding(self):
         """Test binary_string decoding"""
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
+        cose_alg=Es256
         signing_key = read_keyfile(KEYFILE, method)
         iat = create_and_read_iat(
             DATA_DIR,
@@ -257,7 +259,7 @@ class TestIatVerifier(unittest.TestCase):
     def test_security_lifecycle_decoding(self):
         """Test security lifecycle decoding"""
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
+        cose_alg=Es256
         signing_key = read_keyfile(KEYFILE, method)
         iat = create_and_read_iat(
             DATA_DIR,

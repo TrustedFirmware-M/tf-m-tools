@@ -25,6 +25,7 @@ from iatverifier.psa_iot_profile1_token_claims import SwComponentVersionClaim
 from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim
 from iatverifier.psa_iot_profile1_token_claims import MeasurementDescriptionClaim
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
+from pycose.algorithms import Es256, Es384, Es512
 
 # First byte indicates "GUID"
 GUID = b'\x01' + struct.pack('QQQQ', 0x0001020304050607, 0x08090A0B0C0D0E0F,
@@ -94,7 +95,7 @@ if __name__ == '__main__':
                        method=AttestationTokenVerifier.SIGN_METHOD_SIGN1)
     verifier = PSAIoTProfile1TokenVerifier(signing_key=key,
                                            method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
-                                           cose_alg=AttestationTokenVerifier.COSE_ALG_ES256,
+                                           cose_alg=Es256,
                                            configuration=None)
     with open(outfile, 'wb') as wfh:
         convert_map_to_token(token_map, verifier, wfh,

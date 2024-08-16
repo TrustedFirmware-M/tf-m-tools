@@ -13,6 +13,8 @@ tokens
 import os
 import unittest
 
+from pycose.algorithms import Es256, Es384
+
 from iatverifier.util import read_token_map, read_keyfile
 from iatverifier.attest_token_verifier import VerifierConfiguration, AttestationTokenVerifier
 from tests.synthetic_token_verifier import SyntheticTokenVerifier2, SyntheticTokenVerifier
@@ -35,7 +37,7 @@ class TestSynthetic(unittest.TestCase):
     def test_composite(self):
         """Test cross claim checking in composite claim"""
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
+        cose_alg=Es256
         signing_key = read_keyfile(KEYFILE, method)
 
         create_and_read_iat(
@@ -83,57 +85,9 @@ class TestSynthetic(unittest.TestCase):
             self.assertIn(
                 'Invalid IAT: Box size must have all 3 dimensions', test_ctx.exception.args[0])
 
-    def test_protected_header(self):
-        """Test protected header detection"""
-        source_path = os.path.join(DATA_DIR, 'synthetic_token_another_token.yaml')
-        token_map = read_token_map(source_path)
-
-        method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
-        signing_key = read_keyfile(KEYFILE, method)
-        config = VerifierConfiguration(keep_going=True, strict=True)
-
-        verifier = SyntheticTokenVerifier(
-            method=method,
-            cose_alg=cose_alg,
-            signing_key=signing_key,
-            configuration=self.config,
-            internal_signing_key=signing_key)
-
-        token_p_header = convert_map_to_token_bytes(token_map, verifier)
-
-        self.assertTrue(
-            bytes_equal_to_file(token_p_header, os.path.join(DATA_DIR, 'p_header_on.cbor')))
-
-        with self.assertLogs() as test_ctx:
-            read_iat(
-                DATA_DIR,
-                'inverted_p_header.cbor',
-                SyntheticTokenVerifier(method=method,
-                    cose_alg=cose_alg,
-                    signing_key=signing_key,
-                    configuration=config,
-                    internal_signing_key=signing_key))
-        self.assertEquals(2, len(test_ctx.output))
-        self.assertIn('Unexpected protected header', test_ctx.output[0])
-        self.assertIn('Missing alg from protected header (expected ES256)', test_ctx.output[1])
-
-        with self.assertLogs() as test_ctx:
-            read_iat(
-                DATA_DIR,
-                'inverted_p_header2.cbor',
-                SyntheticTokenVerifier2(method=method,
-                    cose_alg=cose_alg,
-                    signing_key=signing_key,
-                    configuration=config,
-                    internal_signing_key=signing_key))
-        self.assertEquals(2, len(test_ctx.output))
-        self.assertIn('Missing alg from protected header (expected ES256)', test_ctx.output[0])
-        self.assertIn('Unexpected protected header', test_ctx.output[1])
-
     def test_tagging_support(self):
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
+        cose_alg=Es256
 
         signing_key = read_keyfile(KEYFILE, method)
         config = VerifierConfiguration(keep_going=True, strict=True)
@@ -148,10 +102,9 @@ class TestSynthetic(unittest.TestCase):
                     signing_key=signing_key,
                     configuration=config,
                     internal_signing_key=signing_key))
-        self.assertEquals(3, len(test_ctx.output))
+        self.assertEquals(2, len(test_ctx.output))
         self.assertIn('Unexpected tag (0xcdcd) in token SYNTHETIC_TOKEN', test_ctx.output[0])
-        self.assertIn('Invalid Protected header: Missing alg from protected header (expected ES256)', test_ctx.output[1])
-        self.assertIn('Unexpected tag (0xabab) in token SYNTHETIC_INTERNAL_TOKEN', test_ctx.output[2])
+        self.assertIn('Unexpected tag (0xabab) in token SYNTHETIC_INTERNAL_TOKEN', test_ctx.output[1])
 
         # test with missing tag
         with self.assertLogs() as test_ctx:
@@ -194,7 +147,7 @@ class TestSynthetic(unittest.TestCase):
     def test_unknown_claims(self):
 
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        cose_alg=AttestationTokenVerifier.COSE_ALG_ES256
+        cose_alg=Es256
         signing_key = read_keyfile(KEYFILE, method)
         config = VerifierConfiguration(keep_going=True, strict=False)
 

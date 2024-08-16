@@ -5,6 +5,8 @@
 #
 # -----------------------------------------------------------------------------
 
+from pycose.headers import Algorithm
+
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
 from iatverifier.attest_token_verifier import AttestationClaim as Claim
 from iatverifier.psa_2_0_0_token_claims import ProfileIdClaim, ClientIdClaim, SecurityLifecycleClaim
@@ -24,7 +26,7 @@ class PSA_2_0_0_TokenVerifier(Verifier):
         return 'PSA_2_0_0_TOKEN'
 
     def _get_p_header(self):
-        return {'alg': self._get_cose_alg()}
+        return {Algorithm: self._get_cose_alg()}
 
     def _get_wrapping_tag(self):
         return None
@@ -32,8 +34,8 @@ class PSA_2_0_0_TokenVerifier(Verifier):
     def _parse_p_header(self, msg):
         alg = self._get_cose_alg()
         try:
-            msg_alg = msg.protected_header['alg']
-        except KeyError:
+            msg_alg = msg.get_attr(Algorithm)
+        except AttributeError:
             raise ValueError('Missing alg from protected header (expected {})'.format(alg))
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))

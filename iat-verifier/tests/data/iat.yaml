@@ -15,7 +15,7 @@ implementation_id: !!binary |
 instance_id: !!binary |
   AQcGBQQDAgEADw4NDAsKCQgXFhUUExIREB8eHRwbGhkY
 profile_id: http://example.com
-security_lifecycle: SL_SECURED
+security_lifecycle: sl_secured
 sw_components:
 - measurement_description: TF-M_SHA256MemPreXIP
   measurement_value: !!binary |

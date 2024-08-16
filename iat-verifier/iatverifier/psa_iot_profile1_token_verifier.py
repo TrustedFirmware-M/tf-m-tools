@@ -7,6 +7,8 @@
 
 """Contains class for verifying PSA Attestation Token profile PSA_IOT_PROFILE_1"""
 
+from pycose.headers import Algorithm
+
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
 from iatverifier.attest_token_verifier import AttestationClaim as Claim
 from iatverifier.psa_iot_profile1_token_claims import ProfileIdClaim, ClientIdClaim
@@ -28,7 +30,7 @@ class PSAIoTProfile1TokenVerifier(Verifier):
         return 'PSA_IOT_PROFILE1_TOKEN'
 
     def _get_p_header(self):
-        return {'alg': self._get_cose_alg()}
+        return {Algorithm: self._get_cose_alg()}
 
     def _get_wrapping_tag(self):
         return None
@@ -36,8 +38,8 @@ class PSAIoTProfile1TokenVerifier(Verifier):
     def _parse_p_header(self, msg):
         alg = self._get_cose_alg()
         try:
-            msg_alg = msg.protected_header['alg']
-        except KeyError as exc:
+            msg_alg = msg.get_attr(Algorithm)
+        except AttributeError as exc:
             raise ValueError(f'Missing algorithm from protected header (expected {alg})') from exc
         if alg != msg_alg:
             raise ValueError(f'Unexpected algorithm in protected header (expected {alg} ' +

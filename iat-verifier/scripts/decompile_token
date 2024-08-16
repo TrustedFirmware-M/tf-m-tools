@@ -12,6 +12,7 @@ import argparse
 import logging
 import sys
 
+from pycose.algorithms import Es256, Es384
 import yaml
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
 from iatverifier.psa_2_0_0_token_verifier import PSA_2_0_0_TokenVerifier
@@ -44,14 +45,14 @@ if __name__ == '__main__':
     if verifier_class == PSAIoTProfile1TokenVerifier:
         verifier = PSAIoTProfile1TokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
-            cose_alg=AttestationTokenVerifier.COSE_ALG_ES256,
+            cose_alg=Es256,
             signing_key=None,
             configuration=None)
     elif verifier_class == CCATokenVerifier:
         realm_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
         platform_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
-        realm_token_cose_alg = AttestationTokenVerifier.COSE_ALG_ES384
-        platform_token_cose_alg = AttestationTokenVerifier.COSE_ALG_ES384
+        realm_token_cose_alg = Es384
+        platform_token_cose_alg = Es384
         verifier = CCATokenVerifier(
             realm_token_method=realm_token_method,
             realm_token_cose_alg=realm_token_cose_alg,
@@ -60,7 +61,7 @@ if __name__ == '__main__':
             platform_token_key=None,
             configuration=None)
     elif verifier_class == CCAPlatformTokenVerifier:
-        cose_alg = AttestationTokenVerifier.COSE_ALG_ES384
+        cose_alg = Es384
         verifier = CCAPlatformTokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=cose_alg,
@@ -70,7 +71,7 @@ if __name__ == '__main__':
     elif verifier_class == PSA_2_0_0_TokenVerifier:
         verifier = PSA_2_0_0_TokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
-            cose_alg=AttestationTokenVerifier.COSE_ALG_ES256,
+            cose_alg=Es256,
             signing_key=None,
             configuration=None)
     else:

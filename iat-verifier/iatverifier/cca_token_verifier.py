@@ -10,6 +10,8 @@ from cryptography.hazmat.primitives import hashes
 from ecdsa.keys import VerifyingKey
 from ecdsa.curves import NIST256p, NIST384p, NIST521p
 from hashlib import sha1
+from pycose.headers import Algorithm
+from pycose.algorithms import Es256, Es384, Es512
 
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
 from iatverifier.attest_token_verifier import AttestationClaim as Claim
@@ -24,12 +26,13 @@ from iatverifier.cca_claims import CCAPlatformSwComponentsClaim, CCAPlatformVeri
 from iatverifier.cca_claims import CCASwCompHashAlgIdClaim, CCASwCompHashAlgIdClaim
 from iatverifier.psa_iot_profile1_token_claims import SWComponentTypeClaim, SwComponentVersionClaim
 from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, SignerIdClaim
+from iatverifier.util import es384_cose_key_from_raw_ecdsa
 
 _Algorithm = namedtuple("Algorithm", "ecdsa_curve pub_key_len")
 _algorithms = {
-    Verifier.COSE_ALG_ES256: _Algorithm(NIST256p, 65),
-    Verifier.COSE_ALG_ES384: _Algorithm(NIST384p, 97),
-    Verifier.COSE_ALG_ES512: _Algorithm(NIST521p, 133),
+    Es256: _Algorithm(NIST256p, 65),
+    Es384: _Algorithm(NIST384p, 97),
+    Es512: _Algorithm(NIST521p, 133),
 }
 
 class CCATokenVerifier(Verifier):
@@ -41,13 +44,19 @@ class CCATokenVerifier(Verifier):
         return 'CCA_TOKEN'
 
     def _get_p_header(self):
-        None
+        return {Algorithm: self._get_cose_alg()}
 
     def _get_wrapping_tag(self):
         return 399
 
     def _parse_p_header(self, msg):
-        pass
+        alg = self._get_cose_alg()
+        try:
+            msg_alg = msg.get_attr(Algorithm)
+        except AttributeError:
+            raise ValueError('Missing alg from protected header (expected {})'.format(alg))
+        if alg != msg_alg:
+            raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
 
     def __init__(self, *,
             realm_token_method,
@@ -76,7 +85,7 @@ class CCATokenVerifier(Verifier):
             configuration=configuration,
             necessity=Claim.MANDATORY,
             method=Verifier.SIGN_METHOD_RAW,
-            cose_alg=Verifier.COSE_ALG_ES256,
+            cose_alg=Es256,
             signing_key=None)
 
     def verify(self, token_item):
@@ -107,7 +116,7 @@ class CCARealmTokenVerifier(Verifier):
         return 'CCA_REALM_DELEGATED_TOKEN'
 
     def _get_p_header(self):
-        return {'alg': self._get_cose_alg()}
+        return {Algorithm: self._get_cose_alg()}
 
     def _get_wrapping_tag(self):
         return None
@@ -115,8 +124,8 @@ class CCARealmTokenVerifier(Verifier):
     def _parse_p_header(self, msg):
         alg = self._get_cose_alg()
         try:
-            msg_alg = msg.protected_header['alg']
-        except KeyError:
+            msg_alg = msg.get_attr(Algorithm)
+        except AttributeError:
             raise ValueError('Missing alg from protected header (expected {})'.format(alg))
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
@@ -159,7 +168,7 @@ class CCARealmTokenVerifier(Verifier):
             self.error("No protected header in realm token, failed to parse signature curve.")
             return
 
-        alg = token_item.protected_header['alg']
+        alg = token_item.protected_header[Algorithm]
         if alg not in _algorithms:
             self.error(f"Unknown alg '{alg}' in realm token's protected header.")
             return
@@ -171,10 +180,13 @@ class CCARealmTokenVerifier(Verifier):
             return
 
         # Set the signing key in the parsed CCARealmTokenVerifier object
-        token_item.claim_type.signing_key = VerifyingKey.from_string(
-            cca_realm_public_key,
-            curve=alg_info.ecdsa_curve,
-            hashfunc=sha1)
+        token_item.claim_type.signing_key = es384_cose_key_from_raw_ecdsa(
+            VerifyingKey.from_string(
+                cca_realm_public_key,
+                curve=alg_info.ecdsa_curve,
+                hashfunc=sha1
+            )
+        )
 
         # call the '_get_cose_payload' of AttestationTokenVerifier to verify the
         # signature
@@ -193,7 +205,7 @@ class CCAPlatformTokenVerifier(Verifier):
         return 'CCA_PLATFORM_TOKEN'
 
     def _get_p_header(self):
-        return {'alg': self._get_cose_alg()}
+        return {Algorithm: self._get_cose_alg()}
 
     def _get_wrapping_tag(self):
         return None
@@ -201,8 +213,8 @@ class CCAPlatformTokenVerifier(Verifier):
     def _parse_p_header(self, msg):
         alg = self._get_cose_alg()
         try:
-            msg_alg = msg.protected_header['alg']
-        except KeyError:
+            msg_alg = msg.get_attr(Algorithm)
+        except AttributeError:
             raise ValueError('Missing alg from protected header (expected {})'.format(alg))
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
