@@ -105,7 +105,7 @@ void test_thread (struct test_result_t *ret) {
 `005
     static uint8_t $var[] = "$init";
 `006
-    static uint8_t $var[2048] = "$init";
+    static uint8_t $var[PSA_EXPORT_KEY_PAIR_MAX_SIZE] = "$init";
 `007
     static size_t $var = $init;
 `008
@@ -245,13 +245,14 @@ void test_thread (struct test_result_t *ret) {
     crypto_status = psa_generate_key (&$policy, &$key);
 `051
     if (crypto_status != $expect && crypto_status != PSA_ERROR_INSUFFICIENT_MEMORY) {
+        TEST_LOG("(got status code %d)",crypto_status);
         TEST_FAIL("psa_generate_key() expected $expect.");
         return;
     }
 
     if (crypto_status == PSA_ERROR_INSUFFICIENT_MEMORY) {
         TEST_FAIL("psa_generate_key() call ran out of memory. To test this combination, try increasing the MbedTLS static allocator memory.");
-        TEST_LOG("psa_generate_key() call ran out of memory. To test this combination, try increasing the MbedTLS static allocator memory.");
+        TEST_LOG("psa_generate_key() call ran out of memory. To test this combination, try increasing the MbedTLS static allocator memory.\n");
         ret->val = TEST_SKIPPED;
         return;
     }
@@ -259,15 +260,22 @@ void test_thread (struct test_result_t *ret) {
     crypto_status
         = psa_import_key (&$policy, $data, $length, &$key);
 `053
-    if (crypto_status != $expect) {
+    if (crypto_status != $expect && crypto_status != PSA_ERROR_INSUFFICIENT_MEMORY) {
         TEST_FAIL("psa_import_key() expected $expect.");
+        TEST_LOG("(got status code %d)",crypto_status);
+        return;
+    }
+    if (crypto_status == PSA_ERROR_INSUFFICIENT_MEMORY) {
+        TEST_FAIL("psa_generate_key() call ran out of memory. To test this combination, try increasing the MbedTLS static allocator memory.");
+        TEST_LOG("psa_generate_key() call ran out of memory. To test this combination, try increasing the MbedTLS static allocator memory.\n");
+        ret->val = TEST_SKIPPED;
         return;
     }
 `054
     crypto_status = psa_copy_key ($master, $policy, $copy);
 `055
     if (crypto_status != $expect) {
-        TEST_FAIL("psa_export_key() expected $expect.");
+        TEST_FAIL("psa_copy_key() expected $expect.");
         return;
     }
 `056
@@ -281,8 +289,17 @@ void test_thread (struct test_result_t *ret) {
     crypto_status
         = psa_export_key ($key, $data, $length, &$act_size);
 `058
-    if (crypto_status != $expect) {
+    if (crypto_status != $expect && crypto_status != PSA_ERROR_BUFFER_TOO_SMALL) {
         TEST_FAIL("psa_export_key() expected $expect.");
+        TEST_LOG("(got status code %d)",crypto_status);
+        return;
+    }
+
+    if (crypto_status == PSA_ERROR_BUFFER_TOO_SMALL) {
+        // tfz cannot currently calculate this buffer size automatically.
+        TEST_FAIL("Too small a buffer was assigned for the output of psa_export_key(). To increase buffer size, edit entry 006 of lib/tfm_boilerplate.txt.");
+        TEST_LOG("Too small a buffer was assigned for the output of psa_export_key(). To increase buffer size, edit entry 006 of lib/tfm_boilerplate.txt.");
+        ret->val = TEST_SKIPPED;
         return;
     }
 `059

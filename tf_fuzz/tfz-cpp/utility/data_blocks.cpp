@@ -357,7 +357,7 @@ string asset_name_id_info::make_id_n_based_name (uint64_t id_n)
 
 key_policy_info::key_policy_info (void)  // (default constructor)
 {
-    get_policy_from_key = false;  // specify policy asset by a key that uses it.
+    generate_get_policy_from_key_call = false;
     copy_key = false;  // not copying one key to another
     exportable = false;
     copyable = false;
@@ -368,7 +368,7 @@ key_policy_info::key_policy_info (void)  // (default constructor)
     derivable= false;
     persistent= false;
 
-    get_policy_from_policy = "";
+    get_policy_info_from = "";
     key_type = "";
     key_algorithm = "";
     n_bits = 0;

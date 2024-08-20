@@ -1,4 +1,4 @@
 purpose to create then remove a key;
-set policy name somePolicy attr sign verify copy alg stream_cipher;
+set policy name somePolicy attr sign verify copy size 0 valid;
 set key name akey data * policy somePolicy;
 remove key name akey;

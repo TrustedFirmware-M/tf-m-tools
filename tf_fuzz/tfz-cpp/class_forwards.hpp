@@ -70,7 +70,7 @@ class get_policy_usage_call;
 class print_policy_usage_call;
 class get_key_policy_call;
 class generate_key_call;
-class create_key_call;
+class import_key_call;
 class copy_key_call;
 class read_key_data_call;
 class remove_key_call;

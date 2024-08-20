@@ -14,6 +14,14 @@ sources = $(wildcard assets/*.cpp) \
 		  $(wildcard utility/*.cpp) \
 		  $(wildcard *.cpp)
 
+headers = $(wildcard assets/*.hpp) \
+          $(wildcard crypto_model/*.hpp) \
+		  $(wildcard boilerplate/*.hpp) \
+		  $(wildcard calls/*.hpp) \
+		  $(wildcard template/*.hpp) \
+		  $(wildcard utility/*.hpp) \
+		  $(wildcard *.hpp)
+
 objs    = $(sources:.cpp=.o)
 depends = $(sources:.cpp=.d)
 
@@ -35,7 +43,7 @@ include $(depends)
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
-tfz: $(generated_includes) $(generated_objs) $(objs) Makefile
+tfz: $(generated_includes) $(generated_objs) $(objs) $(headers) Makefile
 	$(CXX) $(CXXFLAGS) -o tfz $(generated_objs) $(objs)
 
 parser/tf_fuzz_grammar.tab.hpp:  parser/tf_fuzz_grammar.y class_forwards.hpp \

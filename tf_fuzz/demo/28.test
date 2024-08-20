@@ -1,4 +1,12 @@
 purpose to create a key, then read the key data ("material") into a variable;
-set policy name somePolicy alg cfb attr noexport volatile valid;
+
+1 of {
+// key policy must be set to 0 for import to work -- this tells PSA Crypto that
+// we don't care about the size of the key
+set policy name somePolicy attr noexport volatile size 0 valid;
+set policy name somePolicy attr export volatile size 0 valid;
+set policy name somePolicy attr export volatile valid;
+set policy name somePolicy attr export volatile valid;
+}
 set key name aKey data * policy somePolicy;
 read key name aKey var keyDataVar;

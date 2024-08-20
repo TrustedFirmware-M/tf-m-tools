@@ -83,13 +83,13 @@ public:
     /// never be overwritten.
     virtual bool simulate (void);
 
-    // Update policy information in the call based on the policy
-    // asset specified in policy.get_policy_from_policy. If this is unset,
+    // Update policy information in the call based on the policy or key
+    // asset specified in policy.get_policy_info_from. If this is unset,
     // the existing values are used as-is.
     //
     // This enables the simulation time setting of the policy.
     //
-    // See `key_policy_info.get_policy_from_policy`.
+    // See `key_policy_info.get_policy_info_from`.
     void copy_policy_to_call(void);
 
     // TODO: move simulation and error modelling code code into simulate().

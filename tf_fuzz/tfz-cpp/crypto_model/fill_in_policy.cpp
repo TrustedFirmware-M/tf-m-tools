@@ -17,7 +17,7 @@ void fill_in_policy(key_policy_info &policy_info, bool policy_must_be_valid) {
 
   // in this scenario, the policy cant be filled out now, and the information
   // should be copied over later.
-  if (!policy_info.get_policy_from_policy.empty()) {
+  if (!policy_info.get_policy_info_from.empty()) {
         return;
   }
 
@@ -38,7 +38,9 @@ void fill_in_policy(key_policy_info &policy_info, bool policy_must_be_valid) {
             policy_info.key_type = kt.get_string();
         }
 
-        if (policy_info.n_bits == 0) {
+        // key size of 0 tells psa crypto that we don't care.
+        // this is useful, for example, when importing data into a key.
+        if (policy_info.n_bits < 0) {
             policy_info.n_bits = kt.get_random_valid_key_size();
         }
 
@@ -51,7 +53,7 @@ void fill_in_policy(key_policy_info &policy_info, bool policy_must_be_valid) {
             policy_info.key_algorithm= crypto_model::get_random_algorithm().get_string_with_hash();
         }
 
-        if (policy_info.n_bits == 0) {
+        if (policy_info.n_bits < 0) {
             policy_info.n_bits = crypto_model::get_random_key_size();
         }
     }

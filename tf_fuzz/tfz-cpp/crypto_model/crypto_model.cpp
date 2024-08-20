@@ -417,6 +417,7 @@ bool key_type::is_allowed_algorithm(algorithm& algorithm) {
 }
 
 bool key_type::is_valid_key_size(uint size) {
+
     // (MbedTLS): size is always byte aligned
     if (size % 8 != 0) {
         return false;

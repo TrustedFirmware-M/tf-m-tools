@@ -125,10 +125,11 @@ public:
                what asset-name barrier to search for. */
             bool add_to_end_bool = (random_asset != psa_asset_usage::all);
 
-            if (policy_info.get_policy_from_key) {
+            if (policy_info.generate_get_policy_from_key_call) {
                 define_call<get_key_policy_call> (set_data, random_data,
                                 fill_in_template, create_call, temLin, rsrc,
                                 add_to_end_bool, yes_set_barrier  );
+
             }
             define_call<get_policy_usage_call> (set_data, random_data,
                             fill_in_template, create_call, temLin, rsrc,
@@ -220,7 +221,7 @@ public:
                                 add_to_end, yes_set_barrier);
             } else if (set_data.string_specified || set_data.random_data) {
                 // Key data (key material) supplied:
-                define_call<create_key_call> (set_info, random_data,
+                define_call<import_key_call> (set_info, random_data,
                                 fill_in_template, create_call, temLin, rsrc,
                                 add_to_end, yes_set_barrier);
             } else {
@@ -250,6 +251,8 @@ public:
         void setup_call (set_data_info set_info, bool random_data,
                          bool fill_in_template, bool create_call,
                          template_line *temLin, tf_fuzz_info *rsrc) {
+
+            temLin->policy_info.get_policy_info_from=temLin->asset_info.get_name();
             define_call<read_key_data_call> (set_data, random_data,
                             fill_in_template, create_call, temLin, rsrc,
                             add_to_end, yes_set_barrier);

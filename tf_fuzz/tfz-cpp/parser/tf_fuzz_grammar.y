@@ -99,7 +99,7 @@ psa_call                        *psaCal = nullptr;
       get_key_policy_call       *getKeyPolCal = nullptr;
     key_call                    *keyCal = nullptr;
       generate_key_call         *genKeyCal = nullptr;
-      create_key_call           *creKeyCal = nullptr;
+      import_key_call           *creKeyCal = nullptr;
       copy_key_call             *copKeyCal = nullptr;
       read_key_data_call        *reaKeyDatCal = nullptr;
       remove_key_call           *remKeyCal = nullptr;
@@ -1139,6 +1139,13 @@ policy_size:
             policy_info.n_bits = num;
             IVM(cout << yytext << "\"" << endl;)
     }
+
+    | SIZE STAR{
+            IVM(cout << "Policy-Size: random \"" << flush;)
+            int num = atol(yytext);
+            policy_info.n_bits = -1;
+            IVM(cout << yytext << "\"" << endl;)
+    }
 policy_specs:
         %empty  /* nothing */
       | policy_spec policy_specs {
@@ -1176,7 +1183,7 @@ policy_asset_name:
         NAME IDENTIFIER {
             IVM(cout << "policy-asset identifier list:  \"" << flush;)
             random_name = false;
-            policy_info.get_policy_from_key = false;
+            policy_info.generate_get_policy_from_key_call = false;
             asset_name = identifier;  /* TODO:  Not sure this ultimately has any effect... */
             parsed_asset.asset_name_vector.push_back (identifier);
             random_asset = psa_asset_usage::all;  /* don't randomly choose existing asset */
@@ -1185,21 +1192,21 @@ policy_asset_name:
         }
       | STAR ACTIVE {
             IVM(cout << "policy-asset random active:  \"" << flush;)
-            policy_info.get_policy_from_key = false;
+            policy_info.generate_get_policy_from_key_call = false;
             random_asset = psa_asset_usage::active;
             parsed_asset.id_n_not_name = false;
             IVM(cout << yytext << "\"" << endl;)
         }
       | STAR DELETED {
             IVM(cout << "policy-asset random deleted:  \"" << flush;)
-            policy_info.get_policy_from_key = false;
+            policy_info.generate_get_policy_from_key_call = false;
             random_asset = psa_asset_usage::deleted;
             parsed_asset.id_n_not_name = false;
             IVM(cout << yytext << "\"" << endl;)
         }
       | KEY IDENTIFIER {
             IVM(cout << "policy-asset specified by key:  \"" << flush;)
-            policy_info.get_policy_from_key = true;
+            policy_info.generate_get_policy_from_key_call = true;
             random_name = false;
             asset_name.assign (identifier);  /* ask this key what it's policy is */
             random_asset = psa_asset_usage::all;  /* don't randomly choose existing asset */
@@ -1245,7 +1252,7 @@ key_set_source:
       | POLICY IDENTIFIER {
             IVM(cout << "Key-set sources, explicitly-specified policy name:  "
                      << flush;)
-            policy_info.get_policy_from_policy = identifier;
+            policy_info.get_policy_info_from = identifier;
             policy_info.asset_2_name = identifier;  /* policy */
             /* Make note that key data (key material) was not specified: */
             IVM(cout << yytext << "\"" << endl;)

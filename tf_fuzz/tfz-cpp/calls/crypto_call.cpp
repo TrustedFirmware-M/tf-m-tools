@@ -5,6 +5,7 @@
  *
  */
 
+#include <cstring>
 #include <stdint.h>
 #include <cstdlib>
 #include <iostream>
@@ -1039,7 +1040,7 @@ void generate_key_call::fill_in_command (void)
    Methods of class create_key_call follow:
 **********************************************************************************/
 
-create_key_call::create_key_call (tf_fuzz_info *test_state,    // (constructor)
+import_key_call::import_key_call (tf_fuzz_info *test_state,    // (constructor)
                                     long &call_ser_no,
                                     asset_search how_asset_found)
                                         : key_call(test_state, call_ser_no,
@@ -1051,18 +1052,66 @@ create_key_call::create_key_call (tf_fuzz_info *test_state,    // (constructor)
     check_code.assign (test_state->bplate->bplate_string[create_key_check]);
     call_description = "key-create call";
 }
-create_key_call::~create_key_call (void)
+import_key_call::~import_key_call (void)
 {
     return;  // just to have something to pin a breakpoint onto
 }
 
 
-bool create_key_call::copy_call_to_asset (void)
+bool import_key_call::copy_call_to_asset (void)
 {
     return copy_call_to_asset_t<key_asset*> (this, dont_create_asset);
 }
 
-void create_key_call::fill_in_prep_code (void)
+
+bool import_key_call::simulate (void) {
+    bool is_policy_valid;
+
+    string data_str  = set_data.get();
+    const char* data_buf = data_str.c_str();
+    size_t data_size = strlen(data_buf) * 8;
+
+    // RSA keys have a very specific binary format that is checked on import.
+    // a random / user given string almost certainly won't be valid here.
+    if  (policy.key_type == "PSA_KEY_TYPE_RSA_KEY_PAIR") {
+        is_policy_valid = false;
+
+    } else if (policy.key_type == "PSA_KEY_TYPE_PEPPER") {
+        is_policy_valid = false;
+
+    } else {
+        is_policy_valid=true;
+    }
+
+    // policy.n_bits == 0 means to PSA crypto that we don't care about key size
+    // (this is good for import)
+    if (policy.n_bits != 0 && policy.n_bits != data_size) {
+        is_policy_valid = false;
+    }
+
+    if (!is_policy_valid) {
+        // do not create a key when policy is invalid
+        exp_data.expect_failure();
+        return true;
+    }
+
+    // create an asset, and copy the information we want in it to it.
+    copy_call_to_asset_t<key_asset*> (this, yes_create_asset);
+    switch (asset_info.how_asset_found) {
+    case asset_search::created_new:
+        exp_data.expect_pass();
+
+        break;
+
+    default: // asset already exists!
+        exp_data.expect_failure();
+        break;
+    }
+
+    return true;
+};
+
+void import_key_call::fill_in_prep_code (void)
 {
     string var_name = asset_info.get_name();
     vector<variable_info>::iterator assign_variable;
@@ -1078,6 +1127,8 @@ void create_key_call::fill_in_prep_code (void)
         prep_code.append (test_state->bplate->bplate_string[declare_key]);
         find_replace_all ("$var", var_name, prep_code);
     }
+
+
     // Key-data variable:
     var_name = asset_info.get_name() + "_set_data";
     assign_variable = test_state->find_var (var_name);
@@ -1086,19 +1137,18 @@ void create_key_call::fill_in_prep_code (void)
         test_state->make_var (var_name);
         prep_code.append (test_state->bplate->bplate_string[declare_big_string]);
         find_replace_all ("$var", var_name, prep_code);
-        int rand_data_length = 12 + (rand() % 100);
-        gib.sentence (gib_buff, gib_buff + rand_data_length - 1);
-        t_string = gib_buff;
+        t_string = set_data.get();
         find_replace_all ("$init", t_string, prep_code);
     }
 }
 
-void create_key_call::fill_in_command (void)
+void import_key_call::fill_in_command (void)
 {
     // (call_code already loaded by constructor)
     find_replace_all ("$policy", policy.asset_2_name, call_code);
     find_replace_all ("$data", asset_info.get_name() + "_set_data", call_code);
-    find_replace_all ("$length", to_string (policy.n_bits), call_code);
+
+    find_replace_all ("$length", to_string(strlen(set_data.get().c_str())), call_code);
     find_replace_all ("$key", asset_info.get_name(), call_code);
     // Calculate the expected results:
     fill_in_result_code();
@@ -1221,6 +1271,36 @@ bool read_key_data_call::copy_call_to_asset (void)
     return copy_call_to_asset_t<key_asset*> (this, dont_create_asset);
 }
 
+bool read_key_data_call::simulate() {
+
+    copy_call_to_asset_t<key_asset*> (this, dont_create_asset);
+    switch (asset_info.how_asset_found) {
+    case asset_search::found_active:
+        exp_data.expect_pass();
+
+        // Can always export public keys but all other keys need USAGE_EXPORT.
+        if (!policy.exportable && policy.key_type != "PSA_KEY_TYPE_RSA_PUBLIC_KEY") {
+            exp_data.expect_error_code("PSA_ERROR_NOT_PERMITTED");
+        }
+        break;
+
+    case asset_search::found_deleted:
+    case asset_search::found_invalid:
+    case asset_search::not_found:
+        exp_data.expect_error_code("PSA_ERROR_INVALID_HANDLE");
+        break;
+
+    // should never happen in this case
+    case asset_search::unsuccessful:
+    case asset_search::created_new:
+    case asset_search::something_wrong:
+        exp_data.expect_failure();
+        break;
+    }
+
+    return true;
+}
+
 void read_key_data_call::fill_in_prep_code (void)
 {
     string var_name, length_var_name, actual_length_var_name, var_name_suffix,
@@ -1332,15 +1412,6 @@ void read_key_data_call::fill_in_command (void)
     find_replace_1st ("$act_size", actual_length_var_name, call_code);
     find_replace_1st ("$length", length_var_name, call_code);
 
-    // TODO: move error checking code to simulate().
-
-    // TODO:  check data?
-
-    // See if the source key did not exist:
-    if (!policy.exportable) {
-        // See if the source key does not support export:
-        exp_data.expect_error_code("PSA_ERROR_NOT_PERMITTED");
-    }
     fill_in_result_code();
 }
 

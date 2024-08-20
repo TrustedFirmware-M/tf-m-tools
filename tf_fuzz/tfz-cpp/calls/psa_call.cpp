@@ -75,39 +75,56 @@ bool psa_call::simulate(void) {
 
 void psa_call::copy_policy_to_call(void) {
 
-    string name = policy.get_policy_from_policy;
-
-    // name represents the policy asset we want to use for this call.
-
-    // We don't want to use a policy asset, so we have nothing to do here.
-    if (name == ""){
+    if (policy.get_policy_info_from == ""){
         return;
     }
 
+    string asset_name = policy.get_policy_info_from;
+
     vector<psa_asset*>::iterator found_asset;
     long x; // doesnt matter
-    asset_search status = test_state->find_or_create_policy_asset(psa_asset_search::name,psa_asset_usage::all,name,0,x,dont_create_asset,found_asset);
+    asset_search status = test_state->find_or_create_policy_asset(psa_asset_search::name,psa_asset_usage::all,asset_name,0,x,dont_create_asset,found_asset);
 
     switch (status) {
 
     case asset_search::found_active:
     case asset_search::found_deleted:
-    case asset_search::found_invalid:
-        break;
+    case asset_search::found_invalid: {
+        string handle = policy.handle_str;
+        string asset_2_name = policy.asset_2_name;
+        string asset_3_name = policy.asset_3_name;
 
+        policy = found_asset[0]->policy;
+        policy.handle_str = handle;
+        policy.asset_2_name = asset_2_name;
+        policy.asset_3_name = asset_3_name;
+        return;
+    }
     default:
-        cerr << "Fatal: could not find policy asset " << name << endl;
-        exit(1);
+        break;
     }
 
-    string handle = policy.handle_str;
-    string asset_2_name = policy.asset_2_name;
-    string asset_3_name = policy.asset_3_name;
+    status = test_state->find_or_create_key_asset(psa_asset_search::name,psa_asset_usage::all,asset_name,0,x,dont_create_asset,found_asset);
 
-    policy = found_asset[0]->policy;
-    policy.handle_str = handle;
-    policy.asset_2_name = asset_2_name;
-    policy.asset_3_name = asset_3_name;
+    switch (status) {
+
+    case asset_search::found_active:
+    case asset_search::found_deleted:
+    case asset_search::found_invalid: {
+        string handle = policy.handle_str;
+        string asset_2_name = policy.asset_2_name;
+        string asset_3_name = policy.asset_3_name;
+
+        policy = found_asset[0]->policy;
+        policy.handle_str = handle;
+        policy.asset_2_name = asset_2_name;
+        policy.asset_3_name = asset_3_name;
+        break;
+    }
+    default:
+        break;
+    }
+
 }
 
 /**********************************************************************************
