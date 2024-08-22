@@ -15,13 +15,13 @@ from iatverifier.psa_2_0_0_token_claims import SWComponentTypeClaim, SwComponent
 from iatverifier.psa_2_0_0_token_claims import MeasurementValueClaim, MeasurementDescriptionClaim, SignerIdClaim
 
 class PSA_2_0_0_TokenVerifier(Verifier):
-    """Verifier class for PSA Attestation Token profile PSA_IOT_PROFILE_1"""
+    """Verifier class for PSA Attestation Token profile PSA_2_0_0"""
 
     def get_claim_key(self=None):
         return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):
-        return 'PSA_IOT_PROFILE1_TOKEN'
+        return 'PSA_2_0_0_TOKEN'
 
     def _get_p_header(self):
         return {'alg': self._get_cose_alg()}
