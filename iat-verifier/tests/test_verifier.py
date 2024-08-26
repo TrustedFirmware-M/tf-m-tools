@@ -269,3 +269,47 @@ class TestIatVerifier(unittest.TestCase):
             signing_key=signing_key,
             configuration=self.config)).get_token_map()
         self.assertEqual(iat['SECURITY_LIFECYCLE'], 'sl_secured_3000')
+
+    def test_profiles(self):
+        """
+        Test that both legacy and new profiles are handled correctly.
+        In particular, ensure that the different RAK encodings are accommodated,
+        and that use of legacy profiles triggers a warning.
+        """
+        method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
+        realm_token_key = read_keyfile(KEYFILE_CCA_REALM, method)
+        platform_token_key = read_keyfile(KEYFILE_CCA_PLAT, method)
+
+        # change directory here to make !inc work
+        os.chdir(DATA_DIR)
+
+        create_and_read_iat(
+            '.',
+            'cca_example_token.yaml',
+            CCATokenVerifier(
+                realm_token_method=method,
+                realm_token_cose_alg=Es384,
+                realm_token_key=realm_token_key,
+                platform_token_method=method,
+                platform_token_cose_alg=Es384,
+                platform_token_key=platform_token_key,
+                configuration=self.config
+            )
+        )
+
+        with self.assertLogs() as test_ctx:
+            create_and_read_iat(
+                '.',
+                'cca_example_token_legacy.yaml',
+                CCATokenVerifier(
+                    realm_token_method=method,
+                    realm_token_cose_alg=Es384,
+                    realm_token_key=realm_token_key,
+                    platform_token_method=method,
+                    platform_token_cose_alg=Es384,
+                    platform_token_key=platform_token_key,
+                    configuration=self.config
+                )
+            )
+        self.assertIn('legacy profile http://arm.com/CCA-SSD/1.0.0 is deprecated',
+                      test_ctx.records[0].getMessage())

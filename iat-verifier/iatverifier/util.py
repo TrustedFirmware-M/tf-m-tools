@@ -16,9 +16,11 @@ import base64
 import yaml
 import yaml_include
 from pycose.keys import CoseKey
+from ecdsa.curves import NIST256p, NIST384p, NIST521p
 from pycose.keys.curves import P256, P384, P521
 from pycose.keys.keytype import KtyEC2
 from pycose.algorithms import Es256, Es384, Es512, HMAC256
+from ecdsa.keys import VerifyingKey
 from iatverifier.attest_token_verifier import AttestationTokenVerifier
 from cbor2 import CBOREncoder
 from pycose.keys import CoseKey
@@ -32,17 +34,28 @@ _known_curves = {
     P521: Es512,
 }
 
+_ecdsa_to_cose_curve = {
+    'NIST256p': 'P_256',
+    'NIST384p': 'P_384',
+    'NIST521p': 'P_512',
+}
 
-def es384_cose_key_from_raw_ecdsa(raw_key):
+def ec2_cose_key_from_raw_ecdsa(k, alg):
+    crv = alg.get_curve()
+    hash_func = alg.get_hash_func()
+
+    vk = VerifyingKey.from_string(k, curve=crv, hashfunc=hash_func)
+
     d = {
         'KTY': 'EC2',
-        'CURVE': 'P_384',
-        'ALG': 'ES384',
-        'X': number_to_string(raw_key.pubkey.point.x(), raw_key.curve.generator.order()),
-        'Y': number_to_string(raw_key.pubkey.point.y(), raw_key.curve.generator.order()),
+        'CURVE': _ecdsa_to_cose_curve[crv.name],
+        'ALG': alg.fullname,
+        'X': number_to_string(vk.pubkey.point.x(), vk.curve.generator.order()),
+        'Y': number_to_string(vk.pubkey.point.y(), vk.curve.generator.order()),
     }
 
     return CoseKey.from_dict(d)
+
 
 def convert_map_to_token(token_map, verifier, wfh, *, name_as_key, parse_raw_value):
     """

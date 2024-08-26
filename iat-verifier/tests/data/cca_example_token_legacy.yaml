@@ -6,11 +6,9 @@
 #
 #-------------------------------------------------------------------------------
 
-cca_platform_token: !inc cca_example_platform_token.yaml
+cca_platform_token: !inc cca_example_platform_token_legacy.yaml
 
 cca_realm_delegated_token:
-    # The Realm token profile defined in draft-ffm-rats-cca-token-00
-    cca_realm_profile: tag:arm.com,2023:realm#1.0.0
     # The Realm challenge claim is used to carry the challenge provided by the
     # caller to demonstrate freshness of the generated token. The length of the
     # Realm challenge is 64 bytes.
@@ -29,10 +27,10 @@ cca_realm_delegated_token:
     cca_realm_personalization_value: !!binary |
       VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIDEzIGxhenkgZG9ncy5UaGUgcXVpY2sgYnJvd24gZm94IA==
     # The Realm public key claim carries the public portion of the RAK which is
-    # used to sign the Realm token. The RAK value is encoded as a COSE_Key (see
-    # Section 7 of RFC9052)
+    # used to sign the Realm token. The RAK value is encoded according to SEC
+    # 1: Elliptic Curve Cryptography, version 2.0.
     cca_realm_pub_key: !!binary |
-      pQECIAIhWDB2+YgJG+WF7UGAGuz6uFhUjGMFfhaw5nYSC70NL5wp4FbF1BoBMOucIVF4mdwjFGsiWDAo4bBivT6ksxX9IZ8cu1KMtudMpJvhZ3NzT2GhymEDGyu/PZGPL5T/xCKOUJGVRK4jWDAgEcfwPO5DJRduUk8DPAzh4hp25sGk8Lg5qh32Hg6KXIoFdA+bae+n6xpBhb0Rf2g=
+      BHb5iAkb5YXtQYAa7Pq4WFSMYwV+FrDmdhILvQ0vnCngVsXUGgEw65whUXiZ3CMUayjhsGK9PqSzFf0hnxy7Uoy250ykm+Fnc3NPYaHKYQMbK789kY8vlP/EIo5QkZVErg==
     # The Realm Initial Measurement claim contains the value of the RIM (see
     # Section A7.1.1 of DEN0137 for the details).
     cca_realm_initial_measurement: !!binary |

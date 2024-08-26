@@ -13,6 +13,29 @@ from iatverifier.lifecycle_claim import GenericLifecycleClaim
 
 logger = logging.getLogger('iat-verifiers')
 
+CCA_PLATFORM_PROFILE = "tag:arm.com,2023:cca_platform#1.0.0"
+CCA_REALM_PROFILE = "tag:arm.com,2023:realm#1.0.0"
+CCA_PLATFORM_PROFILE_LEGACY = "http://arm.com/CCA-SSD/1.0.0"
+CCA_REALM_PROFILE_LEGACY = None
+
+class CCARealmProfileClaim(AttestationClaim):
+    def get_claim_key(self=None):
+        return 265
+
+    def get_claim_name(self=None):
+        return 'CCA_REALM_PROFILE'
+
+    @classmethod
+    def is_utf_8(cls):
+        return True
+
+    def verify(self, token_item):
+        expected_value = CCA_REALM_PROFILE
+        self._check_type(self.get_claim_name(), token_item.value, str)
+        if token_item.value != expected_value:
+            msg = 'Invalid Realm profile "{}": must be "{}"'
+            self.verifier.error(msg.format(token_item.value, expected_value))
+
 class CCARealmChallengeClaim(AttestationClaim):
     def __init__(self, verifier, expected_challenge_byte, necessity=AttestationClaim.MANDATORY):
         super().__init__(verifier=verifier, necessity=necessity)
@@ -33,6 +56,7 @@ class CCARealmChallengeClaim(AttestationClaim):
                     msg = 'Invalid CHALLENGE byte at {:d}: 0x{:02x} instead of 0x{:02x}'
                     self.verifier.error(msg.format(i, b, self.expected_challenge_byte))
                     break
+
 
 class CCARealmPersonalizationValue(AttestationClaim):
     def get_claim_key(self=None):
@@ -119,11 +143,16 @@ class CCAAttestationProfileClaim(AttestationClaim):
         return True
 
     def verify(self, token_item):
-        expected_value = "http://arm.com/CCA-SSD/1.0.0"
-        self._check_type(self.get_claim_name(), token_item.value, str)
-        if token_item.value != expected_value:
-            msg = 'Invalid Attest profile "{}": must be "{}"'
-            self.verifier.error(msg.format(token_item.value, expected_value))
+        # allow legacy too when decoding
+        allowed_profiles = [ CCA_PLATFORM_PROFILE, CCA_PLATFORM_PROFILE_LEGACY ]
+
+        for allowed_profile in allowed_profiles:
+            self._check_type(self.get_claim_name(), token_item.value, str)
+            if token_item.value == allowed_profile:
+                return
+
+        msg = 'Invalid Platform profile "{}": must be one of "{}"'
+        self.verifier.error(msg.format(token_item.value, ','.join(allowed_profiles)))
 
 class CCAPlatformChallengeClaim(AttestationClaim):
     def get_claim_key(self=None):
