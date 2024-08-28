@@ -1158,10 +1158,11 @@ policy_spec:  policy_usage_list | policy_type | policy_algorithm | policy_size;
 
 policy_asset_spec:
         %empty  /* nothing */
-      | NAME ASSET_IDENTIFIER_LIST {
-            IVM(cout << "policy-asset identifier list:  \"" << flush;)
+      | NAME IDENTIFIER {
+            IVM(cout << "policy-asset identifier :  \"" << flush;)
             random_name = false;
-            asset_name = identifier;  /* TODO:  Not sure this ultimately has any effect... */
+            asset_name =  identifier;
+            parsed_asset.asset_name_vector.push_back (identifier);
             random_asset = psa_asset_usage::all;  /* don't randomly choose existing asset */
             parsed_asset.id_n_not_name = false;
             IVM(cout << yytext << "\"" << endl;)
