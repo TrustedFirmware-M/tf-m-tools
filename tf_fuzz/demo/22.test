@@ -1,0 +1,2 @@
+purpose to create a policy with random name, with type using abbreviated keywords;
+set policy name * type rsa_public_key;
