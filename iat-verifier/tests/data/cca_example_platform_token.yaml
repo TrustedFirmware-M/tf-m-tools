@@ -10,7 +10,7 @@ cca_attestation_profile: tag:arm.com,2023:cca_platform#1.0.0
 
 # Hash of the public key used to sign the Realm token.  Its length depends on
 # the public key hash algorithm identifier claim in the Realm token.
-cca_platform_challenge: !!binary uIHLIBvuo5OR1W8V2mww7I30v4LDFzZVjVbaFoU1p9Y=
+cca_platform_challenge: !!binary DSLgiphGkFhIYxgoNIm9s28J2+/rGGTfQz+m5U6i1xE=
 
 # Unique identifier of the implementation of the CCA platform.
 # The semantics of the CCA platform Implementation ID value are defined by the

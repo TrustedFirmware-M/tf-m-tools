@@ -31,8 +31,7 @@ cca_realm_delegated_token:
     # The Realm public key claim carries the public portion of the RAK which is
     # used to sign the Realm token. The RAK value is encoded as a COSE_Key (see
     # Section 7 of RFC9052)
-    cca_realm_pub_key: !!binary |
-      pQECIAIhWDB2+YgJG+WF7UGAGuz6uFhUjGMFfhaw5nYSC70NL5wp4FbF1BoBMOucIVF4mdwjFGsiWDAo4bBivT6ksxX9IZ8cu1KMtudMpJvhZ3NzT2GhymEDGyu/PZGPL5T/xCKOUJGVRK4jWDAgEcfwPO5DJRduUk8DPAzh4hp25sGk8Lg5qh32Hg6KXIoFdA+bae+n6xpBhb0Rf2g=
+    cca_realm_pub_key: !!binary pAECIAIhWDB2+YgJG+WF7UGAGuz6uFhUjGMFfhaw5nYSC70NL5wp4FbF1BoBMOucIVF4mdwjFGsiWDAo4bBivT6ksxX9IZ8cu1KMtudMpJvhZ3NzT2GhymEDGyu/PZGPL5T/xCKOUJGVRK4=
     # The Realm Initial Measurement claim contains the value of the RIM (see
     # Section A7.1.1 of DEN0137 for the details).
     cca_realm_initial_measurement: !!binary |
