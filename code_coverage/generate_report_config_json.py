@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -----------------------------------------------------------------------------
-# Copyright (c) 2024, Arm Limited. All rights reserved.
+# Copyright (c) 2024-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -52,6 +52,7 @@ parser.add_argument("--log_level", help="Log level", choices=["DEBUG", "INFO", "
 parser.add_argument("--output_config_file", help="output JSON file", required=True)
 parser.add_argument("--output_intermediate_file", help="output intermediate file", required=True)
 parser.add_argument("trace_file", nargs="+", help="input trace log files")
+parser.add_argument("--filter_elfs", help="comma-separated list of ELF files to generate report for", required=False)
 args = parser.parse_args()
 
 # logging setup
@@ -87,6 +88,9 @@ parameters = {
 
 bin_dir = join(args.build_dir, "bin")
 elf_files = [join(bin_dir, x) for x in listdir(bin_dir) if isfile(join(bin_dir, x)) and "elf" in x]
+
+if args.filter_elfs:
+    elf_files = [x for x in elf_files for f in args.filter_elfs.split(",") if f in x]
 
 elfs = [
     {

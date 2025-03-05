@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2024, Arm Limited. All rights reserved.
+# Copyright (c) 2024-2025, Arm Limited. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause
 
 error()
@@ -15,10 +15,10 @@ error()
 }
 
 usage() {
-    echo "$0 --source_dir <source_dir> --build_dir <build_dir> --output_dir <output_dir> data_file [data_file ...]"
+    echo "$0 --source_dir <source_dir> --build_dir <build_dir> [--filter_elfs \"foo.elf,bar.elf\"] --output_file <output_file> data_file [data_file ...]"
 }
 
-set -ex
+set -e
 
 SCRIPT_DIR="$( dirname "${BASH_SOURCE[0]}")"
 
@@ -35,8 +35,13 @@ while test $# -gt 0; do
         shift
         shift
         ;;
-        -b|--output_dir)
-        OUTPUT_DIR="$2"
+        -f|--filter_elfs)
+        ELF_FILTER="--filter_elfs $2"
+        shift
+        shift
+        ;;
+        -b|--output_file)
+        OUTPUT_FILE="$2"
         shift
         shift
         ;;
@@ -62,7 +67,7 @@ then
     error "No build dir specified"
 fi
 
-if test -z "$OUTPUT_DIR"
+if test -z "$OUTPUT_FILE"
 then
     usage
     error "No output dir specified"
@@ -93,6 +98,7 @@ do
     ${SCRIPT_DIR}/generate_report_config_json.py \
         --source_dir "${SOURCE_DIR}" \
         --build_dir "${BUILD_DIR}" \
+        ${ELF_FILTER} \
         --output_config_file "${tmpdir}/$(basename "$x")_config.json" \
         --output_intermediate_file "${tmpdir}/$(basename "$x")_intermediate.json" \
         "$input_file"
@@ -119,4 +125,4 @@ else
     info_file=$(find "$info_dir" -type f)
 fi
 
-genhtml --branch-coverage "${info_file}" --output-directory "$OUTPUT_DIR"
+cp "${info_file}" "${OUTPUT_FILE}"
