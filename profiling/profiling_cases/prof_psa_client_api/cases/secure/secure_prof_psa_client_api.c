@@ -6,12 +6,12 @@
  */
 
 #include "secure_prof_psa_client_api.h"
-#include "tfm_sp_log.h"
+#include "tfm_log.h"
 #include "prof_intf_s.h"
 
 #define PROFILING_AVERAGE_DIFF(psa_api_name, cp_start, cp_end) \
-        LOG_INFFMT("secure %s average is %d CPU cycles\r\n", psa_api_name, \
-                   PROF_DATA_DIFF_AVG(cp_start, PSA_API_TOPIC, cp_end, PSA_API_TOPIC))
+            INFO("secure %s average is %d CPU cycles\r\n", psa_api_name, \
+                PROF_DATA_DIFF_AVG(cp_start, PSA_API_TOPIC, cp_end, PSA_API_TOPIC))
 
 void secure_prof_psa_client_api()
 {
@@ -27,7 +27,7 @@ void secure_prof_psa_client_api()
         PROF_TIMING_LOG(CONNECT_CP_END, PSA_API_TOPIC);
 
         if (!PSA_HANDLE_IS_VALID(handle)) {
-            LOG_ERRFMT("PSA connect fail!");
+            ERROR("PSA connect fail!");
             return;
         }
 
@@ -36,7 +36,7 @@ void secure_prof_psa_client_api()
         PROF_TIMING_LOG(CALL_CP_END, PSA_API_TOPIC);
 
         if (status != PSA_SUCCESS) {
-            LOG_ERRFMT("PSA call fail!");
+            ERROR("PSA call fail!");
             return;
         }
 
@@ -50,7 +50,7 @@ void secure_prof_psa_client_api()
         PROF_TIMING_LOG(STATELESS_CALL_CP_END, PSA_API_TOPIC);
 
         if (status != PSA_SUCCESS) {
-            LOG_ERRFMT("PSA stateless call fail!");
+            ERROR("PSA stateless call fail!");
             return;
         }
     }

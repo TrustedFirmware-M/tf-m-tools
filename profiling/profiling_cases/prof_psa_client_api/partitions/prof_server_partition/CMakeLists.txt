@@ -37,7 +37,7 @@ target_include_directories(tfm_partitions
 
 target_link_libraries(tfm_app_rot_partition_prof_server_partition
     PRIVATE
-        tfm_sprt
+        tfm_log_headers
 )
 
 ############################ Partition Defs ####################################
