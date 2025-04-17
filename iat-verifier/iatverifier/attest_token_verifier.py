@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -554,6 +554,13 @@ class AttestationTokenVerifier(AttestationClaim):
         hmac_msg = Mac0Message(payload=token, key=key, phdr=p_header)
         return hmac_msg.encode()
 
+    def check_type_indicator(self, *, token):
+        # By default no type indication is expected
+        return token
+
+    def encode_type_indicator(self, *, encoder):
+        # By default no type indication is added
+        pass
 
     def _get_cose_sign1_payload(self, cose, *, verify_signature):
         msg = Sign1Message.decode(cose)
@@ -628,13 +635,25 @@ class AttestationTokenVerifier(AttestationClaim):
             # Sign and pack in a COSE envelope if necessary
             signed_token = self._sign_token(token)
 
-            # Pack as a bstr if necessary
-            if root:
-                token_encoder.write(signed_token)
-            else:
+            self.encode_type_indicator(encoder=token_encoder)
+
+            if 'encode_type_indicator' in self.__dict__:
+                # If the current verifier has its own encode_type_indicator
+                # implemented, then the signed token needs to be encoded as a
+                # bytestring, and passed to the type indicator encoding like
+                # that:
                 token_encoder.encode_bytestring(signed_token)
+            else:
+                # Otherwise encoding depends on the 'root' parameter
+                if root:
+                    token_encoder.write(signed_token)
+                else:
+                    token_encoder.encode_bytestring(signed_token)
 
     def parse_token(self, *, token, lower_case_key):
+
+        token = self.check_type_indicator(token=token)
+
         if self._get_method() == AttestationTokenVerifier.SIGN_METHOD_RAW:
             payload = token
             protected_header = None

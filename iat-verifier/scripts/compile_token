@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #-------------------------------------------------------------------------------
-# Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -59,6 +59,9 @@ if __name__ == '__main__':
                         help='''The type of the Token.''',
                         choices=token_verifiers.keys(),
                         required=True)
+    parser.add_argument('--gen-token-indicator',
+                        help='''Expect token indicator in the cbor.''',
+                        action='store_true')
 
     args = parser.parse_args()
 
@@ -114,7 +117,8 @@ if __name__ == '__main__':
             cose_alg=cose_alg,
             signing_key=key,
             configuration=configuration,
-            necessity=None)
+            necessity=None,
+            has_type_indicator=args.gen_token_indicator)
     elif verifier_class == PSA_2_0_0_TokenVerifier:
         key_checked = args.key
         key = read_keyfile(keyfile=args.key, method=METHOD)

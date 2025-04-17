@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -114,7 +114,19 @@ class TestIatVerifier(unittest.TestCase):
                 cose_alg=Es384,
                 signing_key=platform_token_key,
                 configuration=self.config,
-                necessity=AttestationClaim.MANDATORY))
+                necessity=AttestationClaim.MANDATORY,
+                has_type_indicator=False))
+
+        create_and_read_iat(
+            DATA_DIR,
+            'cca_platform_token.yaml',
+            CCAPlatformTokenVerifier(
+                method=method,
+                cose_alg=Es384,
+                signing_key=platform_token_key,
+                configuration=self.config,
+                necessity=AttestationClaim.MANDATORY,
+                has_type_indicator=True))
 
         with self.assertRaises(ValueError) as test_ctx:
             create_and_read_iat(

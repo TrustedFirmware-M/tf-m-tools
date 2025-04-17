@@ -1,9 +1,11 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2022, Arm Limited. All rights reserved.
+# Copyright (c) 2022-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # -----------------------------------------------------------------------------
+
+import cbor2
 
 from cryptography.hazmat.primitives import hashes
 from pycose.headers import Algorithm
@@ -27,12 +29,36 @@ from iatverifier.cca_claims import CCASwCompHashAlgIdClaim, CCASwCompHashAlgIdCl
 from iatverifier.psa_iot_profile1_token_claims import SWComponentTypeClaim, SwComponentVersionClaim
 from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, SignerIdClaim
 from iatverifier.util import ec2_cose_key_from_raw_ecdsa
+from iatverifier.attest_token_verifier import _CBOR_MAJOR_TYPE_ARRAY
 
 _algorithms = {
     Es256: 65,
     Es384: 97,
     Es512: 133,
 }
+
+COAP_CONTENT_INDICATOR = 263
+
+def cca_check_type_indicator(verifier, token):
+    if (isinstance(token, bytes)):
+        # It can happen that the token is not a map structure, but an encoded cbor.
+        # try to parse it:
+        token = cbor2.loads(token)
+    if not isinstance(token, list):
+        msg = f'Expecting a type indicator (token must be a list)'
+        verifier.error(msg)
+    type_indicator_value = token[0]
+    if not isinstance(type_indicator_value, int):
+        msg = f'Expecting a type indicator value is not an int'
+        verifier.error(msg)
+    if type_indicator_value != COAP_CONTENT_INDICATOR:
+        msg = f'Invalid type indicator: {type_indicator_value}'
+        verifier.error(msg)
+    return token[1]
+
+def cca_encode_type_indicator(verifier, encoder):
+    encoder.encode_length(_CBOR_MAJOR_TYPE_ARRAY, 2)
+    encoder.encode_int(COAP_CONTENT_INDICATOR)
 
 class CCATokenVerifier(Verifier):
 
@@ -46,7 +72,7 @@ class CCATokenVerifier(Verifier):
         return {Algorithm: self._get_cose_alg()}
 
     def _get_wrapping_tag(self):
-        return 399
+        return 907
 
     def _parse_p_header(self, msg):
         alg = self._get_cose_alg()
@@ -150,7 +176,7 @@ class CCARealmTokenVerifier(Verifier):
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
 
-    def __init__(self, *, method, cose_alg, signing_key=None, configuration, necessity):
+    def __init__(self, *, method, cose_alg, signing_key=None, configuration, necessity, has_type_indicator=True):
         verifier_claims= [
             (CCARealmChallengeClaim, {'verifier':self, 'expected_challenge_byte': None, 'necessity': Claim.MANDATORY}),
             (CCARealmPersonalizationValue, {'verifier':self, 'necessity': Claim.MANDATORY}),
@@ -170,6 +196,10 @@ class CCARealmTokenVerifier(Verifier):
             method=method,
             cose_alg=cose_alg,
             signing_key=signing_key)
+
+        if has_type_indicator:
+            self.check_type_indicator = lambda token: cca_check_type_indicator(self, token)
+            self.encode_type_indicator = lambda encoder: cca_encode_type_indicator(self, encoder)
 
     def verify(self, token_item):
         # Realm token was not checked against the realm public key as it needs
@@ -258,7 +288,7 @@ class CCAPlatformTokenVerifier(Verifier):
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
 
-    def __init__(self, *, method, cose_alg, signing_key, configuration, necessity):
+    def __init__(self, *, method, cose_alg, signing_key, configuration, necessity, has_type_indicator=True):
 
         # First prepare the claim hierarchy for this token
 
@@ -290,3 +320,8 @@ class CCAPlatformTokenVerifier(Verifier):
             method=method,
             cose_alg=cose_alg,
             signing_key=signing_key)
+
+        if has_type_indicator:
+            self.check_type_indicator = lambda token: cca_check_type_indicator(self, token)
+            self.encode_type_indicator = lambda encoder: cca_encode_type_indicator(self, encoder)
+
