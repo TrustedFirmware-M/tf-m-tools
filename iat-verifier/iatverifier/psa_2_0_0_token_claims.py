@@ -149,7 +149,7 @@ class ProfileIdClaim(AttestationClaim):
         return 'PROFILE_ID'
 
     def verify(self, token_item):
-        expected_value = "http://arm.com/psa/2.0.0"
+        expected_value = "tag:psacertified.org,2023:psa#tfm"
         self._check_type(self.get_claim_name(), token_item.value, str)
         if token_item.value != expected_value:
             msg = 'Invalid Attest profile "{}": must be "{}"'
