@@ -150,10 +150,15 @@ class ProfileIdClaim(AttestationClaim):
 
     def verify(self, token_item):
         expected_value = "tag:psacertified.org,2023:psa#tfm"
+        expected_value_legacy = "http://arm.com/psa/2.0.0"
         self._check_type(self.get_claim_name(), token_item.value, str)
         if token_item.value != expected_value:
-            msg = 'Invalid Attest profile "{}": must be "{}"'
-            self.verifier.error(msg.format(token_item.value, expected_value))
+            if token_item.value == expected_value_legacy:
+                msg = 'Legacy Attest profile "{}": must be new profile "{}"'
+                self.verifier.warning(msg.format(token_item.value, expected_value))
+            else:
+                msg = 'Invalid Attest profile "{}": must be "{}"'
+                self.verifier.error(msg.format(token_item.value, expected_value))
 
     @classmethod
     def is_utf_8(cls):
