@@ -255,3 +255,26 @@ class CCAPlatformHashAlgorithmIdClaim(AttestationClaim):
     @classmethod
     def is_utf_8(cls):
         return True
+
+class CCARealmMECPolicyClaim(AttestationClaim):
+    def get_claim_key(self=None):
+        return 44241
+
+    def get_claim_name(self=None):
+        return 'CCA_REALM_MEC_POLICY'
+
+    @classmethod
+    def is_utf_8(cls):
+        return True
+
+    def verify(self, token_item):
+        # allow legacy too when decoding
+        allowed_values = ["shared", "private"]
+
+        for allowed_value in allowed_values:
+            self._check_type(self.get_claim_name(), token_item.value, str)
+            if token_item.value == allowed_value:
+                return
+
+        msg = 'Invalid Realm MEC Policy "{}": must be one of "{}"'
+        self.verifier.error(msg.format(token_item.value, ','.join(allowed_values)))

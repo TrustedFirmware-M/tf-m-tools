@@ -36,6 +36,8 @@ cca_realm_delegated_token:
     # Section A7.1.1 of DEN0137 for the details).
     cca_realm_initial_measurement: !!binary |
       MRMUq3NiA1DPdYg0rlxl2ejC3H/r5ufZZUu+hk4wDUk=
+    # The Realm MEC policy claim identifies the MEC policy of the Realm.
+    cca_realm_mec_policy: private
     # The Realm Extensible Measurements claim contains the values of the Realm
     # Extensible Measurements (see Section A7.1.2 of DEN0137 for the details).
     cca_realm_extensible_measurements:

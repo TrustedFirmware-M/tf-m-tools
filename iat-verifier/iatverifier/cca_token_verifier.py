@@ -26,6 +26,7 @@ from iatverifier.cca_claims import CCAPlatformImplementationIdClaim, CCAPlatform
 from iatverifier.cca_claims import CCAPlatformConfigClaim, CCAPlatformLifecycleClaim
 from iatverifier.cca_claims import CCAPlatformSwComponentsClaim, CCAPlatformVerificationServiceClaim
 from iatverifier.cca_claims import CCASwCompHashAlgIdClaim, CCASwCompHashAlgIdClaim
+from iatverifier.cca_claims import CCARealmMECPolicyClaim
 from iatverifier.psa_iot_profile1_token_claims import SWComponentTypeClaim, SwComponentVersionClaim
 from iatverifier.psa_iot_profile1_token_claims import MeasurementValueClaim, SignerIdClaim
 from iatverifier.util import ec2_cose_key_from_raw_ecdsa
@@ -186,6 +187,7 @@ class CCARealmTokenVerifier(Verifier):
             (CCARealmPubKeyHashAlgorithmIdClaim, {'verifier':self, 'necessity': Claim.MANDATORY}),
             (CCARealmPubKeyClaim, {'verifier':self, 'necessity': Claim.MANDATORY}),
             (CCARealmProfileClaim, {'verifier':self, 'necessity': Claim.OPTIONAL}),
+            (CCARealmMECPolicyClaim, {'verifier':self, 'necessity': Claim.MANDATORY}),
         ]
 
         # initialise the base part of the token
