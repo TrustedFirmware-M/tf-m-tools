@@ -64,6 +64,7 @@ def cca_encode_type_indicator(verifier, encoder):
 class CCATokenVerifier(Verifier):
 
     CCA_VERIFIER_HAS_TYPE_INDICATOR = "cca_verifier_has_type_indicator"
+    CCA_VERIFIER_LEGACY_TAG = "cca_verifier_legacy_tag"
 
     def get_claim_key(self=None):
         return None  # In case of root tokens the key is not used.
@@ -75,6 +76,8 @@ class CCATokenVerifier(Verifier):
         return {Algorithm: self._get_cose_alg()}
 
     def _get_wrapping_tag(self):
+        if (self.config.get_config(self.CCA_VERIFIER_LEGACY_TAG, False)):
+            return 399
         return 907
 
     def _parse_p_header(self, msg):
