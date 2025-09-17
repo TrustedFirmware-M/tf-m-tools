@@ -275,7 +275,7 @@ class CompositeAttestClaim(AttestationClaim):
 
     def _verify_dict(self, claim_type, entry_number, dictionary):
         if not isinstance(dictionary, dict):
-            if self.config.strict:
+            if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT, None):
                 msg = 'The values in token {} must be a dict.'
                 self.verifier.error(msg.format(claim_type.get_claim_name()))
             else:
@@ -286,7 +286,7 @@ class CompositeAttestClaim(AttestationClaim):
         claim_names = [val.get_claim_name() for val in claim_type._get_contained_claims()]
         for claim_name, _ in dictionary.items():
             if claim_name not in claim_names:
-                if self.config.strict:
+                if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT, None):
                     msg = 'Unexpected {} claim: {}'
                     self.verifier.error(msg.format(claim_type.get_claim_name(), claim_name))
                 else:
@@ -307,7 +307,7 @@ class CompositeAttestClaim(AttestationClaim):
     def verify(self, token_item):
         if self.is_list:
             if not isinstance(token_item.value, list):
-                if self.config.strict:
+                if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT, None):
                     msg = 'The value of this token {} must be a list.'
                     self.verifier.error(msg.format(self.get_claim_name()))
                 else:
@@ -338,7 +338,7 @@ class CompositeAttestClaim(AttestationClaim):
                 except KeyError:
                     claim_value[key] = val
                 except Exception:
-                    if not self.config.keep_going:
+                    if not self.config.get_config(VerifierConfiguration.VERIFIER_KEEP_GOING, None):
                         raise
         return claim_value
 
@@ -402,8 +402,8 @@ class CompositeAttestClaim(AttestationClaim):
                     name_as_key=name_as_key,
                     parse_raw_value=parse_raw_value)
             except KeyError:
-                if self.config.strict:
-                    if not self.config.keep_going:
+                if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT, None):
+                    if not self.config.get_config(VerifierConfiguration.VERIFIER_KEEP_GOING, None):
                         raise
                 else:
                     token_encoder.encode(key)
@@ -455,15 +455,34 @@ class CompositeAttestClaim(AttestationClaim):
                     token_dict[key] = claim_token_item
             return token_dict
 
-@dataclass
 class VerifierConfiguration:
     """A class storing the configuration of the verifier.
 
-    At the moment this determines what should happen if a problem is found
-    during verification.
+    Contains a dictionary of options, with a default value.
+    The __init__ function accepts a dictionary that allows to overwrite the
+    value of existing option, add new options.
     """
-    keep_going: bool = False
-    strict: bool = False
+
+    VERIFIER_KEEP_GOING = "verifier_keep_going"
+    VERIFIER_STRICT = "verifier_strict"
+
+    def __init__(self, overrides=None):
+        self.config = {
+            self.VERIFIER_KEEP_GOING: False,
+            self.VERIFIER_STRICT: False,
+        }
+
+        if overrides:
+            self.config.update(overrides)
+
+    def get_config(self, key, default_value):
+        if key in self.config:
+            return self.config[key]
+
+        if default_value is None:
+            assert False
+
+        return default_value
 
 class AttestTokenRootClaims(CompositeAttestClaim):
     """A claim type that is used to represent the claims in a token.
@@ -723,7 +742,7 @@ class AttestationTokenVerifier(AttestationClaim):
     def error(self, message, *, exception=None):
         """Act on an error depending on the configuration of this verifier"""
         self.seen_errors = True
-        if self.config.keep_going:
+        if self.config.get_config(VerifierConfiguration.VERIFIER_KEEP_GOING, None):
             logger.error(message)
         else:
             if exception is None:

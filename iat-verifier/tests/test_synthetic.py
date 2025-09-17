@@ -90,7 +90,9 @@ class TestSynthetic(unittest.TestCase):
         cose_alg=Es256
 
         signing_key = read_keyfile(KEYFILE, method)
-        config = VerifierConfiguration(keep_going=True, strict=True)
+        config = VerifierConfiguration(
+            {VerifierConfiguration.VERIFIER_KEEP_GOING: True,
+             VerifierConfiguration.VERIFIER_STRICT: True})
 
         # test with unexpected tag
         with self.assertLogs() as test_ctx:
@@ -149,7 +151,7 @@ class TestSynthetic(unittest.TestCase):
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
         cose_alg=Es256
         signing_key = read_keyfile(KEYFILE, method)
-        config = VerifierConfiguration(keep_going=True, strict=False)
+        config = VerifierConfiguration({VerifierConfiguration.VERIFIER_KEEP_GOING: True})
 
         test_verifier=SyntheticTokenVerifier2(method=method,
                     cose_alg=cose_alg,
@@ -168,7 +170,9 @@ class TestSynthetic(unittest.TestCase):
         self.assertIn('Unexpected TOKEN_ROOT_CLAIMS claim: 9903, skipping', test_ctx.output[2])
         self.assertIn('Unexpected SYN_BOXES claim: 9904, skipping', test_ctx.output[3])
 
-        config = VerifierConfiguration(keep_going=True, strict=True)
+        config = VerifierConfiguration(
+            {VerifierConfiguration.VERIFIER_KEEP_GOING: True,
+             VerifierConfiguration.VERIFIER_STRICT: True})
 
         test_verifier=SyntheticTokenVerifier2(method=method,
                     cose_alg=cose_alg,
@@ -187,7 +191,7 @@ class TestSynthetic(unittest.TestCase):
         self.assertIn('ERROR:iat-verifiers:Unexpected TOKEN_ROOT_CLAIMS claim: 9903', test_ctx.output[2])
         self.assertIn('ERROR:iat-verifiers:Unexpected SYN_BOXES claim: 9904', test_ctx.output[3])
 
-        config = VerifierConfiguration(keep_going=False, strict=False)
+        config = VerifierConfiguration()
 
         test_verifier=SyntheticTokenVerifier2(method=method,
                     cose_alg=cose_alg,
@@ -205,7 +209,7 @@ class TestSynthetic(unittest.TestCase):
         self.assertIn('Unexpected TOKEN_ROOT_CLAIMS claim: 9903, skipping', test_ctx.output[2])
         self.assertIn('Unexpected SYN_BOXES claim: 9904, skipping', test_ctx.output[3])
 
-        config = VerifierConfiguration(keep_going=False, strict=True)
+        config = VerifierConfiguration({VerifierConfiguration.VERIFIER_STRICT: True})
 
         test_verifier=SyntheticTokenVerifier2(method=method,
                     cose_alg=cose_alg,

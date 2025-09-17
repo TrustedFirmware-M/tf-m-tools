@@ -77,7 +77,9 @@ def main():
 
     logging.basicConfig(level=logging.INFO)
 
-    config = VerifierConfiguration(keep_going=args.keep_going, strict=args.strict)
+    config = VerifierConfiguration({
+        VerifierConfiguration.VERIFIER_KEEP_GOING: args.keep_going,
+        VerifierConfiguration.VERIFIER_STRICT: args.strict})
     if args.method == 'mac':
         method = AttestationTokenVerifier.SIGN_METHOD_MAC0
     elif args.method == 'raw':
@@ -122,6 +124,10 @@ def main():
             platform_token_key=platform_token_key,
             configuration=config)
     elif verifier_class == CCAPlatformTokenVerifier:
+        config_expect_token_indicator = VerifierConfiguration({
+            VerifierConfiguration.VERIFIER_KEEP_GOING: args.keep_going,
+            VerifierConfiguration.VERIFIER_STRICT: args.strict,
+            CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR: args.expect_token_indicator})
         key_checked = args.key
         key = read_keyfile(args.key, method)
         cose_alg = get_cose_alg_from_key(key, Es384)
@@ -129,9 +135,8 @@ def main():
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=cose_alg,
             signing_key=key,
-            configuration=config,
-            necessity=None,
-            has_type_indicator=args.expect_token_indicator)
+            configuration=config_expect_token_indicator,
+            necessity=None)
     elif verifier_class == PSA_2_0_0_TokenVerifier:
         key_checked = args.key
         key = read_keyfile(keyfile=args.key, method=method)

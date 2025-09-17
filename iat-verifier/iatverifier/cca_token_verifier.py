@@ -63,6 +63,8 @@ def cca_encode_type_indicator(verifier, encoder):
 
 class CCATokenVerifier(Verifier):
 
+    CCA_VERIFIER_HAS_TYPE_INDICATOR = "cca_verifier_has_type_indicator"
+
     def get_claim_key(self=None):
         return None  # In case of root tokens the key is not used.
 
@@ -177,7 +179,7 @@ class CCARealmTokenVerifier(Verifier):
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
 
-    def __init__(self, *, method, cose_alg, signing_key=None, configuration, necessity, has_type_indicator=True):
+    def __init__(self, *, method, cose_alg, signing_key=None, configuration, necessity):
         verifier_claims= [
             (CCARealmChallengeClaim, {'verifier':self, 'expected_challenge_byte': None, 'necessity': Claim.MANDATORY}),
             (CCARealmPersonalizationValue, {'verifier':self, 'necessity': Claim.MANDATORY}),
@@ -199,7 +201,7 @@ class CCARealmTokenVerifier(Verifier):
             cose_alg=cose_alg,
             signing_key=signing_key)
 
-        if has_type_indicator:
+        if self.config.get_config(CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR, True):
             self.check_type_indicator = lambda token: cca_check_type_indicator(self, token)
             self.encode_type_indicator = lambda encoder: cca_encode_type_indicator(self, encoder)
 
@@ -290,7 +292,7 @@ class CCAPlatformTokenVerifier(Verifier):
         if alg != msg_alg:
             raise ValueError('Unexpected alg in protected header (expected {} instead of {})'.format(alg, msg_alg))
 
-    def __init__(self, *, method, cose_alg, signing_key, configuration, necessity, has_type_indicator=True):
+    def __init__(self, *, method, cose_alg, signing_key, configuration, necessity):
 
         # First prepare the claim hierarchy for this token
 
@@ -323,7 +325,7 @@ class CCAPlatformTokenVerifier(Verifier):
             cose_alg=cose_alg,
             signing_key=signing_key)
 
-        if has_type_indicator:
+        if self.config.get_config(CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR, True):
             self.check_type_indicator = lambda token: cca_check_type_indicator(self, token)
             self.encode_type_indicator = lambda encoder: cca_encode_type_indicator(self, encoder)
 

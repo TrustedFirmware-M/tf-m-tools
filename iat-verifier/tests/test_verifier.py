@@ -36,6 +36,8 @@ class TestIatVerifier(unittest.TestCase):
 
     def setUp(self):
         self.config = VerifierConfiguration()
+        self.config_no_type_indicator = VerifierConfiguration({
+            CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR: False})
 
     def test_validate_signature(self):
         """Testing Signature validation"""
@@ -77,7 +79,8 @@ class TestIatVerifier(unittest.TestCase):
 
     def test_validate_iat_structure(self):
         """Testing IAT structure validation"""
-        keep_going_conf = VerifierConfiguration(keep_going=True)
+        keep_going_conf = VerifierConfiguration(
+            {VerifierConfiguration.VERIFIER_KEEP_GOING: True})
         method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
         cose_alg=Es256
         signing_key = read_keyfile(KEYFILE, method)
@@ -113,9 +116,8 @@ class TestIatVerifier(unittest.TestCase):
                 method=method,
                 cose_alg=Es384,
                 signing_key=platform_token_key,
-                configuration=self.config,
-                necessity=AttestationClaim.MANDATORY,
-                has_type_indicator=False))
+                configuration=self.config_no_type_indicator,
+                necessity=AttestationClaim.MANDATORY))
 
         create_and_read_iat(
             DATA_DIR,
@@ -125,8 +127,7 @@ class TestIatVerifier(unittest.TestCase):
                 cose_alg=Es384,
                 signing_key=platform_token_key,
                 configuration=self.config,
-                necessity=AttestationClaim.MANDATORY,
-                has_type_indicator=True))
+                necessity=AttestationClaim.MANDATORY))
 
         with self.assertRaises(ValueError) as test_ctx:
             create_and_read_iat(

@@ -16,7 +16,7 @@ from pycose.algorithms import Es256, Es384
 import yaml
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
 from iatverifier.psa_2_0_0_token_verifier import PSA_2_0_0_TokenVerifier
-from iatverifier.attest_token_verifier import AttestationTokenVerifier
+from iatverifier.attest_token_verifier import AttestationTokenVerifier, VerifierConfiguration
 from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
 
 
@@ -64,14 +64,15 @@ if __name__ == '__main__':
             platform_token_key=None,
             configuration=None)
     elif verifier_class == CCAPlatformTokenVerifier:
+        config = VerifierConfiguration({
+            CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR: args.expect_token_indicator})
         cose_alg = Es384
         verifier = CCAPlatformTokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=cose_alg,
             signing_key=None,
-            configuration=None,
-            necessity=None,
-            has_type_indicator=args.expect_token_indicator)
+            configuration=config,
+            necessity=None)
     elif verifier_class == PSA_2_0_0_TokenVerifier:
         verifier = PSA_2_0_0_TokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,

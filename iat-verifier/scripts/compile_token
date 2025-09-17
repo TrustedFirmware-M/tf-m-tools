@@ -76,7 +76,8 @@ if __name__ == '__main__':
     else:
         assert False
 
-    configuration = VerifierConfiguration(strict=True, keep_going=False)
+    configuration = VerifierConfiguration(
+        {VerifierConfiguration.VERIFIER_STRICT: True})
 
     verifier_class = token_verifiers[args.token_type]
     if verifier_class == PSAIoTProfile1TokenVerifier:
@@ -109,6 +110,10 @@ if __name__ == '__main__':
             platform_token_key=platform_token_key,
             configuration=configuration)
     elif verifier_class == CCAPlatformTokenVerifier:
+        configuration_gen_token_indicator = VerifierConfiguration(
+            {VerifierConfiguration.VERIFIER_STRICT: True,
+             CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR: args.gen_token_indicator})
+
         key_checked = args.platform_key
         key = read_keyfile(args.platform_key, METHOD)
         cose_alg = get_cose_alg_from_key(key, Es384)
@@ -116,9 +121,8 @@ if __name__ == '__main__':
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=cose_alg,
             signing_key=key,
-            configuration=configuration,
-            necessity=None,
-            has_type_indicator=args.gen_token_indicator)
+            configuration=configuration_gen_token_indicator,
+            necessity=None)
     elif verifier_class == PSA_2_0_0_TokenVerifier:
         key_checked = args.key
         key = read_keyfile(keyfile=args.key, method=METHOD)
