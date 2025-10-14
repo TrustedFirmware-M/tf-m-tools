@@ -77,6 +77,71 @@ class TestIatVerifier(unittest.TestCase):
 
         self.assertIn('Bad signature', test_ctx.exception.args[0])
 
+    def test_validate_cca_data_cbor(self):
+        method=AttestationTokenVerifier.SIGN_METHOD_SIGN1
+        realm_token_key = read_keyfile(KEYFILE_CCA_REALM, method)
+        platform_token_key = read_keyfile(KEYFILE_CCA_PLAT, method)
+
+        verifier = CCAPlatformTokenVerifier(
+                method=method,
+                cose_alg=Es384,
+                signing_key=platform_token_key,
+                configuration=self.config_no_type_indicator,
+                necessity=None)
+        read_iat(DATA_DIR, "cca_example_platform_token.cbor", verifier)
+
+        verifier = CCAPlatformTokenVerifier(
+                method=method,
+                cose_alg=Es384,
+                signing_key=platform_token_key,
+                configuration=self.config_no_type_indicator,
+                necessity=None)
+        read_iat(DATA_DIR, "cca_example_platform_token_legacy.cbor", verifier)
+
+        verifier = CCATokenVerifier(
+                realm_token_method=method,
+                realm_token_cose_alg=Es384,
+                realm_token_key=realm_token_key,
+                platform_token_method=method,
+                platform_token_cose_alg=Es384,
+                platform_token_key=platform_token_key,
+                configuration=self.config)
+        read_iat(DATA_DIR, "cca_example_token.cbor", verifier)
+
+        with self.assertLogs() as test_ctx:
+            verifier = CCATokenVerifier(
+                    realm_token_method=method,
+                    realm_token_cose_alg=Es384,
+                    realm_token_key=realm_token_key,
+                    platform_token_method=method,
+                    platform_token_cose_alg=Es384,
+                    platform_token_key=platform_token_key,
+                    configuration=self.config)
+            read_iat(DATA_DIR, "cca_example_token_legacy.cbor", verifier)
+            self.assertIn('legacy profile http://arm.com/CCA-SSD/1.0.0 is deprecated',
+                         test_ctx.records[0].getMessage())
+
+        verifier = CCAPlatformTokenVerifier(
+                method=method,
+                cose_alg=Es384,
+                signing_key=platform_token_key,
+                configuration=self.config_no_type_indicator,
+                necessity=None)
+        read_iat(DATA_DIR, "cca_platform_token.cbor", verifier)
+
+        with self.assertLogs() as test_ctx:
+            verifier = CCATokenVerifier(
+                    realm_token_method=method,
+                    realm_token_cose_alg=Es384,
+                    realm_token_key=realm_token_key,
+                    platform_token_method=method,
+                    platform_token_cose_alg=Es384,
+                    platform_token_key=platform_token_key,
+                    configuration=self.config)
+            read_iat(DATA_DIR, "cca_token.cbor", verifier)
+            self.assertIn('legacy profile http://arm.com/CCA-SSD/1.0.0 is deprecated',
+                         test_ctx.records[0].getMessage())
+
     def test_validate_iat_structure(self):
         """Testing IAT structure validation"""
         keep_going_conf = VerifierConfiguration(

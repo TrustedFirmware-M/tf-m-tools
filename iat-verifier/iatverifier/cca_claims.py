@@ -258,7 +258,7 @@ class CCAPlatformHashAlgorithmIdClaim(AttestationClaim):
 
 class CCARealmMECPolicyClaim(AttestationClaim):
     def get_claim_key(self=None):
-        return 44241
+        return 44243
 
     def get_claim_name(self=None):
         return 'CCA_REALM_MEC_POLICY'
