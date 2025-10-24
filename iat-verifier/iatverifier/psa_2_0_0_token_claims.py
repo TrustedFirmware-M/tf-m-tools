@@ -168,7 +168,7 @@ class ProfileIdClaim(AttestationClaim):
 class BootSeedClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Boot Seed claim"""
     def get_claim_key(self=None):
-        return ARM_RANGE + 4
+        return 268 #EAT bootseed
 
     def get_claim_name(self=None):
         return 'BOOT_SEED'
