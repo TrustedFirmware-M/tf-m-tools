@@ -15,7 +15,7 @@ error()
 }
 
 usage() {
-    echo "$0 --source_dir <source_dir> --build_dir <build_dir> [--filter_elfs \"foo.elf,bar.elf\"] --output_file <output_file> data_file [data_file ...]"
+    echo "$0 --source_dir <source_dir> --build_dir <build_dir> [--filter_elfs \"foo.elf,bar.elf\"] [--exclude_paths \"dir_a/*,dir_b/*\"] --output_file <output_file> data_file [data_file ...]"
 }
 
 set -e
@@ -40,8 +40,13 @@ while test $# -gt 0; do
         shift
         shift
         ;;
-        -b|--output_file)
+        -o|--output_file)
         OUTPUT_FILE="$2"
+        shift
+        shift
+        ;;
+        -x|--exclude_paths)
+        EXCLUDE_PATHS="$2"
         shift
         shift
         ;;
@@ -125,4 +130,17 @@ else
     info_file=$(find "$info_dir" -type f)
 fi
 
-cp "${info_file}" "${OUTPUT_FILE}"
+final_info="${info_file}"
+
+if test -n "${EXCLUDE_PATHS}"
+then
+    filtered_info="$(mktemp).info"
+    python3 ${SCRIPT_DIR}/filter_lcov_sources.py \
+        --input_file "${info_file}" \
+        --output_file "${filtered_info}" \
+        --exclude "${EXCLUDE_PATHS}" \
+        --workspace "${SOURCE_DIR}"
+    final_info="${filtered_info}"
+fi
+
+cp "${final_info}" "${OUTPUT_FILE}"
