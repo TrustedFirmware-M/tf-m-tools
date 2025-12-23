@@ -85,10 +85,10 @@ if __name__ == "__main__":
                 jobs.pop(j)
 
             # when a worker is available
-            chunk = ''.join(chunk)
+            chunk_str = ''.join(chunk)
 
             chunk = \
-                re.findall(r'[0-9]* [a-z]{3} [a-z\.]* IT .*', chunk)
+                re.findall(r'[0-9]* [a-z]{3} [a-z\.]* IT .*', chunk_str)
 
             # if there are any fvp instructions to process
             if len(chunk):
@@ -97,7 +97,7 @@ if __name__ == "__main__":
                 continue
 
             chunk = \
-                re.findall(r'[0-9]* clk ES (.*:.*).*', chunk)
+                re.findall(r'[0-9]* clk ES (.*:.*).*', chunk_str)
 
             # if there are any rtl instructions to process
             if len(chunk):
