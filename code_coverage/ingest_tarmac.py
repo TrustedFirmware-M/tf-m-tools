@@ -20,10 +20,14 @@ CHUNK_SIZE = 100000
 
 def parse_fvp(line: str) -> (str, str):
     """ processes the assembly instructions from the fvp """
-    split = line.split(" ")
+    split = line.split()
+    try:
+        it_index = split.index("IT")
+    except ValueError as exc:
+        raise ValueError(f"Malformed FVP trace line: {line}") from exc
 
-    #       addr      size
-    return (split[5], len(split[6]) // 2)
+    #       addr                        size (represented as hex string)
+    return (split[it_index + 2], len(split[it_index + 3]) // 2)
 
 
 def parse_rtl(line: str) -> (str, str):
@@ -88,7 +92,7 @@ if __name__ == "__main__":
             chunk_str = ''.join(chunk)
 
             chunk = \
-                re.findall(r'[0-9]* [a-z]{3} [a-z\.]* IT .*', chunk_str)
+                re.findall(r'\d+ [a-z]{3}(?: [\w\.]+)? IT .*', chunk_str)
 
             # if there are any fvp instructions to process
             if len(chunk):
