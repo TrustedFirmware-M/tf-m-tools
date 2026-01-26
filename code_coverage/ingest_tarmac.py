@@ -44,7 +44,11 @@ def process_trace(function, lines) -> Counter:
     hit_counts = {}
     for line in lines:
 
-        addr = function(line)
+        try:
+            addr = function(line)
+        except (ValueError, IndexError):
+            print(f"WARNING: Malformed trace line: {line}")
+            continue
 
         if addr not in hit_counts: hit_counts[addr]  = 1
         else:                      hit_counts[addr] += 1
