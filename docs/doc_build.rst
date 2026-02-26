@@ -73,6 +73,13 @@ From the root directory of this repository, run:
 
    sphinx-build -M html docs build_docs
 
+or if you prefer CMake then
+
+.. code-block:: bash
+
+   cmake -S docs -B build_docs
+   cmake --build build_docs
+
 The generated HTML documentation can be found in `build_docs/html`.
 
 
