@@ -45,7 +45,7 @@ except:
 
 extensions = [
     'sphinx.ext.imgmath',
-    'm2r2', #Support markdown files. Needed for external code.
+    'myst_parser', #Support markdown files. Needed for external code.
     'sphinx.ext.autosectionlabel', #Make sphinx generate a label for each section
     'sphinxcontrib.plantuml', #Add support for PlantUML drawings
     'sphinxcontrib.rsvgconverter', #Add support for SVG to PDF
@@ -105,11 +105,10 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'collapse_navigation' : False,
     'prev_next_buttons_location' : None,   # Hide Prev and Next buttons
-    'display_version': True,    # Show version under logo
+    "version_selector": True,
     'sticky_navigation': True,
     'navigation_depth': 3,
 }
-
 # Remove the "View page source" link from the top of docs pages
 html_show_sourcelink = False
 
