@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iat-verifier"
+version = "0.1.0"
+description = "IAT verifier"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "cbor2==5.9",
+    "cryptography>=47.0.0",
+    "ecdsa>=0.19.2",
+    "pycose==1.1.0",
+    "pyyaml",
+    "pyyaml-include",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+check_iat = "scripts.check_iat:main"
+compile_token = "scripts.compile_token:main"
+decompile_token = "scripts.decompile_token:main"
+
+[tool.setuptools]
+packages = ["iatverifier", "scripts"]

@@ -20,7 +20,7 @@ from iatverifier.attest_token_verifier import AttestationTokenVerifier, Verifier
 from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
 
 
-if __name__ == '__main__':
+def main():
     logging.basicConfig(level=logging.INFO)
 
     token_verifiers = {
@@ -92,3 +92,7 @@ if __name__ == '__main__':
             yaml.dump(token_map, wfh)
     else:
         yaml.dump(token_map, sys.stdout)
+
+
+if __name__ == "__main__":
+    main()

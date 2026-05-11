@@ -22,7 +22,8 @@ from iatverifier.psa_2_0_0_token_verifier import PSA_2_0_0_TokenVerifier
 from iatverifier.attest_token_verifier import AttestationTokenVerifier, VerifierConfiguration
 from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
 
-if __name__ == '__main__':
+
+def main():
     logging.basicConfig(level=logging.INFO)
 
     token_verifiers = {
@@ -156,3 +157,7 @@ if __name__ == '__main__':
                 wfh,
                 name_as_key=True,
                 parse_raw_value=True)
+
+
+if __name__ == "__main__":
+    main()

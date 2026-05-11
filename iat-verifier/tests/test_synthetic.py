@@ -104,7 +104,7 @@ class TestSynthetic(unittest.TestCase):
                     signing_key=signing_key,
                     configuration=config,
                     internal_signing_key=signing_key))
-        self.assertEquals(2, len(test_ctx.output))
+        self.assertEqual(2, len(test_ctx.output))
         self.assertIn('Unexpected tag (0xcdcd) in token SYNTHETIC_TOKEN', test_ctx.output[0])
         self.assertIn('Unexpected tag (0xabab) in token SYNTHETIC_INTERNAL_TOKEN', test_ctx.output[1])
 
@@ -118,7 +118,7 @@ class TestSynthetic(unittest.TestCase):
                     signing_key=signing_key,
                     configuration=config,
                     internal_signing_key=signing_key))
-        self.assertEquals(2, len(test_ctx.output))
+        self.assertEqual(2, len(test_ctx.output))
         self.assertIn('token SYNTHETIC_TOKEN_2 should be wrapped in tag 0xaabb', test_ctx.output[0])
         self.assertIn('token SYNTHETIC_INTERNAL_TOKEN_2 should be wrapped in tag 0xbbaa', test_ctx.output[1])
 
@@ -132,7 +132,7 @@ class TestSynthetic(unittest.TestCase):
                     signing_key=signing_key,
                     configuration=config,
                     internal_signing_key=signing_key))
-        self.assertEquals(2, len(test_ctx.output))
+        self.assertEqual(2, len(test_ctx.output))
         self.assertIn('token SYNTHETIC_TOKEN_2 is wrapped in tag 0xabab instead of 0xaabb', test_ctx.output[0])
         self.assertIn('token SYNTHETIC_INTERNAL_TOKEN_2 is wrapped in tag 0xbaba instead of 0xbbaa', test_ctx.output[1])
 
@@ -164,7 +164,7 @@ class TestSynthetic(unittest.TestCase):
                 DATA_DIR,
                 'unknown_claims.cbor',
                 test_verifier)
-        self.assertEquals(4, len(test_ctx.output))
+        self.assertEqual(4, len(test_ctx.output))
         self.assertIn('Unexpected TOKEN_ROOT_CLAIMS claim: 9901, skipping', test_ctx.output[0])
         self.assertIn('Unexpected SYN_BOXES claim: 9902, skipping', test_ctx.output[1])
         self.assertIn('Unexpected TOKEN_ROOT_CLAIMS claim: 9903, skipping', test_ctx.output[2])
@@ -185,7 +185,7 @@ class TestSynthetic(unittest.TestCase):
                 DATA_DIR,
                 'unknown_claims.cbor',
                 test_verifier)
-        self.assertEquals(4, len(test_ctx.output))
+        self.assertEqual(4, len(test_ctx.output))
         self.assertIn('ERROR:iat-verifiers:Unexpected TOKEN_ROOT_CLAIMS claim: 9901', test_ctx.output[0])
         self.assertIn('ERROR:iat-verifiers:Unexpected SYN_BOXES claim: 9902', test_ctx.output[1])
         self.assertIn('ERROR:iat-verifiers:Unexpected TOKEN_ROOT_CLAIMS claim: 9903', test_ctx.output[2])
