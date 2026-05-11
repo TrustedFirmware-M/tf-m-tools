@@ -22,15 +22,15 @@ decompile_token
 ************
 Installation
 ************
-You can install the script using pip:
+The project uses `uv <https://docs.astral.sh/uv/>`_ for dependency management.
+Inside the ``iat-verifier`` directory, run:
 
 .. code:: bash
 
-   # Inside the directory containg this README
-   pip3 install .
+   uv sync
 
-This should automatically install all the required dependencies. Please
-see ``setup.py`` for the list of said dependencies.
+This will create a virtual environment and install all required dependencies
+as declared in ``pyproject.toml``.
 
 *****
 Usage
@@ -42,8 +42,8 @@ Usage
 check_iat
 ---------
 
-After installing, you should have ``check_iat`` script in your ``PATH``. The
-script expects two parameters:
+After installing, the scripts are available via ``uv run``. ``check_iat``
+expects two parameters:
 
 * a path to the signed IAT in COSE format
 
@@ -57,7 +57,7 @@ fields have correct size/type):
 
 .. code:: bash
 
-   $ check_iat -t PSA-IoT-Profile1-token tests/data/iat.cbor
+   $ uv run check_iat -t PSA-IoT-Profile1-token tests/data/iat.cbor
    Token format OK
 
 If you want the script to verify the signature, you need to specify the
@@ -66,7 +66,7 @@ used to sign tests/data/iat.cbor is inside tests/data/key.pem.
 
 ::
 
-   $ check_iat -t PSA-IoT-Profile1-token -k tests/data/key.pem tests/data/iat.cbor
+   $ uv run check_iat -t PSA-IoT-Profile1-token -k tests/data/key.pem tests/data/iat.cbor
    Signature OK
    Token format OK
 
@@ -121,7 +121,7 @@ CBOR token:
 
 .. code:: bash
 
-   $ compile_token -t PSA-IoT-Profile1-token -k tests/data/key.pem tests/data/iat.yaml > sample_token.cbor
+   $ uv run compile_token -t PSA-IoT-Profile1-token -k tests/data/key.pem tests/data/iat.yaml > sample_token.cbor
 
 *No validation* is performed as part of this, so there is no guarantee that a
 valid IAT will be produced.
@@ -141,7 +141,7 @@ as part of this) into a YAML description of its claims.
 
 .. code:: bash
 
-    $ decompile_token -t PSA-IoT-Profile1-token tests/data/iat.cbor
+    $ uv run decompile_token -t PSA-IoT-Profile1-token tests/data/iat.cbor
     boot_seed: !!binary |
       BwYFBAMCAQAPDg0MCwoJCBcWFRQTEhEQHx4dHBsaGRg=
     challenge: !!binary |
@@ -194,20 +194,18 @@ the ``-m mac`` flag:
 
 ::
 
-    $ check_iat -t PSA-IoT-Profile1-token -m mac -k tests/data/hmac.key tests/data/iat-hmac.cbor
+    $ uv run check_iat -t PSA-IoT-Profile1-token -m mac -k tests/data/hmac.key tests/data/iat-hmac.cbor
     Signature OK
     Token format OK
 
 *******
 Testing
 *******
-Tests can be run using ``nose2``:
+Tests can be run using ``pytest``:
 
 .. code:: bash
 
-   pip install nose2
-
-Then run by executing ``nose2`` in the root directory.
+   uv run pytest tests/
 
 
 *******************
@@ -297,4 +295,6 @@ Adding new token type
 
 --------------
 
-*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
+*SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors*
+
+*SPDX-License-Identifier: BSD-3-Clause*
