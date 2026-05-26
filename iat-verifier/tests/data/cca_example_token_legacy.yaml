@@ -14,6 +14,9 @@ cca_realm_delegated_token:
     # Realm challenge is 64 bytes.
     cca_realm_challenge: !!binary |
       bobW2XzHE7xt1D285JGmtAMRwCeov4WjnaY+nORMEyqKEZ0pb65qaZnpvz5EcbDOASRdiJQkwx6JeTs7HWsVBA==
+    # The realm instance ID is a random generated UID, that globally identifies the realm.
+    cca_realm_instance_id: !!binary |
+      AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAh
     # The Realm hash algorithm ID claim identifies the algorithm used to
     # calculate all hash values which are present in the Realm token.
     # See also https://www.iana.org/assignments/named-information/named-information.xhtml
@@ -36,7 +39,7 @@ cca_realm_delegated_token:
     cca_realm_initial_measurement: !!binary |
       MRMUq3NiA1DPdYg0rlxl2ejC3H/r5ufZZUu+hk4wDUk=
     # The Realm MEC policy claim identifies the MEC policy of the Realm.
-    cca_realm_mec_policy: private
+    cca_realm_mec_policy: 1
     # The Realm Extensible Measurements claim contains the values of the Realm
     # Extensible Measurements (see Section A7.1.2 of DEN0137 for the details).
     cca_realm_extensible_measurements:

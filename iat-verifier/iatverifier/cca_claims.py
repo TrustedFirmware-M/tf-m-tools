@@ -14,7 +14,7 @@ from iatverifier.lifecycle_claim import GenericLifecycleClaim
 logger = logging.getLogger('iat-verifiers')
 
 CCA_PLATFORM_PROFILE = "tag:arm.com,2023:cca_platform#1.0.0"
-CCA_REALM_PROFILE = "tag:arm.com,2023:realm#1.0.0"
+CCA_REALM_PROFILE = "tag:arm.com,2024:realm#2.0.0"
 CCA_PLATFORM_PROFILE_LEGACY = "http://arm.com/CCA-SSD/1.0.0"
 CCA_REALM_PROFILE_LEGACY = None
 
@@ -56,6 +56,21 @@ class CCARealmChallengeClaim(AttestationClaim):
                     msg = 'Invalid CHALLENGE byte at {:d}: 0x{:02x} instead of 0x{:02x}'
                     self.verifier.error(msg.format(i, b, self.expected_challenge_byte))
                     break
+
+class CCARealmInstanceId(AttestationClaim):
+    def get_claim_key(self=None):
+        return 256
+
+    def get_claim_name(self=None):
+        return 'CCA_REALM_INSTANCE_ID'
+
+    def verify(self, token_item):
+        self._validate_bytestring_length_between(token_item.value, self.get_claim_name(), 7, 33)
+
+        # the type is already verified to be bytes
+        if token_item.value[0] != 1:
+            msg = 'Invalid {}: First byte must be {} instead of {}'
+            self.verifier.error(msg.format(self.get_claim_name(), 1, token_item.value[0]))
 
 
 class CCARealmPersonalizationValue(AttestationClaim):
@@ -263,18 +278,11 @@ class CCARealmMECPolicyClaim(AttestationClaim):
     def get_claim_name(self=None):
         return 'CCA_REALM_MEC_POLICY'
 
-    @classmethod
-    def is_utf_8(cls):
-        return True
-
     def verify(self, token_item):
-        # allow legacy too when decoding
-        allowed_values = ["shared", "private"]
+        self._check_type(self.get_claim_name(), token_item.value, int)
 
-        for allowed_value in allowed_values:
-            self._check_type(self.get_claim_name(), token_item.value, str)
-            if token_item.value == allowed_value:
-                return
+        if 0 <= token_item.value <= 1:
+            return
 
-        msg = 'Invalid Realm MEC Policy "{}": must be one of "{}"'
-        self.verifier.error(msg.format(token_item.value, ','.join(allowed_values)))
+        msg = 'Invalid Realm MEC Policy "{}": must be 0 or 1'
+        self.verifier.error(msg.format(token_item.value))

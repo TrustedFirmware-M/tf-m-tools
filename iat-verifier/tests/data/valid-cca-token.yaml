@@ -36,6 +36,8 @@ cca_realm_delegated_token:
     cca_realm_challenge: !!binary |
       q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6ur
       q6urq6urqw==
+    cca_realm_instance_id: !!binary |
+      AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAh
     cca_realm_hash_algm_id: sha-256
     cca_realm_pub_key_hash_algo_id: sha-256
     cca_realm_personalization_value: !!binary |
@@ -44,7 +46,7 @@ cca_realm_delegated_token:
       BHb5iAkb5YXtQYAa7Pq4WFSMYwV+FrDmdhILvQ0vnCngVsXUGgEw65whUXiZ3CMUayjhsGK9PqSzFf0hnxy7Uoy250ykm+Fnc3NPYaHKYQMbK789kY8vlP/EIo5QkZVErg==
     cca_realm_initial_measurement: !!binary |
       AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-    cca_realm_mec_policy: private
+    cca_realm_mec_policy: 1
     cca_realm_extensible_measurements:
         - !!binary |
           AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=

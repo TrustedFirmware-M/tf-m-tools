@@ -15,7 +15,7 @@ from pycose.keys import CoseKey
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
 from iatverifier.attest_token_verifier import AttestationClaim as Claim
 from iatverifier.cca_claims import CCARealmChallengeClaim, CCARealmPersonalizationValue
-from iatverifier.cca_claims import CCARealmProfileClaim
+from iatverifier.cca_claims import CCARealmProfileClaim, CCARealmInstanceId
 from iatverifier.cca_claims import CCA_REALM_PROFILE, CCA_REALM_PROFILE_LEGACY
 from iatverifier.cca_claims import CCA_PLATFORM_PROFILE, CCA_PLATFORM_PROFILE_LEGACY
 from iatverifier.cca_claims import CCARealmHashAlgorithmIdClaim, CCARealmPubKeyClaim
@@ -185,6 +185,7 @@ class CCARealmTokenVerifier(Verifier):
     def __init__(self, *, method, cose_alg, signing_key=None, configuration, necessity):
         verifier_claims= [
             (CCARealmChallengeClaim, {'verifier':self, 'expected_challenge_byte': None, 'necessity': Claim.MANDATORY}),
+            (CCARealmInstanceId, {'verifier':self, 'necessity': Claim.MANDATORY}),
             (CCARealmPersonalizationValue, {'verifier':self, 'necessity': Claim.MANDATORY}),
             (CCARealmInitialMeasurementClaim, {'verifier':self, 'necessity': Claim.MANDATORY}),
             (CCARealmExtensibleMeasurementsClaim, {'verifier':self, 'necessity': Claim.MANDATORY}),
