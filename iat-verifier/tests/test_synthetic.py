@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2022, Arm Limited. All rights reserved.
+# Copyright (c) 2026, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -17,9 +17,9 @@ from pycose.algorithms import Es256, Es384
 
 from iatverifier.util import read_token_map, read_keyfile
 from iatverifier.attest_token_verifier import VerifierConfiguration, AttestationTokenVerifier
-from tests.synthetic_token_verifier import SyntheticTokenVerifier2, SyntheticTokenVerifier
-from tests.test_utils import read_iat, create_and_read_iat
-from tests.test_utils import convert_map_to_token_bytes, bytes_equal_to_file
+from synthetic_token_verifier import SyntheticTokenVerifier2, SyntheticTokenVerifier
+from test_utils import read_iat, create_and_read_iat
+from test_utils import convert_map_to_token_bytes, bytes_equal_to_file
 
 
 THIS_DIR = os.path.dirname(__file__)

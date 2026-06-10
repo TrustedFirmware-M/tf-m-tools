@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2022, Arm Limited. All rights reserved.
+# Copyright (c) 2026, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -15,8 +15,8 @@ from pycose.algorithms import Es256
 
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
 from iatverifier.attest_token_verifier import AttestationClaim as Claim
-from tests.synthetic_token_claims import SynClaimInt, SynBoxesClaim, BoxWidthClaim
-from tests.synthetic_token_claims import BoxHeightClaim, BoxDepthClaim, BoxColorClaim
+from synthetic_token_claims import SynClaimInt, SynBoxesClaim, BoxWidthClaim
+from synthetic_token_claims import BoxHeightClaim, BoxDepthClaim, BoxColorClaim
 
 class SyntheticTokenVerifier(Verifier):
     """A test token that may contain other tokens"""
