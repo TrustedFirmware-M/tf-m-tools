@@ -129,6 +129,8 @@ options override each script's default behavior.
 +------------------------------------------------+---------+----------------------------------------------------------+
 | ``--cca-verifier-legacy-tag``                  | false   | Use legacy CCA wrapping tag 399 instead of 907           |
 +------------------------------------------------+---------+----------------------------------------------------------+
+| ``--psa-verifier-legacy-boot-seed-key``        | false   | Use legacy PSA 2.0.0 BOOT_SEED key 2397 instead of 268   |
++------------------------------------------------+---------+----------------------------------------------------------+
 
 Python callers may pass a ``VerifierConfiguration`` to a verifier and access
 that same instance through ``verifier.config`` or ``claim.config``.

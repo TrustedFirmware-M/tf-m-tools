@@ -469,6 +469,7 @@ class VerifierConfiguration:
     VERIFIER_STRICT = "verifier_strict"
     CCA_VERIFIER_HAS_TYPE_INDICATOR = "cca_verifier_has_type_indicator"
     CCA_VERIFIER_LEGACY_TAG = "cca_verifier_legacy_tag"
+    PSA_VERIFIER_LEGACY_BOOT_SEED_KEY = "psa_verifier_legacy_boot_seed_key"
 
     OPTIONS = {
         VERIFIER_KEEP_GOING: {
@@ -486,6 +487,10 @@ class VerifierConfiguration:
         CCA_VERIFIER_LEGACY_TAG: {
             "default": False,
             "help": "Use the legacy CCA token wrapping tag (399 instead of 907).",
+        },
+        PSA_VERIFIER_LEGACY_BOOT_SEED_KEY: {
+            "default": False,
+            "help": "Use the legacy PSA 2.0.0 BOOT_SEED claim key (2397 instead of 268).",
         },
     }
 

@@ -9,6 +9,7 @@ import string
 
 from iatverifier.attest_token_verifier import AttestationClaim
 from iatverifier.attest_token_verifier import CompositeAttestClaim
+from iatverifier.attest_token_verifier import VerifierConfiguration
 from iatverifier.lifecycle_claim import GenericLifecycleClaim
 
 # IAT custom claims
@@ -168,6 +169,8 @@ class ProfileIdClaim(AttestationClaim):
 class BootSeedClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Boot Seed claim"""
     def get_claim_key(self):
+        if self.config.get_config(VerifierConfiguration.PSA_VERIFIER_LEGACY_BOOT_SEED_KEY):
+            return ARM_RANGE + 4
         return 268 #EAT bootseed
 
     def get_claim_name(self=None):
