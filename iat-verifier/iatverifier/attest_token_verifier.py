@@ -77,6 +77,9 @@ class AttestationClaim(ABC):
     OPTIONAL = 2
 
     def __init__(self, *, verifier, necessity=MANDATORY):
+        # Claims and nested verifiers keep the exact same configuration object
+        # as their owning verifier.  This makes configuration changes visible
+        # throughout the complete claim tree.
         self.config = verifier.config
         self.verifier = verifier
         self.necessity = necessity
@@ -275,7 +278,7 @@ class CompositeAttestClaim(AttestationClaim):
 
     def _verify_dict(self, claim_type, entry_number, dictionary):
         if not isinstance(dictionary, dict):
-            if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT, None):
+            if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT):
                 msg = 'The values in token {} must be a dict.'
                 self.verifier.error(msg.format(claim_type.get_claim_name()))
             else:
@@ -286,7 +289,7 @@ class CompositeAttestClaim(AttestationClaim):
         claim_names = [val.get_claim_name() for val in claim_type._get_contained_claims()]
         for claim_name, _ in dictionary.items():
             if claim_name not in claim_names:
-                if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT, None):
+                if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT):
                     msg = 'Unexpected {} claim: {}'
                     self.verifier.error(msg.format(claim_type.get_claim_name(), claim_name))
                 else:
@@ -307,7 +310,7 @@ class CompositeAttestClaim(AttestationClaim):
     def verify(self, token_item):
         if self.is_list:
             if not isinstance(token_item.value, list):
-                if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT, None):
+                if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT):
                     msg = 'The value of this token {} must be a list.'
                     self.verifier.error(msg.format(self.get_claim_name()))
                 else:
@@ -338,7 +341,7 @@ class CompositeAttestClaim(AttestationClaim):
                 except KeyError:
                     claim_value[key] = val
                 except Exception:
-                    if not self.config.get_config(VerifierConfiguration.VERIFIER_KEEP_GOING, None):
+                    if not self.config.get_config(VerifierConfiguration.VERIFIER_KEEP_GOING):
                         raise
         return claim_value
 
@@ -402,8 +405,8 @@ class CompositeAttestClaim(AttestationClaim):
                     name_as_key=name_as_key,
                     parse_raw_value=parse_raw_value)
             except KeyError:
-                if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT, None):
-                    if not self.config.get_config(VerifierConfiguration.VERIFIER_KEEP_GOING, None):
+                if self.config.get_config(VerifierConfiguration.VERIFIER_STRICT):
+                    if not self.config.get_config(VerifierConfiguration.VERIFIER_KEEP_GOING):
                         raise
                 else:
                     token_encoder.encode(key)
@@ -456,26 +459,52 @@ class CompositeAttestClaim(AttestationClaim):
             return token_dict
 
 class VerifierConfiguration:
-    """A class storing the configuration of the verifier.
+    """Configuration shared by a verifier and all of its claim instances.
 
-    Contains a dictionary of options, with a default value.
-    The __init__ function accepts a dictionary that allows to overwrite the
-    value of existing option, add new options.
+    ``OPTIONS`` is the single registry of supported settings.  In addition to
+    supplying defaults, it is consumed by the command-line tools. Every entry
+    is exposed as a ``--<option-name>`` argument.
     """
 
     VERIFIER_KEEP_GOING = "verifier_keep_going"
     VERIFIER_STRICT = "verifier_strict"
+    CCA_VERIFIER_HAS_TYPE_INDICATOR = "cca_verifier_has_type_indicator"
+    CCA_VERIFIER_LEGACY_TAG = "cca_verifier_legacy_tag"
+
+    OPTIONS = {
+        VERIFIER_KEEP_GOING: {
+            "default": False,
+            "help": "Continue after a token validation error.",
+        },
+        VERIFIER_STRICT: {
+            "default": False,
+            "help": "Reject unknown claims and malformed composite claims.",
+        },
+        CCA_VERIFIER_HAS_TYPE_INDICATOR: {
+            "default": True,
+            "help": "Expect or generate the CCA token type indicator.",
+        },
+        CCA_VERIFIER_LEGACY_TAG: {
+            "default": False,
+            "help": "Use the legacy CCA token wrapping tag (399 instead of 907).",
+        },
+    }
 
     def __init__(self, overrides=None):
-        self.config = {
-            self.VERIFIER_KEEP_GOING: False,
-            self.VERIFIER_STRICT: False,
-        }
+        self.config = {key: option["default"] for key, option in self.OPTIONS.items()}
 
         if overrides:
+            unknown = set(overrides) - set(self.OPTIONS)
+            if unknown:
+                raise ValueError(f"Unknown verifier configuration option(s): {sorted(unknown)}")
             self.config.update(overrides)
 
-    def get_config(self, key, default_value):
+    def get_config(self, key, default_value=None):
+        """Return a registered configuration value.
+
+        ``default_value`` remains supported for source compatibility, but all
+        options used by the project are now registered in :attr:`OPTIONS`.
+        """
         if key in self.config:
             return self.config[key]
 
@@ -742,7 +771,7 @@ class AttestationTokenVerifier(AttestationClaim):
     def error(self, message, *, exception=None):
         """Act on an error depending on the configuration of this verifier"""
         self.seen_errors = True
-        if self.config.get_config(VerifierConfiguration.VERIFIER_KEEP_GOING, None):
+        if self.config.get_config(VerifierConfiguration.VERIFIER_KEEP_GOING):
             logger.error(message)
         else:
             if exception is None:

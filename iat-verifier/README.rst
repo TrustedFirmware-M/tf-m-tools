@@ -35,20 +35,14 @@ Validates a signed IAT: checks the signature, required fields, and field formats
 +------------------------------+-----------------------------------------------------------------------------------+
 | ``-p``, ``--print-iat``      | Print decoded token as JSON                                                       |
 +------------------------------+-----------------------------------------------------------------------------------+
-| ``-K``, ``--keep-going``     | Continue validation despite errors                                                |
-+------------------------------+-----------------------------------------------------------------------------------+
-| ``-s``, ``--strict``         | Fail on unknown claims                                                            |
-+------------------------------+-----------------------------------------------------------------------------------+
 | ``-m``, ``--method``         | COSE wrapping: ``sign`` (default), ``mac``, or ``raw``                            |
-+------------------------------+-----------------------------------------------------------------------------------+
-| ``--expect-token-indicator`` | Expect a token indicator in the CBOR                                              |
 +------------------------------+-----------------------------------------------------------------------------------+
 
 **Example:**
 
 .. code-block:: bash
 
-   uv run check_iat -t PSA-IoT-Profile1-token -k iak_pub.pem -p -K token.cbor
+   uv run check_iat -t PSA-IoT-Profile1-token -k iak_pub.pem -p --verifier-keep-going token.cbor
 
 ----
 
@@ -78,8 +72,6 @@ Creates a signed CBOR token from a YAML source file.
 +---------------------------+--------------------------------------------------------+
 | ``-m``, ``--method``      | COSE wrapping: ``sign`` (default), ``mac``, or ``raw`` |
 +---------------------------+--------------------------------------------------------+
-| ``--gen-token-indicator`` | Add token indicator to CBOR                            |
-+---------------------------+--------------------------------------------------------+
 
 **Example:**
 
@@ -107,14 +99,39 @@ Parses a CBOR token and outputs its claims in YAML format.
 +------------------------------+--------------------------------------+
 | ``-o``, ``--outfile``        | Output file (stdout if omitted)      |
 +------------------------------+--------------------------------------+
-| ``--expect-token-indicator`` | Expect a token indicator in the CBOR |
-+------------------------------+--------------------------------------+
 
 **Example:**
 
 .. code-block:: bash
 
    uv run decompile_token -t PSA-IoT-Profile1-token -o token.yaml token.cbor
+
+----
+
+Verifier configuration
+----------------------
+
+Every command exposes all registered verifier settings. Boolean settings support
+both their positive and negative forms (for example, ``--verifier-strict`` and
+``--no-verifier-strict``). The options and defaults below are generated in the
+scripts from ``VerifierConfiguration.OPTIONS``; adding a setting to that
+registry automatically exposes it in every command. Explicit command-line
+options override each script's default behavior.
+
++------------------------------------------------+---------+----------------------------------------------------------+
+| Option                                         | Default | Description                                              |
++================================================+=========+==========================================================+
+| ``--verifier-keep-going``                      | false   | Continue after token validation errors                   |
++------------------------------------------------+---------+----------------------------------------------------------+
+| ``--verifier-strict``                          | false   | Reject unknown claims and malformed composite claims     |
++------------------------------------------------+---------+----------------------------------------------------------+
+| ``--cca-verifier-has-type-indicator``          | varies  | Expect or generate the CCA token type indicator          |
++------------------------------------------------+---------+----------------------------------------------------------+
+| ``--cca-verifier-legacy-tag``                  | false   | Use legacy CCA wrapping tag 399 instead of 907           |
++------------------------------------------------+---------+----------------------------------------------------------+
+
+Python callers may pass a ``VerifierConfiguration`` to a verifier and access
+that same instance through ``verifier.config`` or ``claim.config``.
 
 ----
 

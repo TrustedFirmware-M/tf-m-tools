@@ -18,8 +18,10 @@ from pycose.algorithms import Es256, Es384, HMAC256
 from iatverifier.util import recursive_bytes_to_strings, read_keyfile, get_cose_alg_from_key
 from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerifier
 from iatverifier.psa_2_0_0_token_verifier import PSA_2_0_0_TokenVerifier
-from iatverifier.attest_token_verifier import VerifierConfiguration, AttestationTokenVerifier
+from iatverifier.attest_token_verifier import AttestationTokenVerifier, VerifierConfiguration
 from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
+from scripts.configuration import add_verifier_configuration_arguments
+from scripts.configuration import configuration_from_arguments
 
 logger = logging.getLogger('iat-verify')
 
@@ -47,17 +49,9 @@ def main():
                         help='''
                         path to a file containing a signed IAT.
                         ''')
-    parser.add_argument('-K', '--keep-going', action='store_true',
-                        help='''
-                        Do not stop upon encountering a validation error.
-                        ''')
     parser.add_argument('-p', '--print-iat', action='store_true',
                         help='''
                         Print the decoded token in JSON format.
-                        ''')
-    parser.add_argument('-s', '--strict', action='store_true',
-                        help='''
-                        Report failure if unknown claim is encountered.
                         ''')
     parser.add_argument('-m', '--method', choices=['sign', 'mac', 'raw'], default='sign',
                         help='''
@@ -69,17 +63,20 @@ def main():
                         help='''The type of the Token.''',
                         choices=token_verifiers.keys(),
                         required=True)
-    parser.add_argument('--expect-token-indicator',
-                        help='''Expect token indicator in the cbor.''',
-                        action='store_true')
+    add_verifier_configuration_arguments(parser)
 
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
 
-    config = VerifierConfiguration({
-        VerifierConfiguration.VERIFIER_KEEP_GOING: args.keep_going,
-        VerifierConfiguration.VERIFIER_STRICT: args.strict})
+    verifier_class = token_verifiers[args.token_type]
+    config_overrides = {
+        VerifierConfiguration.VERIFIER_STRICT: False,
+        VerifierConfiguration.VERIFIER_KEEP_GOING: False,
+    }
+    if verifier_class == CCAPlatformTokenVerifier:
+        config_overrides[VerifierConfiguration.CCA_VERIFIER_HAS_TYPE_INDICATOR] = False
+    config = configuration_from_arguments(args, config_overrides)
     if args.method == 'mac':
         method = AttestationTokenVerifier.SIGN_METHOD_MAC0
     elif args.method == 'raw':
@@ -93,7 +90,6 @@ def main():
 
     key_checked = False
 
-    verifier_class = token_verifiers[args.token_type]
     if verifier_class == PSAIoTProfile1TokenVerifier:
         key_checked = args.key
         key = read_keyfile(keyfile=args.key, method=method)
@@ -124,10 +120,6 @@ def main():
             platform_token_key=platform_token_key,
             configuration=config)
     elif verifier_class == CCAPlatformTokenVerifier:
-        config_expect_token_indicator = VerifierConfiguration({
-            VerifierConfiguration.VERIFIER_KEEP_GOING: args.keep_going,
-            VerifierConfiguration.VERIFIER_STRICT: args.strict,
-            CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR: args.expect_token_indicator})
         key_checked = args.key
         key = read_keyfile(args.key, method)
         cose_alg = get_cose_alg_from_key(key, Es384)
@@ -135,7 +127,7 @@ def main():
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=cose_alg,
             signing_key=key,
-            configuration=config_expect_token_indicator,
+            configuration=config,
             necessity=None)
     elif verifier_class == PSA_2_0_0_TokenVerifier:
         key_checked = args.key

@@ -37,7 +37,20 @@ class TestIatVerifier(unittest.TestCase):
     def setUp(self):
         self.config = VerifierConfiguration()
         self.config_no_type_indicator = VerifierConfiguration({
-            CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR: False})
+            VerifierConfiguration.CCA_VERIFIER_HAS_TYPE_INDICATOR: False})
+
+    def test_configuration_is_shared_with_claims(self):
+        """The verifier and every claim expose the supplied configuration."""
+        verifier = PSAIoTProfile1TokenVerifier(
+            method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
+            cose_alg=Es256,
+            signing_key=None,
+            configuration=self.config)
+
+        self.assertIs(verifier.config, self.config)
+        self.assertIs(verifier.claims.config, self.config)
+        for claim in verifier.claims._get_contained_claims():
+            self.assertIs(claim.config, self.config)
 
     def test_validate_signature(self):
         """Testing Signature validation"""

@@ -21,6 +21,8 @@ from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerif
 from iatverifier.psa_2_0_0_token_verifier import PSA_2_0_0_TokenVerifier
 from iatverifier.attest_token_verifier import AttestationTokenVerifier, VerifierConfiguration
 from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
+from scripts.configuration import add_verifier_configuration_arguments
+from scripts.configuration import configuration_from_arguments
 
 
 def main():
@@ -60,9 +62,7 @@ def main():
                         help='''The type of the Token.''',
                         choices=token_verifiers.keys(),
                         required=True)
-    parser.add_argument('--gen-token-indicator',
-                        help='''Expect token indicator in the cbor.''',
-                        action='store_true')
+    add_verifier_configuration_arguments(parser)
 
     args = parser.parse_args()
 
@@ -77,10 +77,15 @@ def main():
     else:
         assert False
 
-    configuration = VerifierConfiguration(
-        {VerifierConfiguration.VERIFIER_STRICT: True})
-
     verifier_class = token_verifiers[args.token_type]
+    config_overrides = {
+        VerifierConfiguration.VERIFIER_STRICT: True,
+        VerifierConfiguration.VERIFIER_KEEP_GOING: False,
+    }
+    if verifier_class == CCAPlatformTokenVerifier:
+        config_overrides[VerifierConfiguration.CCA_VERIFIER_HAS_TYPE_INDICATOR] = False
+    configuration = configuration_from_arguments(args, config_overrides)
+
     if verifier_class == PSAIoTProfile1TokenVerifier:
         key = read_keyfile(args.key, METHOD)
         if METHOD == AttestationTokenVerifier.SIGN_METHOD_SIGN1:
@@ -111,10 +116,6 @@ def main():
             platform_token_key=platform_token_key,
             configuration=configuration)
     elif verifier_class == CCAPlatformTokenVerifier:
-        configuration_gen_token_indicator = VerifierConfiguration(
-            {VerifierConfiguration.VERIFIER_STRICT: True,
-             CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR: args.gen_token_indicator})
-
         key_checked = args.platform_key
         key = read_keyfile(args.platform_key, METHOD)
         cose_alg = get_cose_alg_from_key(key, Es384)
@@ -122,7 +123,7 @@ def main():
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=cose_alg,
             signing_key=key,
-            configuration=configuration_gen_token_indicator,
+            configuration=configuration,
             necessity=None)
     elif verifier_class == PSA_2_0_0_TokenVerifier:
         key_checked = args.key

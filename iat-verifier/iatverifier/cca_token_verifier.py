@@ -14,6 +14,7 @@ from pycose.keys import CoseKey
 
 from iatverifier.attest_token_verifier import AttestationTokenVerifier as Verifier
 from iatverifier.attest_token_verifier import AttestationClaim as Claim
+from iatverifier.attest_token_verifier import VerifierConfiguration
 from iatverifier.cca_claims import CCARealmChallengeClaim, CCARealmPersonalizationValue
 from iatverifier.cca_claims import CCARealmProfileClaim, CCARealmInstanceId
 from iatverifier.cca_claims import CCA_REALM_PROFILE, CCA_REALM_PROFILE_LEGACY
@@ -62,10 +63,6 @@ def cca_encode_type_indicator(verifier, encoder):
     encoder.encode_int(COAP_CONTENT_INDICATOR)
 
 class CCATokenVerifier(Verifier):
-
-    CCA_VERIFIER_HAS_TYPE_INDICATOR = "cca_verifier_has_type_indicator"
-    CCA_VERIFIER_LEGACY_TAG = "cca_verifier_legacy_tag"
-
     def get_claim_key(self=None):
         return None  # In case of root tokens the key is not used.
 
@@ -76,7 +73,7 @@ class CCATokenVerifier(Verifier):
         return {Algorithm: self._get_cose_alg()}
 
     def _get_wrapping_tag(self):
-        if (self.config.get_config(self.CCA_VERIFIER_LEGACY_TAG, False)):
+        if self.config.get_config(VerifierConfiguration.CCA_VERIFIER_LEGACY_TAG):
             return 399
         return 907
 
@@ -205,7 +202,7 @@ class CCARealmTokenVerifier(Verifier):
             cose_alg=cose_alg,
             signing_key=signing_key)
 
-        if self.config.get_config(CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR, True):
+        if self.config.get_config(VerifierConfiguration.CCA_VERIFIER_HAS_TYPE_INDICATOR):
             self.check_type_indicator = lambda token: cca_check_type_indicator(self, token)
             self.encode_type_indicator = lambda encoder: cca_encode_type_indicator(self, encoder)
 
@@ -329,7 +326,6 @@ class CCAPlatformTokenVerifier(Verifier):
             cose_alg=cose_alg,
             signing_key=signing_key)
 
-        if self.config.get_config(CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR, True):
+        if self.config.get_config(VerifierConfiguration.CCA_VERIFIER_HAS_TYPE_INDICATOR):
             self.check_type_indicator = lambda token: cca_check_type_indicator(self, token)
             self.encode_type_indicator = lambda encoder: cca_encode_type_indicator(self, encoder)
-

@@ -18,6 +18,8 @@ from iatverifier.psa_iot_profile1_token_verifier import PSAIoTProfile1TokenVerif
 from iatverifier.psa_2_0_0_token_verifier import PSA_2_0_0_TokenVerifier
 from iatverifier.attest_token_verifier import AttestationTokenVerifier, VerifierConfiguration
 from iatverifier.cca_token_verifier import CCATokenVerifier, CCAPlatformTokenVerifier
+from scripts.configuration import add_verifier_configuration_arguments
+from scripts.configuration import configuration_from_arguments
 
 
 def main():
@@ -39,18 +41,24 @@ def main():
                         help='''The type of the Token.''',
                         choices=token_verifiers.keys(),
                         required=True)
-    parser.add_argument('--expect-token-indicator',
-                        help='''Expect token indicator in the cbor.''',
-                        action='store_true')
+    add_verifier_configuration_arguments(parser)
     args = parser.parse_args()
 
     verifier_class = token_verifiers[args.token_type]
+    config_overrides = {
+        VerifierConfiguration.VERIFIER_STRICT: False,
+        VerifierConfiguration.VERIFIER_KEEP_GOING: False,
+    }
+    if verifier_class == CCAPlatformTokenVerifier:
+        config_overrides[VerifierConfiguration.CCA_VERIFIER_HAS_TYPE_INDICATOR] = False
+    configuration = configuration_from_arguments(args, config_overrides)
+
     if verifier_class == PSAIoTProfile1TokenVerifier:
         verifier = PSAIoTProfile1TokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=Es256,
             signing_key=None,
-            configuration=None)
+            configuration=configuration)
     elif verifier_class == CCATokenVerifier:
         realm_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
         platform_token_method = AttestationTokenVerifier.SIGN_METHOD_SIGN1
@@ -62,23 +70,21 @@ def main():
             platform_token_method=platform_token_method,
             platform_token_cose_alg=platform_token_cose_alg,
             platform_token_key=None,
-            configuration=None)
+            configuration=configuration)
     elif verifier_class == CCAPlatformTokenVerifier:
-        config = VerifierConfiguration({
-            CCATokenVerifier.CCA_VERIFIER_HAS_TYPE_INDICATOR: args.expect_token_indicator})
         cose_alg = Es384
         verifier = CCAPlatformTokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=cose_alg,
             signing_key=None,
-            configuration=config,
+            configuration=configuration,
             necessity=None)
     elif verifier_class == PSA_2_0_0_TokenVerifier:
         verifier = PSA_2_0_0_TokenVerifier(
             method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
             cose_alg=Es256,
             signing_key=None,
-            configuration=None)
+            configuration=configuration)
     else:
         logging.error(f'Invalid token type:{verifier_class}\n\t')
         sys.exit(1)
