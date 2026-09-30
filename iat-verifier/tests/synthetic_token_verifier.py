@@ -20,7 +20,7 @@ from synthetic_token_claims import BoxHeightClaim, BoxDepthClaim, BoxColorClaim
 
 class SyntheticTokenVerifier(Verifier):
     """A test token that may contain other tokens"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):
@@ -95,7 +95,7 @@ class SyntheticTokenVerifier(Verifier):
 
 class SyntheticTokenVerifier2(Verifier):
     """Another test token that may contain other tokens"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):
@@ -172,7 +172,7 @@ class SyntheticTokenVerifier2(Verifier):
 class SyntheticInternalTokenVerifier(Verifier):
     """A Test token that is intended to use inside another token"""
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 0x54a14e12
 
     def get_claim_name(self=None):
@@ -214,7 +214,7 @@ class SyntheticInternalTokenVerifier(Verifier):
 class SyntheticInternalTokenVerifier2(Verifier):
     """Another Test token that is intended to use inside another token"""
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 0x54a14e13
 
     def get_claim_name(self=None):

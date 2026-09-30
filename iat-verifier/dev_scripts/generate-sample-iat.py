@@ -41,46 +41,61 @@ SIGNER_ID = struct.pack('QQQQ', 0X0001020304050607, 0X08090A0B0C0D0E0F,
 MEASUREMENT = struct.pack('QQQQ', 0X0001020304050607, 0X08090A0B0C0D0E0F,
                           0X1011121314151617, 0X18191A1B1C1D1E1F)
 
-token_map = {
-  InstanceIdClaim.get_claim_key(): GUID,
-  ImplementationIdClaim.get_claim_key(): ORIGIN,
-  ChallengeClaim.get_claim_key(): NONCE,
-  ClientIdClaim.get_claim_key(): 2,
-  SecurityLifecycleClaim.get_claim_key(): 0x1000,
-  ProfileIdClaim.get_claim_key(): 'http://example.com',
-  BootSeedClaim.get_claim_key(): BOOT_SEED,
-  SWComponentsClaim.get_claim_key(): [
+def create_token_map(verifier):
+    """Build the sample using claim instances owned by the verifier."""
+    claims = {}
+
+    def collect_claims(container):
+        for claim_instance in container._get_contained_claims():
+            claims[type(claim_instance)] = claim_instance
+            if hasattr(claim_instance, '_get_contained_claims'):
+                collect_claims(claim_instance)
+
+    def claim(claim_type):
+        return claims[claim_type]
+
+    collect_claims(verifier.claims)
+
+    return {
+        claim(InstanceIdClaim).get_claim_key(): GUID,
+        claim(ImplementationIdClaim).get_claim_key(): ORIGIN,
+        claim(ChallengeClaim).get_claim_key(): NONCE,
+        claim(ClientIdClaim).get_claim_key(): 2,
+        claim(SecurityLifecycleClaim).get_claim_key(): 0x1000,
+        claim(ProfileIdClaim).get_claim_key(): 'http://example.com',
+        claim(BootSeedClaim).get_claim_key(): BOOT_SEED,
+        claim(SWComponentsClaim).get_claim_key(): [
         {
             # bootloader
-            SWComponentTypeClaim.get_claim_key(): 'BL',
-            SignerIdClaim.get_claim_key(): SIGNER_ID,
-            SwComponentVersionClaim.get_claim_key(): '3.4.2',
-            MeasurementValueClaim.get_claim_key(): MEASUREMENT,
-            MeasurementDescriptionClaim.get_claim_key(): 'TF-M_SHA256MemPreXIP',
+            claim(SWComponentTypeClaim).get_claim_key(): 'BL',
+            claim(SignerIdClaim).get_claim_key(): SIGNER_ID,
+            claim(SwComponentVersionClaim).get_claim_key(): '3.4.2',
+            claim(MeasurementValueClaim).get_claim_key(): MEASUREMENT,
+            claim(MeasurementDescriptionClaim).get_claim_key(): 'TF-M_SHA256MemPreXIP',
         },
         {
             # mod1
-            SWComponentTypeClaim.get_claim_key(): 'M1',
-            SignerIdClaim.get_claim_key(): SIGNER_ID,
-            SwComponentVersionClaim.get_claim_key(): '3.4.2',
-            MeasurementValueClaim.get_claim_key(): MEASUREMENT,
+            claim(SWComponentTypeClaim).get_claim_key(): 'M1',
+            claim(SignerIdClaim).get_claim_key(): SIGNER_ID,
+            claim(SwComponentVersionClaim).get_claim_key(): '3.4.2',
+            claim(MeasurementValueClaim).get_claim_key(): MEASUREMENT,
         },
         {
             # mod2
-            SWComponentTypeClaim.get_claim_key(): 'M2',
-            SignerIdClaim.get_claim_key(): SIGNER_ID,
-            SwComponentVersionClaim.get_claim_key(): '3.4.2',
-            MeasurementValueClaim.get_claim_key(): MEASUREMENT,
+            claim(SWComponentTypeClaim).get_claim_key(): 'M2',
+            claim(SignerIdClaim).get_claim_key(): SIGNER_ID,
+            claim(SwComponentVersionClaim).get_claim_key(): '3.4.2',
+            claim(MeasurementValueClaim).get_claim_key(): MEASUREMENT,
         },
         {
             # mod3
-            SWComponentTypeClaim.get_claim_key(): 'M3',
-            SignerIdClaim.get_claim_key(): SIGNER_ID,
-            SwComponentVersionClaim.get_claim_key(): '3.4.2',
-            MeasurementValueClaim.get_claim_key(): MEASUREMENT,
+            claim(SWComponentTypeClaim).get_claim_key(): 'M3',
+            claim(SignerIdClaim).get_claim_key(): SIGNER_ID,
+            claim(SwComponentVersionClaim).get_claim_key(): '3.4.2',
+            claim(MeasurementValueClaim).get_claim_key(): MEASUREMENT,
         },
-    ],
-}
+        ],
+    }
 
 
 if __name__ == '__main__':
@@ -97,6 +112,7 @@ if __name__ == '__main__':
                                            method=AttestationTokenVerifier.SIGN_METHOD_SIGN1,
                                            cose_alg=Es256,
                                            configuration=None)
+    token_map = create_token_map(verifier)
     with open(outfile, 'wb') as wfh:
         convert_map_to_token(token_map, verifier, wfh,
             name_as_key=False, parse_raw_value=False)

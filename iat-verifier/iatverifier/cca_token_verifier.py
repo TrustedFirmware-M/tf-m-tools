@@ -63,7 +63,7 @@ def cca_encode_type_indicator(verifier, encoder):
     encoder.encode_int(COAP_CONTENT_INDICATOR)
 
 class CCATokenVerifier(Verifier):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):
@@ -158,7 +158,7 @@ class CCATokenVerifier(Verifier):
         self._validate_bytestrings_equal(cca_platform_challenge, 'CCA_PLATFORM_CHALLENGE', cca_realm_public_key_hash)
 
 class CCARealmTokenVerifier(Verifier):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 44241
 
     def get_claim_name(self=None):
@@ -272,7 +272,7 @@ class CCARealmTokenVerifier(Verifier):
         raise ValueError(f"unknown profile {profile}")
 
 class CCAPlatformTokenVerifier(Verifier):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 44234 #0xACCA
 
     def get_claim_name(self=None):

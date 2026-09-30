@@ -89,11 +89,10 @@ class AttestationClaim(ABC):
     #
 
     @abstractmethod
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         """Get the key of this claim
 
-        Returns the key of this claim. The implementation have to support
-        calling this method with or without an instance as well."""
+        Returns the key of this claim."""
         raise NotImplementedError
 
     @abstractmethod
@@ -518,7 +517,7 @@ class AttestTokenRootClaims(CompositeAttestClaim):
 
     It is instantiated by AttestationTokenVerifier, and shouldn't be used
     outside this module."""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return None
 
     def get_claim_name(self=None):

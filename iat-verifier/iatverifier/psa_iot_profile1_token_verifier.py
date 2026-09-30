@@ -23,7 +23,7 @@ from iatverifier.psa_iot_profile1_token_claims import MeasurementDescriptionClai
 class PSAIoTProfile1TokenVerifier(Verifier):
     """Verifier class for PSA Attestation Token profile PSA_IOT_PROFILE_1"""
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):

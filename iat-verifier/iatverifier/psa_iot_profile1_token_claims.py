@@ -27,7 +27,7 @@ class InstanceIdClaim(AttestationClaim):
         super().__init__(verifier=verifier, necessity=necessity)
         self.expected_len = expected_len
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 9  # UEID
 
     def get_claim_name(self=None):
@@ -44,7 +44,7 @@ class ChallengeClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Challenge claim"""
     HASH_SIZES = [32, 48, 64]
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 8  # nonce
 
     def get_claim_name(self=None):
@@ -61,7 +61,7 @@ class ChallengeClaim(AttestationClaim):
 
 class ImplementationIdClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Implementation ID claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 3
 
     def get_claim_name(self=None):
@@ -85,7 +85,7 @@ class HardwareVersionClaim(AttestationClaim):
                     self.verifier.error(msg.format(character, idx+1))
 
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 5
 
     def get_claim_name(self=None):
@@ -98,7 +98,7 @@ class HardwareVersionClaim(AttestationClaim):
 
 class SWComponentsClaim(CompositeAttestClaim):
     """Class representing a PSA Attestation Token Software Components claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 6
 
     def get_claim_name(self=None):
@@ -106,7 +106,7 @@ class SWComponentsClaim(CompositeAttestClaim):
 
 class SWComponentTypeClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Software Component Measurement Type claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return SW_COMPONENT_RANGE + 1
 
     def get_claim_name(self=None):
@@ -119,7 +119,7 @@ class SWComponentTypeClaim(AttestationClaim):
 
 class NoMeasurementsClaim(AttestationClaim):
     """Class representing a PSA Attestation Token No Software Measurements claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 7
 
     def get_claim_name(self=None):
@@ -128,7 +128,7 @@ class NoMeasurementsClaim(AttestationClaim):
 
 class ClientIdClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Client ID claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 1
 
     def get_claim_name(self=None):
@@ -149,7 +149,7 @@ class SecurityLifecycleClaim(GenericLifecycleClaim):
         ("SL_DECOMMISSIONED", 0x6000, 0x60ff),
     ]
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 2
 
     def get_claim_name(self=None):
@@ -157,7 +157,7 @@ class SecurityLifecycleClaim(GenericLifecycleClaim):
 
 class ProfileIdClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Profile Definition claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE
 
     def get_claim_name(self=None):
@@ -173,7 +173,7 @@ class ProfileIdClaim(AttestationClaim):
 
 class BootSeedClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Boot Seed claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 4
 
     def get_claim_name(self=None):
@@ -185,7 +185,7 @@ class BootSeedClaim(AttestationClaim):
 
 class VerificationServiceClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Verification Service Indicator claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return ARM_RANGE - 10 # originator
 
     def get_claim_name(self=None):
@@ -198,7 +198,7 @@ class VerificationServiceClaim(AttestationClaim):
 
 class SignerIdClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Software Component Signer ID claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return SW_COMPONENT_RANGE + 5
 
     def get_claim_name(self=None):
@@ -210,7 +210,7 @@ class SignerIdClaim(AttestationClaim):
 
 class SwComponentVersionClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Software Component Version claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return SW_COMPONENT_RANGE + 4
 
     def get_claim_name(self=None):
@@ -223,7 +223,7 @@ class SwComponentVersionClaim(AttestationClaim):
 
 class MeasurementValueClaim(AttestationClaim):
     """Class representing a PSA Attestation Token Software Component Measurement value claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return SW_COMPONENT_RANGE + 2
 
     def get_claim_name(self=None):
@@ -235,7 +235,7 @@ class MeasurementValueClaim(AttestationClaim):
 
 class MeasurementDescriptionClaim(AttestationClaim):
     """Class representing PSA Attestation Token Software Component Measurement description claim"""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return SW_COMPONENT_RANGE + 6
 
     def get_claim_name(self=None):

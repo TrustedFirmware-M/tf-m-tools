@@ -17,7 +17,7 @@ _SYNTHETIC_CLAIM_KEY_BASE = 0x754A0000 # Some made up number
 
 class SynClaimInt(AttestationClaim):
     """A claim that should have an int as value."""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return _SYNTHETIC_CLAIM_KEY_BASE + 0
 
     def get_claim_name(self=None):
@@ -35,7 +35,7 @@ class SynBoxesClaim(CompositeAttestClaim):
             is_list=is_list,
             necessity=necessity)
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return _SYNTHETIC_CLAIM_KEY_BASE + 1
 
     def get_claim_name(self=None):
@@ -57,7 +57,7 @@ class SynBoxesClaim(CompositeAttestClaim):
 
 class BoxWidthClaim(AttestationClaim):
     """A simple claim that has an int value."""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return _SYNTHETIC_CLAIM_KEY_BASE + 2
 
     def get_claim_name(self=None):
@@ -68,7 +68,7 @@ class BoxWidthClaim(AttestationClaim):
 
 class BoxHeightClaim(AttestationClaim):
     """A simple claim that has an int value."""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return _SYNTHETIC_CLAIM_KEY_BASE + 3
 
     def get_claim_name(self=None):
@@ -79,7 +79,7 @@ class BoxHeightClaim(AttestationClaim):
 
 class BoxDepthClaim(AttestationClaim):
     """A simple claim that has an int value."""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return _SYNTHETIC_CLAIM_KEY_BASE + 4
 
     def get_claim_name(self=None):
@@ -90,7 +90,7 @@ class BoxDepthClaim(AttestationClaim):
 
 class BoxColorClaim(AttestationClaim):
     """A simple claim that has a string value."""
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return _SYNTHETIC_CLAIM_KEY_BASE + 5
 
     def get_claim_name(self=None):

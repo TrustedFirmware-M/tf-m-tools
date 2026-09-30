@@ -19,7 +19,7 @@ from iatverifier.psa_2_0_0_token_claims import MeasurementValueClaim, Measuremen
 class PSA_2_0_0_TokenVerifier(Verifier):
     """Verifier class for PSA Attestation Token profile PSA_2_0_0"""
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return None  # In case of root tokens the key is not used.
 
     def get_claim_name(self=None):

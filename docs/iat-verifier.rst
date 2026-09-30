@@ -245,7 +245,7 @@ Adding new token type
    * ``CompositeAttestClaim`` is descendants of ``AttestationClaim``, for
      details on how to use it see the documentation in the class definition.
 
-   * For each claim, the methods ``get_claim_key(self=None)``,
+   * For each claim, the methods ``get_claim_key(self)``,
      ``get_claim_name(self=None)`` must be implemented.
 
    * Other methods of ``AttestationClaim`` are optional to override.
@@ -269,7 +269,7 @@ Adding new token type
    * Create a new class for the token type. It must inherit from the class
      ``AttestationTokenVerifier``.
 
-   * Implement ``get_claim_key(self=None)`` and ``get_claim_name(self=None)``
+   * Implement ``get_claim_key(self)`` and ``get_claim_name(self=None)``
 
    * Implement the ``__init__(self, ...)`` function. This function must create a
      list with the claims that are accepted by this token. (Note that the

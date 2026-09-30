@@ -19,7 +19,7 @@ CCA_PLATFORM_PROFILE_LEGACY = "http://arm.com/CCA-SSD/1.0.0"
 CCA_REALM_PROFILE_LEGACY = None
 
 class CCARealmProfileClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 265
 
     def get_claim_name(self=None):
@@ -41,7 +41,7 @@ class CCARealmChallengeClaim(AttestationClaim):
         super().__init__(verifier=verifier, necessity=necessity)
         self.expected_challenge_byte = expected_challenge_byte
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 10
 
     def get_claim_name(self=None):
@@ -58,7 +58,7 @@ class CCARealmChallengeClaim(AttestationClaim):
                     break
 
 class CCARealmInstanceId(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 256
 
     def get_claim_name(self=None):
@@ -74,7 +74,7 @@ class CCARealmInstanceId(AttestationClaim):
 
 
 class CCARealmPersonalizationValue(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 44235
 
     def get_claim_name(self=None):
@@ -84,7 +84,7 @@ class CCARealmPersonalizationValue(AttestationClaim):
         self._validate_bytestring_length_equals(token_item.value, self.get_claim_name(), 64)
 
 class CCARealmInitialMeasurementClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 44238
 
     def get_claim_name(self=None):
@@ -94,7 +94,7 @@ class CCARealmInitialMeasurementClaim(AttestationClaim):
         self._check_type(self.get_claim_name(), token_item.value, bytes)
 
 class CCARealmExtensibleMeasurementsClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 44239
 
     def get_claim_name(self=None):
@@ -114,7 +114,7 @@ class CCARealmExtensibleMeasurementsClaim(AttestationClaim):
             self._validate_bytestring_length_one_of(v, self.get_claim_name()+f'[{str()}]', [32, 64])
 
 class CCARealmHashAlgorithmIdClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 44236
 
     def get_claim_name(self=None):
@@ -125,7 +125,7 @@ class CCARealmHashAlgorithmIdClaim(AttestationClaim):
         return True
 
 class CCARealmPubKeyHashAlgorithmIdClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 44240
 
     def get_claim_name(self=None):
@@ -140,14 +140,14 @@ class CCARealmPubKeyClaim(AttestationClaim):
     # signing algorithm. So the realm public key length is checked in the
     # Realm Token's verify function.
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 44237
 
     def get_claim_name(self=None):
         return 'CCA_REALM_PUB_KEY'
 
 class CCAAttestationProfileClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 265
 
     def get_claim_name(self=None):
@@ -170,7 +170,7 @@ class CCAAttestationProfileClaim(AttestationClaim):
         self.verifier.error(msg.format(token_item.value, ','.join(allowed_profiles)))
 
 class CCAPlatformChallengeClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 10
 
     def get_claim_name(self=None):
@@ -180,7 +180,7 @@ class CCAPlatformChallengeClaim(AttestationClaim):
         self._validate_bytestring_length_one_of(token_item.value, self.get_claim_name(), [32, 48, 64])
 
 class CCAPlatformImplementationIdClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 2396
 
     def get_claim_name(self=None):
@@ -190,7 +190,7 @@ class CCAPlatformImplementationIdClaim(AttestationClaim):
         self._validate_bytestring_length_equals(token_item.value, self.get_claim_name(), 32)
 
 class CCAPlatformInstanceIdClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 256
 
     def get_claim_name(self=None):
@@ -203,7 +203,7 @@ class CCAPlatformInstanceIdClaim(AttestationClaim):
             self.verifier.error(msg.format(token_item.value[0]))
 
 class CCAPlatformConfigClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 2401
 
     def get_claim_name(self=None):
@@ -224,14 +224,14 @@ class CCAPlatformLifecycleClaim(GenericLifecycleClaim):
         ("DECOMMISSIONED", 0x6000, 0x60ff),
     ]
 
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 2395
 
     def get_claim_name(self=None):
         return 'CCA_PLATFORM_LIFECYCLE'
 
 class CCASwCompHashAlgIdClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 6
 
     def get_claim_name(self=None):
@@ -243,14 +243,14 @@ class CCASwCompHashAlgIdClaim(AttestationClaim):
 
 
 class CCAPlatformSwComponentsClaim(CompositeAttestClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 2399
 
     def get_claim_name(self=None):
         return 'CCA_PLATFORM_SW_COMPONENTS'
 
 class CCAPlatformVerificationServiceClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 2400
 
     def get_claim_name(self=None):
@@ -261,7 +261,7 @@ class CCAPlatformVerificationServiceClaim(AttestationClaim):
         return True
 
 class CCAPlatformHashAlgorithmIdClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 2402
 
     def get_claim_name(self=None):
@@ -272,7 +272,7 @@ class CCAPlatformHashAlgorithmIdClaim(AttestationClaim):
         return True
 
 class CCARealmMECPolicyClaim(AttestationClaim):
-    def get_claim_key(self=None):
+    def get_claim_key(self):
         return 44243
 
     def get_claim_name(self=None):
